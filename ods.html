@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Gestione ODS</title>
+
+<style>
+body{
+    background:#0f1117;
+    color:#d6dce8;
+    font-family:Arial,sans-serif;
+    padding:20px;
+}
+
+h1{
+    margin-bottom:20px;
+}
+
+table{
+    border-collapse:collapse;
+    width:100%;
+    background:#181c26;
+}
+
+th,td{
+    border:1px solid #2a2f3e;
+    padding:6px;
+    text-align:center;
+}
+
+th{
+    background:#1a2235;
+}
+
+.nome{
+    text-align:left;
+    min-width:220px;
+}
+
+select{
+    width:70px;
+    background:#222;
+    color:white;
+    border:1px solid #444;
+}
+
+.modified{
+    background:#665500 !important;
+}
+
+.toolbar{
+    margin-bottom:15px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+button{
+    background:#3b82f6;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:4px;
+    cursor:pointer;
+}
+
+#log{
+    margin-top:20px;
+    background:#181c26;
+    padding:10px;
+    border-radius:6px;
+}
+
+.log-item{
+    padding:4px;
+    border-bottom:1px solid #333;
+}
+</style>
+</head>
+<body>
+
+<h1>📝 Gestione ODS</h1>
+
+<div class="toolbar">
+
+<select id="residenza"></select>
+
+<button onclick="exportODS()">
+📥 Esporta ods_modifiche.json
+</button>
+
+</div>
+
+<div style="overflow:auto">
+<table id="tabella"></table>
+</div>
+
+<div id="log">
+<h3>Modifiche registrate</h3>
+<div id="logContent"></div>
+</div>
+
+<script>
+
+let globalData=null;
+let modifiche=[];
+
+const turniDisponibili=[
+"D1","D2","D3","D4",
+"BIS","DT",
+"P1","P2","P3","P4",
+"R1","R2","R3","R4",
+"T1","T2","M1",
+"POND","CONG","FP","RIP"
+];
+
+async function init(){
+
+    const response=await fetch("turni_finali.json");
+    globalData=await response.json();
+
+    const select=document.getElementById("residenza");
+
+    Object.keys(globalData.residenze).forEach(res=>{
+
+        const opt=document.createElement("option");
+        opt.value=res;
+        opt.textContent=res;
+
+        select.appendChild(opt);
+
+    });
+
+    select.addEventListener("change",render);
+
+    render();
+}
+
+function render(){
+
+    const res=document.getElementById("residenza").value;
+
+    const personale=globalData.residenze[res];
+
+    const table=document.getElementById("tabella");
+
+    let html="<tr><th>Nome</th>";
+
+    let giorni=[];
+
+    Object.keys(personale[0].turni_settimanali).forEach(sett=>{
+
+        for(let i=0;i<7;i++){
+
+            giorni.push({
+                week:sett,
+                day:i,
+                label:giorni.length+1
+            });
+
+            html+=`<th>${giorni.length}</th>`;
+        }
+
+    });
+
+    html+="</tr>";
+
+    personale.forEach(persona=>{
+
+        html+=`<tr>`;
+
+        html+=`<td class="nome">
+        ${persona.id} - ${persona.agente}
+        </td>`;
+
+        giorni.forEach(g=>{
+
+            const valore=
+            persona.turni_settimanali[g.week][g.day];
+
+            html+=`
+            <td>
+            <select
+                onchange="aggiornaTurno(
+                    ${persona.id},
+                    '${persona.agente}',
+                    '${g.week}',
+                    ${g.day},
+                    this
+                )">
+
+            ${turniDisponibili.map(t=>
+                `<option ${t===valore?'selected':''}>${t}</option>`
+            ).join("")}
+
+            </select>
+            </td>`;
+        });
+
+        html+="</tr>";
+
+    });
+
+    table.innerHTML=html;
+
+}
+
+function aggiornaTurno(
+    matricola,
+    nome,
+    week,
+    day,
+    select
+){
+
+    select.classList.add("modified");
+
+    modifiche.push({
+
+        matricola,
+        nome,
+        settimana:week,
+        giorno:day,
+        turno:select.value
+
+    });
+
+    aggiornaLog();
+}
+
+function aggiornaLog(){
+
+    const div=document.getElementById("logContent");
+
+    div.innerHTML=modifiche.map(m=>`
+
+        <div class="log-item">
+
+        ${m.nome}
+        →
+        ${m.turno}
+
+        </div>
+
+    `).join("");
+
+}
+
+function exportODS(){
+
+    const blob=new Blob(
+        [JSON.stringify(modifiche,null,2)],
+        {type:"application/json"}
+    );
+
+    const a=document.createElement("a");
+
+    a.href=URL.createObjectURL(blob);
+
+    a.download="ods_modifiche.json";
+
+    a.click();
+
+}
+
+init();
+
+</script>
+
+</body>
+</html>
