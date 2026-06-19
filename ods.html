@@ -238,12 +238,14 @@ function render(){
     document.getElementById("tabella").innerHTML=html;
 }
 
-function cycle(td,id,nome,week,day,val){
+function cycle(td,id,nome,week,day){
 
-    const idx=turniDisponibili.indexOf(val);
-    const next=turniDisponibili[(idx+1)%turniDisponibili.length];
+    const current = td.textContent.trim();
 
-    td.textContent=next;
+    const idx = turniDisponibili.indexOf(current);
+    const next = turniDisponibili[(idx+1)%turniDisponibili.length];
+
+    td.textContent = next;
     td.classList.add("modified");
 
     modifiche.push({
@@ -259,7 +261,6 @@ function cycle(td,id,nome,week,day,val){
 
     aggiornaLog();
 }
-
 function aggiornaLog(){
 
     document.getElementById("logContent").innerHTML=
