@@ -221,24 +221,21 @@ function render(){
         html+=`<tr>`;
         html+=`<td class="nome">${p.id} - ${p.agente}</td>`;
 
-        giorni.forEach(g=>{
+        giorni.forEach((g, index) => {
 
-            const val=p.turni_settimanali[g.week][g.day];
+    const val = p.turni_settimanali[g.week][g.day];
 
-            const isRiposo=["RIP","FP","CONG"].includes(val);
+    const isRiposo = ["RIP","FP","CONG"].includes(val);
 
-            html+=`
-            <td class="${isRiposo?'riposo':''}"
-                onclick="cycle(this,${p.id},'${p.agente}','${g.week}',${g.day})"
-                ${val}
-            </td>`;
-        });
+    const isWeekStart = (index % 7 === 0);
 
-        html+=`</tr>`;
-    });
-
-    document.getElementById("tabella").innerHTML=html;
-}
+    html += `
+    <td
+        class="${isRiposo?'riposo':''} ${isWeekStart?'week-start':''}"
+        onclick="cycle(this,${p.id},'${p.agente}','${g.week}',${g.day})">
+        ${val}
+    </td>`;
+});
 
 function cycle(td,id,nome,week,day){
 
