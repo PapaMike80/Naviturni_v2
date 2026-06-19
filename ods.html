@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ODS Manager v4</title>
+<title>ODS Manager v5</title>
 
 <style>
 body{
@@ -13,19 +13,17 @@ body{
     padding:20px;
 }
 
-h1{ margin-bottom:15px; }
-
+/* TOOLBAR */
 .toolbar{
     display:flex;
-    flex-wrap:wrap;
     gap:10px;
+    flex-wrap:wrap;
     margin-bottom:15px;
-    align-items:center;
 }
 
 input, select{
     padding:6px;
-    border-radius:4px;
+    border-radius:5px;
     border:1px solid #333;
     background:#1a1f2c;
     color:white;
@@ -36,124 +34,116 @@ button{
     color:white;
     border:none;
     padding:8px 12px;
-    border-radius:4px;
+    border-radius:5px;
     cursor:pointer;
 }
 
-button:hover{ opacity:0.9; }
-
+/* TABLE STYLE (NAVITURNI STYLE) */
 table{
-    border-collapse:collapse;
+    border-collapse:separate;
+    border-spacing:0;
     width:max-content;
     min-width:100%;
-    background:#181c26;
 }
 
-th,td{
-    border:1px solid #2a2f3e;
-    padding:6px;
-    text-align:center;
-    white-space:nowrap;
-    cursor:pointer;
-}
-
+/* HEADER STICKY */
 th{
     position:sticky;
     top:0;
+    z-index:5;
     background:#1a2235;
-    z-index:3;
+    padding:8px;
+    border-bottom:2px solid #2f3a55;
+    font-size:12px;
 }
 
-/* prima colonna fissa */
+/* FIRST COLUMN STICKY */
 td:first-child, th:first-child{
     position:sticky;
     left:0;
+    z-index:6;
     background:#111827;
-    z-index:4;
+    border-right:2px solid #2f3a55;
 }
 
-th:first-child{ z-index:5; }
-
-.nome{
-    text-align:left;
-    min-width:220px;
+/* CELLS */
+td{
+    padding:6px;
+    text-align:center;
+    border-bottom:1px solid #222;
+    border-right:1px solid #1f2937;
+    font-size:13px;
+    cursor:pointer;
 }
 
-/* riposi */
-.riposo{
-    background:#2b1b1b !important;
-    color:#ff6b6b;
-    font-weight:bold;
-}
-
-/* modifiche */
-.modified{
-    outline:2px solid #facc15;
-}
-
-/* separazione settimane */
+/* WEEK SEPARATION */
 .week-start{
     border-left:3px solid #60a5fa !important;
 }
 
-#log{
-    margin-top:20px;
-    background:#181c26;
-    padding:10px;
-    border-radius:6px;
-}
-
-.log-item{
-    padding:4px;
-    border-bottom:1px solid #333;
-    font-size:13px;
-}
-
-.small{
+/* DAYS HEADER STYLE */
+.giorno{
     font-size:11px;
     opacity:0.7;
+}
+
+/* RIPOSI */
+.riposo{
+    background:#2b1b1b;
+    color:#ff6b6b;
+    font-weight:bold;
+}
+
+/* MODIFIED */
+.modified{
+    outline:2px solid #facc15;
+}
+
+/* PICKER */
+#picker{
+    position:absolute;
+    background:#0f172a;
+    border:1px solid #334155;
+    padding:8px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:5px;
+    z-index:9999;
+    border-radius:8px;
+}
+
+#picker button{
+    padding:6px;
+    font-size:12px;
+    background:#1e293b;
+    border:1px solid #334155;
+}
+#picker button:hover{
+    background:#3b82f6;
 }
 </style>
 </head>
 
 <body>
 
-<h1>📝 ODS Manager v4</h1>
-
 <div class="toolbar">
-
 <select id="residenza"></select>
-
-<input id="search" placeholder="🔎 Cerca agente..." oninput="render()" />
-
-<label>
-<input type="checkbox" id="soloMod" onchange="render()" />
-Solo modificati
-</label>
-
-<button onclick="undoLast()">↩️ Undo</button>
-<button onclick="exportODS()">📥 Export</button>
-<button onclick="resetAll()">🧹 Reset</button>
-
+<input id="search" placeholder="🔎 cerca agente" oninput="render()">
 </div>
 
 <div style="overflow:auto; max-height:75vh;">
 <table id="tabella"></table>
 </div>
 
-<div id="log">
-<h3>Modifiche</h3>
-<div id="logContent"></div>
-</div>
-
 <script>
 
-let globalData = null;
-let modifiche = [];
+let data=null;
+let modifiche=[];
+let picker=null;
 
-const dataInizio = new Date("2026-06-22");
+const startDate=new Date("2026-06-22");
 
-const turniDisponibili = [
+const turni=[
 "D1","D2","D3","D4",
 "BIS","DT",
 "P1","P2","P3","P4",
@@ -164,155 +154,123 @@ const turniDisponibili = [
 
 async function init(){
 
-    try{
-        const saved = localStorage.getItem("ods_modifiche");
-        if(saved) modifiche = JSON.parse(saved);
+    const r=await fetch("turni_finali.json");
+    data=await r.json();
 
-        const res = await fetch("turni_finali.json");
-        globalData = await res.json();
+    const sel=document.getElementById("residenza");
 
-        const sel = document.getElementById("residenza");
+    Object.keys(data.residenze).forEach(k=>{
+        const o=document.createElement("option");
+        o.value=k;
+        o.textContent=k;
+        sel.appendChild(o);
+    });
 
-        Object.keys(globalData.residenze).forEach(r=>{
-            const opt = document.createElement("option");
-            opt.value = r;
-            opt.textContent = r;
-            sel.appendChild(opt);
-        });
+    sel.onchange=render;
 
-        sel.addEventListener("change", render);
-
-        render();
-
-    } catch(err){
-        console.error("Errore caricamento JSON:", err);
-        alert("Errore caricamento turni_finali.json");
-    }
+    render();
 }
 
 function render(){
 
-    if(!globalData) return;
-
-    const res = document.getElementById("residenza").value;
+    const res=document.getElementById("residenza").value;
     if(!res) return;
 
-    const personale = globalData.residenze[res];
+    const filtro=document.getElementById("search").value.toLowerCase();
 
-    const filtro = document.getElementById("search").value.toLowerCase();
-    const solo = document.getElementById("soloMod").checked;
+    const persone=data.residenze[res]
+        .filter(p=>p.agente.toLowerCase().includes(filtro));
 
-    let lista = personale.filter(p =>
-        p.agente.toLowerCase().includes(filtro)
-    );
+    const keys=Object.keys(persone[0].turni_settimanali);
 
-    if(solo){
-        const ids = new Set(modifiche.map(m=>m.matricola));
-        lista = lista.filter(p=>ids.has(p.id));
-    }
+    let html="<tr><th>Agente</th>";
 
-    let html = "<tr><th>Nome</th>";
+    let giorni=[];
 
-    let giorni = [];
+    keys.forEach((w,wi)=>{
 
-    Object.keys(personale[0].turni_settimanali).forEach((sett, idx)=>{
+        for(let d=0;d<7;d++){
 
-        for(let i=0;i<7;i++){
+            const date=new Date(startDate);
+            date.setDate(startDate.getDate()+(wi*7)+d);
 
-            const d = new Date(dataInizio);
-            d.setDate(dataInizio.getDate() + (idx*7) + i);
+            const nomeGiorno=date.toLocaleDateString("it-IT",{weekday:"short"});
 
-            const label = d.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit"});
+            giorni.push({w,d});
 
-            giorni.push({week:sett,day:i});
-
-            html += `<th>${label}</th>`;
+            html+=`<th>
+                <div>${nomeGiorno}</div>
+                <div class="giorno">${date.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit"})}</div>
+            </th>`;
         }
     });
 
-    html += "</tr>";
+    html+="</tr>";
 
-    lista.forEach(p=>{
+    persone.forEach(p=>{
 
-        html += "<tr>";
-        html += `<td class="nome">${p.id} - ${p.agente}</td>`;
+        html+="<tr>";
+        html+=`<td>${p.agente}</td>`;
 
-        giorni.forEach((g, index)=>{
+        giorni.forEach((g,i)=>{
 
-            const val = p.turni_settimanali[g.week][g.day];
+            const val=p.turni_settimanali[g.w][g.d];
 
-            const isRip = ["RIP","FP","CONG"].includes(val);
-            const isWeekStart = index % 7 === 0;
+            const isRip=["RIP","FP","CONG"].includes(val);
+            const isWeek=i%7===0;
 
-            html += `
+            html+=`
             <td
-                class="${isRip?'riposo':''} ${isWeekStart?'week-start':''}"
-                onclick="cycle(this,${p.id},'${p.agente}','${g.week}',${g.day})">
+                class="${isRip?'riposo':''} ${isWeek?'week-start':''}"
+                onclick="openPicker(event,this,'${p.agente}',${p.id},'${g.w}',${g.d})">
                 ${val}
             </td>`;
         });
 
-        html += "</tr>";
+        html+="</tr>";
     });
 
-    document.getElementById("tabella").innerHTML = html;
+    document.getElementById("tabella").innerHTML=html;
 }
 
-function cycle(td,id,nome,week,day){
+/* PICKER VELOCE */
+function openPicker(e,td,nome,id,w,d){
 
-    const current = td.textContent.trim();
-    const idx = turniDisponibili.indexOf(current);
-    const next = turniDisponibili[(idx+1)%turniDisponibili.length];
+    closePicker();
 
-    td.textContent = next;
-    td.classList.add("modified");
+    picker=document.createElement("div");
+    picker.id="picker";
 
-    modifiche.push({
-        matricola:id,
-        nome,
-        settimana:week,
-        giorno:day,
-        turno:next,
-        ts:Date.now()
+    turni.forEach(t=>{
+        const b=document.createElement("button");
+        b.textContent=t;
+
+        b.onclick=()=>{
+            td.textContent=t;
+            td.classList.add("modified");
+
+            closePicker();
+        };
+
+        picker.appendChild(b);
     });
 
-    localStorage.setItem("ods_modifiche", JSON.stringify(modifiche));
+    document.body.appendChild(picker);
 
-    aggiornaLog();
+    picker.style.left=e.pageX+"px";
+    picker.style.top=e.pageY+"px";
 }
 
-function aggiornaLog(){
-
-    document.getElementById("logContent").innerHTML =
-    modifiche.slice(-50).reverse().map(m=>`
-        <div class="log-item">
-            ${m.nome} → ${m.turno}
-            <div class="small">${m.settimana} g${m.giorno}</div>
-        </div>
-    `).join("");
+function closePicker(){
+    if(picker){
+        picker.remove();
+        picker=null;
+    }
 }
 
-function undoLast(){
-    modifiche.pop();
-    localStorage.setItem("ods_modifiche", JSON.stringify(modifiche));
-    render();
-    aggiornaLog();
-}
-
-function resetAll(){
-    modifiche = [];
-    localStorage.removeItem("ods_modifiche");
-    render();
-    aggiornaLog();
-}
-
-function exportODS(){
-    const blob = new Blob([JSON.stringify(modifiche,null,2)],{type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "ods_modifiche.json";
-    a.click();
-}
+document.addEventListener("click",(e)=>{
+    if(picker && !picker.contains(e.target)) closePicker();
+});
 
 init();
 
