@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ODS Manager v3</title>
+<title>ODS Manager v4</title>
 
 <style>
 body{
@@ -40,6 +40,8 @@ button{
     cursor:pointer;
 }
 
+button:hover{ opacity:0.9; }
+
 table{
     border-collapse:collapse;
     width:max-content;
@@ -62,6 +64,7 @@ th{
     z-index:3;
 }
 
+/* prima colonna fissa */
 td:first-child, th:first-child{
     position:sticky;
     left:0;
@@ -76,14 +79,21 @@ th:first-child{ z-index:5; }
     min-width:220px;
 }
 
-.modified{
-    outline:2px solid #facc15;
-}
-
+/* riposi */
 .riposo{
     background:#2b1b1b !important;
     color:#ff6b6b;
     font-weight:bold;
+}
+
+/* modifiche */
+.modified{
+    outline:2px solid #facc15;
+}
+
+/* separazione settimane */
+.week-start{
+    border-left:3px solid #60a5fa !important;
 }
 
 #log{
@@ -108,7 +118,7 @@ th:first-child{ z-index:5; }
 
 <body>
 
-<h1>📝 ODS Manager v3</h1>
+<h1>📝 ODS Manager v4</h1>
 
 <div class="toolbar">
 
@@ -117,7 +127,7 @@ th:first-child{ z-index:5; }
 <input id="search" placeholder="🔎 Cerca agente..." oninput="render()" />
 
 <label>
-<input type="checkbox" id="soloModificati" onchange="render()" />
+<input type="checkbox" id="soloMod" onchange="render()" />
 Solo modificati
 </label>
 
@@ -138,12 +148,12 @@ Solo modificati
 
 <script>
 
-let globalData=null;
-let modifiche=[];
+let globalData = null;
+let modifiche = [];
 
-const dataInizio=new Date("2026-06-22");
+const dataInizio = new Date("2026-06-22");
 
-const turniDisponibili=[
+const turniDisponibili = [
 "D1","D2","D3","D4",
 "BIS","DT",
 "P1","P2","P3","P4",
@@ -154,93 +164,103 @@ const turniDisponibili=[
 
 async function init(){
 
-    const saved=localStorage.getItem("ods_modifiche");
-    if(saved) modifiche=JSON.parse(saved);
+    try{
+        const saved = localStorage.getItem("ods_modifiche");
+        if(saved) modifiche = JSON.parse(saved);
 
-    const res=await fetch("turni_finali.json");
-    globalData=await res.json();
+        const res = await fetch("turni_finali.json");
+        globalData = await res.json();
 
-    const sel=document.getElementById("residenza");
+        const sel = document.getElementById("residenza");
 
-    Object.keys(globalData.residenze).forEach(r=>{
-        const opt=document.createElement("option");
-        opt.value=r;
-        opt.textContent=r;
-        sel.appendChild(opt);
-    });
+        Object.keys(globalData.residenze).forEach(r=>{
+            const opt = document.createElement("option");
+            opt.value = r;
+            opt.textContent = r;
+            sel.appendChild(opt);
+        });
 
-    sel.addEventListener("change",render);
+        sel.addEventListener("change", render);
 
-    render();
+        render();
+
+    } catch(err){
+        console.error("Errore caricamento JSON:", err);
+        alert("Errore caricamento turni_finali.json");
+    }
 }
-.week-start {
-    border-left: 3px solid #60a5fa !important;
-}
+
 function render(){
 
-    const res=document.getElementById("residenza").value;
+    if(!globalData) return;
+
+    const res = document.getElementById("residenza").value;
     if(!res) return;
 
-    const personale=globalData.residenze[res];
+    const personale = globalData.residenze[res];
 
-    const filtro=document.getElementById("search").value.toLowerCase();
-    const solo=document.getElementById("soloModificati").checked;
+    const filtro = document.getElementById("search").value.toLowerCase();
+    const solo = document.getElementById("soloMod").checked;
 
-    let lista=personale.filter(p=>
+    let lista = personale.filter(p =>
         p.agente.toLowerCase().includes(filtro)
     );
 
     if(solo){
-        const ids=new Set(modifiche.map(m=>m.matricola));
-        lista=lista.filter(p=>ids.has(p.id));
+        const ids = new Set(modifiche.map(m=>m.matricola));
+        lista = lista.filter(p=>ids.has(p.id));
     }
 
-    let html="<tr><th>Nome</th>";
+    let html = "<tr><th>Nome</th>";
 
-    let giorni=[];
+    let giorni = [];
 
-    Object.keys(personale[0].turni_settimanali).forEach((sett,idx)=>{
+    Object.keys(personale[0].turni_settimanali).forEach((sett, idx)=>{
 
         for(let i=0;i<7;i++){
 
-            const d=new Date(dataInizio);
-            d.setDate(dataInizio.getDate()+(idx*7)+i);
+            const d = new Date(dataInizio);
+            d.setDate(dataInizio.getDate() + (idx*7) + i);
 
-            const label=d.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit"});
+            const label = d.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit"});
 
-            giorni.push({week:sett,day:i,label});
+            giorni.push({week:sett,day:i});
 
-            html+=`<th>${label}</th>`;
+            html += `<th>${label}</th>`;
         }
     });
- 
-    html+="</tr>";
+
+    html += "</tr>";
 
     lista.forEach(p=>{
 
-        html+=`<tr>`;
-        html+=`<td class="nome">${p.id} - ${p.agente}</td>`;
+        html += "<tr>";
+        html += `<td class="nome">${p.id} - ${p.agente}</td>`;
 
-        giorni.forEach((g, index) => {
+        giorni.forEach((g, index)=>{
 
-    const val = p.turni_settimanali[g.week][g.day];
+            const val = p.turni_settimanali[g.week][g.day];
 
-    const isRiposo = ["RIP","FP","CONG"].includes(val);
+            const isRip = ["RIP","FP","CONG"].includes(val);
+            const isWeekStart = index % 7 === 0;
 
-    const isWeekStart = (index % 7 === 0);
+            html += `
+            <td
+                class="${isRip?'riposo':''} ${isWeekStart?'week-start':''}"
+                onclick="cycle(this,${p.id},'${p.agente}','${g.week}',${g.day})">
+                ${val}
+            </td>`;
+        });
 
-    html += `
-    <td
-        class="${isRiposo?'riposo':''} ${isWeekStart?'week-start':''}"
-        onclick="cycle(this,${p.id},'${p.agente}','${g.week}',${g.day})">
-        ${val}
-    </td>`;
-});
+        html += "</tr>";
+    });
+
+    document.getElementById("tabella").innerHTML = html;
+}
 
 function cycle(td,id,nome,week,day){
 
     const current = td.textContent.trim();
-
     const idx = turniDisponibili.indexOf(current);
     const next = turniDisponibili[(idx+1)%turniDisponibili.length];
 
@@ -256,13 +276,14 @@ function cycle(td,id,nome,week,day){
         ts:Date.now()
     });
 
-    localStorage.setItem("ods_modifiche",JSON.stringify(modifiche));
+    localStorage.setItem("ods_modifiche", JSON.stringify(modifiche));
 
     aggiornaLog();
 }
+
 function aggiornaLog(){
 
-    document.getElementById("logContent").innerHTML=
+    document.getElementById("logContent").innerHTML =
     modifiche.slice(-50).reverse().map(m=>`
         <div class="log-item">
             ${m.nome} → ${m.turno}
@@ -273,23 +294,23 @@ function aggiornaLog(){
 
 function undoLast(){
     modifiche.pop();
-    localStorage.setItem("ods_modifiche",JSON.stringify(modifiche));
-    aggiornaLog();
+    localStorage.setItem("ods_modifiche", JSON.stringify(modifiche));
     render();
+    aggiornaLog();
 }
 
 function resetAll(){
-    modifiche=[];
+    modifiche = [];
     localStorage.removeItem("ods_modifiche");
-    aggiornaLog();
     render();
+    aggiornaLog();
 }
 
 function exportODS(){
-    const blob=new Blob([JSON.stringify(modifiche,null,2)],{type:"application/json"});
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="ods_modifiche.json";
+    const blob = new Blob([JSON.stringify(modifiche,null,2)],{type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "ods_modifiche.json";
     a.click();
 }
 
