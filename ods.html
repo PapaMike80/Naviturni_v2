@@ -173,7 +173,9 @@ async function init(){
 
     render();
 }
-
+.week-start {
+    border-left: 3px solid #60a5fa !important;
+}
 function render(){
 
     const res=document.getElementById("residenza").value;
@@ -211,7 +213,7 @@ function render(){
             html+=`<th>${label}</th>`;
         }
     });
-
+ 
     html+="</tr>";
 
     lista.forEach(p=>{
@@ -227,7 +229,7 @@ function render(){
 
             html+=`
             <td class="${isRiposo?'riposo':''}"
-                onclick="cycle(this,${p.id},'${p.agente}','${g.week}',${g.day},'${val}')">
+                onclick="cycle(this,${p.id},'${p.agente}','${g.week}',${g.day})"
                 ${val}
             </td>`;
         });
