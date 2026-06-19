@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ODS Manager v2</title>
+<title>ODS Manager v3</title>
 
 <style>
 body{
@@ -40,11 +40,10 @@ button{
     cursor:pointer;
 }
 
-button:hover{ opacity:0.9; }
-
 table{
     border-collapse:collapse;
-    width:100%;
+    width:max-content;
+    min-width:100%;
     background:#181c26;
 }
 
@@ -53,11 +52,24 @@ th,td{
     padding:6px;
     text-align:center;
     white-space:nowrap;
+    cursor:pointer;
 }
 
 th{
+    position:sticky;
+    top:0;
     background:#1a2235;
+    z-index:3;
 }
+
+td:first-child, th:first-child{
+    position:sticky;
+    left:0;
+    background:#111827;
+    z-index:4;
+}
+
+th:first-child{ z-index:5; }
 
 .nome{
     text-align:left;
@@ -65,7 +77,13 @@ th{
 }
 
 .modified{
-    background:#665500 !important;
+    outline:2px solid #facc15;
+}
+
+.riposo{
+    background:#2b1b1b !important;
+    color:#ff6b6b;
+    font-weight:bold;
 }
 
 #log{
@@ -74,21 +92,23 @@ th{
     padding:10px;
     border-radius:6px;
 }
+
 .log-item{
     padding:4px;
     border-bottom:1px solid #333;
     font-size:13px;
 }
+
 .small{
-    font-size:12px;
-    opacity:0.8;
+    font-size:11px;
+    opacity:0.7;
 }
 </style>
 </head>
 
 <body>
 
-<h1>📝 ODS Manager v2</h1>
+<h1>📝 ODS Manager v3</h1>
 
 <div class="toolbar">
 
@@ -102,12 +122,12 @@ Solo modificati
 </label>
 
 <button onclick="undoLast()">↩️ Undo</button>
-<button onclick="exportODS()">📥 Export JSON</button>
+<button onclick="exportODS()">📥 Export</button>
 <button onclick="resetAll()">🧹 Reset</button>
 
 </div>
 
-<div style="overflow:auto">
+<div style="overflow:auto; max-height:75vh;">
 <table id="tabella"></table>
 </div>
 
@@ -118,12 +138,12 @@ Solo modificati
 
 <script>
 
-let globalData = null;
-let modifiche = [];
+let globalData=null;
+let modifiche=[];
 
-const dataInizio = new Date("2026-06-22");
+const dataInizio=new Date("2026-06-22");
 
-const turniDisponibili = [
+const turniDisponibili=[
 "D1","D2","D3","D4",
 "BIS","DT",
 "P1","P2","P3","P4",
@@ -134,143 +154,142 @@ const turniDisponibili = [
 
 async function init(){
 
-    const salvate = localStorage.getItem("ods_modifiche");
-    if (salvate) modifiche = JSON.parse(salvate);
+    const saved=localStorage.getItem("ods_modifiche");
+    if(saved) modifiche=JSON.parse(saved);
 
-    const res = await fetch("turni_finali.json");
-    globalData = await res.json();
+    const res=await fetch("turni_finali.json");
+    globalData=await res.json();
 
-    const select = document.getElementById("residenza");
+    const sel=document.getElementById("residenza");
 
     Object.keys(globalData.residenze).forEach(r=>{
-        const opt = document.createElement("option");
-        opt.value = r;
-        opt.textContent = r;
-        select.appendChild(opt);
+        const opt=document.createElement("option");
+        opt.value=r;
+        opt.textContent=r;
+        sel.appendChild(opt);
     });
 
-    select.addEventListener("change", render);
+    sel.addEventListener("change",render);
 
     render();
 }
 
 function render(){
 
-    const res = document.getElementById("residenza").value;
+    const res=document.getElementById("residenza").value;
     if(!res) return;
 
-    const personale = globalData.residenze[res];
+    const personale=globalData.residenze[res];
 
-    const filtro = document.getElementById("search").value.toLowerCase();
-    const soloMod = document.getElementById("soloModificati").checked;
+    const filtro=document.getElementById("search").value.toLowerCase();
+    const solo=document.getElementById("soloModificati").checked;
 
-    let personaleFiltrato = personale.filter(p =>
+    let lista=personale.filter(p=>
         p.agente.toLowerCase().includes(filtro)
     );
 
-    if(soloMod){
-        const ids = new Set(modifiche.map(m => m.matricola));
-        personaleFiltrato = personaleFiltrato.filter(p => ids.has(p.id));
+    if(solo){
+        const ids=new Set(modifiche.map(m=>m.matricola));
+        lista=lista.filter(p=>ids.has(p.id));
     }
 
-    let html = "<tr><th>Nome</th>";
+    let html="<tr><th>Nome</th>";
 
-    let giorni = [];
+    let giorni=[];
 
-    Object.keys(personale[0].turni_settimanali).forEach((sett, idxSettimana)=>{
+    Object.keys(personale[0].turni_settimanali).forEach((sett,idx)=>{
 
         for(let i=0;i<7;i++){
 
-            const data = new Date(dataInizio);
-            data.setDate(dataInizio.getDate() + (idxSettimana * 7) + i);
+            const d=new Date(dataInizio);
+            d.setDate(dataInizio.getDate()+(idx*7)+i);
 
-            giorni.push({
-                week:sett,
-                day:i,
-                label:data.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit"})
-            });
+            const label=d.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit"});
 
-            html += `<th>${giorni[giorni.length-1].label}</th>`;
+            giorni.push({week:sett,day:i,label});
+
+            html+=`<th>${label}</th>`;
         }
     });
 
-    html += "</tr>";
+    html+="</tr>";
 
-    personaleFiltrato.forEach(persona=>{
+    lista.forEach(p=>{
 
-        html += `<tr>`;
-        html += `<td class="nome">${persona.id} - ${persona.agente}</td>`;
+        html+=`<tr>`;
+        html+=`<td class="nome">${p.id} - ${p.agente}</td>`;
 
         giorni.forEach(g=>{
 
-            const valore = persona.turni_settimanali[g.week][g.day];
+            const val=p.turni_settimanali[g.week][g.day];
 
-            html += `
-            <td>
-            <select onchange="aggiornaTurno(${persona.id},'${persona.agente}','${g.week}',${g.day},this)">
-            ${turniDisponibili.map(t=>
-                `<option ${t===valore?'selected':''}>${t}</option>`
-            ).join("")}
-            </select>
+            const isRiposo=["RIP","FP","CONG"].includes(val);
+
+            html+=`
+            <td class="${isRiposo?'riposo':''}"
+                onclick="cycle(this,${p.id},'${p.agente}','${g.week}',${g.day},'${val}')">
+                ${val}
             </td>`;
         });
 
-        html += `</tr>`;
+        html+=`</tr>`;
     });
 
-    document.getElementById("tabella").innerHTML = html;
+    document.getElementById("tabella").innerHTML=html;
 }
 
-function aggiornaTurno(id,nome,week,day,select){
+function cycle(td,id,nome,week,day,val){
 
-    const val = select.value;
+    const idx=turniDisponibili.indexOf(val);
+    const next=turniDisponibili[(idx+1)%turniDisponibili.length];
+
+    td.textContent=next;
+    td.classList.add("modified");
 
     modifiche.push({
         matricola:id,
         nome,
         settimana:week,
         giorno:day,
-        turno:val,
+        turno:next,
         ts:Date.now()
     });
 
-    select.classList.add("modified");
-
-    localStorage.setItem("ods_modifiche", JSON.stringify(modifiche));
+    localStorage.setItem("ods_modifiche",JSON.stringify(modifiche));
 
     aggiornaLog();
 }
 
 function aggiornaLog(){
 
-    document.getElementById("logContent").innerHTML =
+    document.getElementById("logContent").innerHTML=
     modifiche.slice(-50).reverse().map(m=>`
         <div class="log-item">
             ${m.nome} → ${m.turno}
-            <div class="small">${m.settimana} giorno ${m.giorno}</div>
+            <div class="small">${m.settimana} g${m.giorno}</div>
         </div>
     `).join("");
 }
 
 function undoLast(){
     modifiche.pop();
-    localStorage.setItem("ods_modifiche", JSON.stringify(modifiche));
+    localStorage.setItem("ods_modifiche",JSON.stringify(modifiche));
     aggiornaLog();
     render();
 }
 
 function resetAll(){
-    modifiche = [];
+    modifiche=[];
     localStorage.removeItem("ods_modifiche");
     aggiornaLog();
     render();
 }
 
 function exportODS(){
-    const blob = new Blob([JSON.stringify(modifiche,null,2)], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "ods_modifiche.json";
+    const blob=new Blob([JSON.stringify(modifiche,null,2)],{type:"application/json"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="ods_modifiche.json";
     a.click();
 }
 
