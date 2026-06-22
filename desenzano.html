@@ -1566,12 +1566,17 @@
     }
 
     function processJSONData(data) {
-      globalData = data;
-      document.getElementById("welcome-notice").style.display = "none";
-      document.getElementById("admin-panel").style.display = "flex";
-      renderResidenceButtons();
-      let keys = Object.keys(data.residenze || {});
-      if (keys.length > 0) selectResidence(keys[0]);
+  globalData = data;
+  document.getElementById("welcome-notice").style.display = "none";
+  document.getElementById("admin-panel").style.display = "flex";
+  renderResidenceButtons();
+  let keys = Object.keys(data.residenze || {});
+  if (keys.length > 0) {
+    // Forza la selezione di Desenzano
+    if (data.residenze["desenzano"]) {
+      selectResidence("desenzano");
+    } else {
+      selectResidence(keys[0]);
     }
 
     function loadPastedJSON() {
