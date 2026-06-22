@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Turno Personale – Gestione Trasferte, Pin e Filtro Turni</title>
+<title>Turno Personale</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght=400;500&family=Barlow+Condensed:wght=400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -224,17 +224,12 @@ tbody tr.pinned-row {
 <!-- Toolbar di selezione Base -->
 <div class="toolbar-container">
   <div class="resistence-block" id="res-selector-container"></div>
-  
-  <!-- Pulsanti Amministrativi Cambio Turno -->
+
   <div class="admin-panel" id="admin-panel" style="display:none;">
-    <button class="btn-mode" id="toggle-edit-btn" onclick="toggleEditMode()">✍ Abilita Modifiche</button><button class="btn-mode"
-    <button class="btn-mode" id="toggle-edit-btn" onclick="toggleEditMode()">
-  👥 Equipaggi
-      <button class="btn-mode" id="toggle-edit-btn" onclick="toggleEditMode()">✍ Abilita Modifiche</button><button class="btn-mode"
-        onclick="window.open('ods.html','_blank')">
-  👥 ODS
-    <button class="btn-save-action" id="save-edit-btn" onclick="saveChanges()">💾 Salva Permanente</button>
-    <button class="btn-download-action" id="download-json-btn" onclick="downloadUpdatedJSON()">📥 Scarica JSON</button>
+    <button class="btn-mode"
+            onclick="window.open('turni_copertura.html','_blank')">
+      👥 Turni Copertura
+    </button>
   </div>
 </div>
 
@@ -300,8 +295,7 @@ const settimaneInfo = [
   { label: "Settimana 29-06 al 05-07", key: "settimana_29-06_al_05-07", startDay: 29, month: 5 }, 
   { label: "Settimana 06-07 al 12-07", key: "settimana_06-07_al_12-07", startDay: 6,  month: 6 }, 
   { label: "Settimana 13-07 al 19-07", key: "settimana_13-07_al_19-07", startDay: 13, month: 6 },
-  { label: "Settimana 20-07 al 26-07", key: "settimana_20-07_al_26-07", startDay: 20, month: 6 },
-  { label: "Settimana 27-07 al 02-08", key: "settimana_27-07_al_02-08", startDay: 27, month: 6 }
+  { label: "Settimana 20-07 al 26-07", key: "settimana_20-07_al_26-07", startDay: 20, month: 6 }
 ];
 
 const nomiGiorni = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
