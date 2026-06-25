@@ -232,24 +232,6 @@
       color: #06201c;
     }
 
-    .btn-download-action {
-      background: #1a1a3a;
-      border: 1px solid #a78bfa;
-      color: #a78bfa;
-      padding: 7px 16px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      transition: .15s;
-      display: none;
-    }
-
-    .btn-download-action:hover {
-      background: #a78bfa;
-      color: #06201c;
-    }
 
     main {
       max-width: 100%;
@@ -833,46 +815,8 @@
       margin-top: 20px;
     }
 
-    .upload-header {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--ink-dim);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      user-select: none;
-    }
 
-    .upload-header:hover {
-      color: var(--ink);
-    }
 
-    .csv-textarea {
-      width: 100%;
-      height: 60px;
-      background: var(--bg);
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 6px 10px;
-      color: var(--ink);
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      resize: vertical;
-    }
-
-    .csv-textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    #upload-body {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      padding-top: 10px;
-    }
 
     .upload-actions {
       display: flex;
@@ -1011,7 +955,6 @@
       </a>
       <button class="btn-mode" id="toggle-edit-btn" onclick="toggleEditMode()">✍ Abilita Modifiche</button>
       <button class="btn-save-action" id="save-edit-btn" onclick="saveChanges()">💾 Salva</button>
-      <button class="btn-download-action" id="download-json-btn" onclick="downloadUpdatedJSON()">⬇ Esporta JSON</button>
       <button class="btn" id="btn-refresh-sheets" style="display:none;" onclick="caricaDaGoogleSheets()">🔄 Aggiorna Sheets</button>
     </div>
   </div>
@@ -1048,24 +991,15 @@
     </div>
 
     <div class="upload-container" id="upload-container">
-      <div class="upload-header" onclick="toggleUpload()">
-        <span>⬆ Carica / Aggiorna <code>turni_finali.json</code></span>
-        <span id="upload-toggle-icon">▼ espandi</span>
-      </div>
-      <div id="upload-body">
-        <textarea class="csv-textarea" id="json-paste-input" placeholder="Incolla il contenuto del file JSON qui..."></textarea>
-        <div class="upload-actions">
-          <input type="file" id="json-file-input" accept=".json">
-          <button class="btn-primary" onclick="loadPastedJSON()">Salva Dati</button>
-          <button class="btn-danger" onclick="clearSavedMemory()">Svuota</button>
-          <span id="upload-status"></span>
-        </div>
+      <div class="upload-actions">
+        <button class="btn-danger" onclick="clearSavedMemory()">🗑 Svuota cache</button>
+        <span id="upload-status"></span>
       </div>
     </div>
 
   </main>
 
-  <footer>Dati da Google Sheets · Cache locale · Fallback turni_finali.json</footer>
+  <footer>Dati da Google Sheets · Cache locale (5 min)</footer>
 
   <script>
     let globalData = null;
@@ -1516,7 +1450,6 @@
       isEditMode = !isEditMode;
       const btn = document.getElementById("toggle-edit-btn");
       const btnSave = document.getElementById("save-edit-btn");
-      const btnDl = document.getElementById("download-json-btn");
 
       if (isEditMode) {
         clearSelection();
@@ -1552,21 +1485,14 @@
       });
 
       globalData.residenze[currentResidence] = currentAgentsList;
-      localStorage.setItem("turno_finali_data", JSON.stringify(globalData));
+      localStorage.setItem("turno_csv_cache", JSON.stringify(globalData));
+      localStorage.setItem("turno_csv_timestamp", Date.now().toString());
 
       alert("Cambio turni salvato correttamente in memoria locale!");
       toggleEditMode();
     }
 
-    function downloadUpdatedJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(globalData, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "turni_finali.json");
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    }
+
 
     function renderResidenceButtons() {
       const container = document.getElementById("res-selector-container");
@@ -1590,130 +1516,61 @@
       if (keys.length > 0) selectResidence(keys[0]);
     }
 
-    function loadPastedJSON() {
-      const txt = document.getElementById("json-paste-input").value.trim();
-      try {
-        const parsed = JSON.parse(txt);
-        localStorage.setItem("turno_finali_data", txt);
-        processJSONData(parsed);
-        toggleUpload();
-        document.getElementById("upload-status").textContent = "✅ Dati caricati con successo!";
-      } catch (e) {
-        alert("Errore nel file JSON: " + e.message);
-        document.getElementById("upload-status").textContent = "❌ Errore: " + e.message;
-      }
-    }
+
 
     function clearSavedMemory() {
       if (confirm("Cancellare i turni memorizzati?")) {
-        localStorage.removeItem("turno_finali_data");
+        localStorage.removeItem("turno_csv_cache");
+        localStorage.removeItem("turno_csv_timestamp");
         location.reload();
       }
     }
 
-    function toggleUpload() {
-      const body = document.getElementById("upload-body");
-      const icon = document.getElementById("upload-toggle-icon");
-      if (body.style.display === "none") {
-        body.style.display = "flex";
-        icon.textContent = "▲ comprimi";
-      } else {
-        body.style.display = "none";
-        icon.textContent = "▼ espandi";
-      }
-    }
+
 
     const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSLNm9InBbdmuqsp8upuv4KCMfFWK9_A14kx53RQqAihXjLUlPM2KCJ1ZIghHthQ/pub?output=csv";
 
-    // ── CSV parser (RFC-4180 compliant, gestisce quoted fields) ──────────────
     function parseCSV(text) {
-      const rows = [];
-      let i = 0;
-      while (i < text.length) {
-        const row = [];
-        while (i < text.length && text[i] !== '\n') {
-          if (text[i] === '"') {
-            i++;
-            let cell = '';
-            while (i < text.length) {
-              if (text[i] === '"' && text[i+1] === '"') { cell += '"'; i += 2; }
-              else if (text[i] === '"') { i++; break; }
-              else { cell += text[i++]; }
+      return text.split(/\r?\n/).map(line => {
+        const cells = []; let i = 0;
+        while (i < line.length) {
+          if (line[i] === '"') {
+            i++; let cell = '';
+            while (i < line.length) {
+              if (line[i] === '"' && line[i+1] === '"') { cell += '"'; i += 2; }
+              else if (line[i] === '"') { i++; break; }
+              else cell += line[i++];
             }
-            row.push(cell);
+            cells.push(cell);
           } else {
             let cell = '';
-            while (i < text.length && text[i] !== ',' && text[i] !== '\n') {
-              cell += text[i++];
-            }
-            row.push(cell.trim());
+            while (i < line.length && line[i] !== ',') cell += line[i++];
+            cells.push(cell.trim());
           }
-          if (i < text.length && text[i] === ',') i++;
+          if (i < line.length && line[i] === ',') i++;
         }
-        if (text[i] === '\n') i++;
-        if (row.length > 0 && !(row.length === 1 && row[0] === '')) rows.push(row);
-      }
-      return rows;
+        return cells;
+      }).filter(r => r.length > 1 || r[0]);
     }
 
-    // ── Converte righe CSV nel formato globalData ────────────────────────────
-    // Struttura attesa dal foglio (una riga per agente):
-    //   residenza | id | agente | sett1_lun | sett1_mar | ... | sett5_dom
-    // oppure varianti con chiavi tipo "settimana_22-06_al_28-06_0" ecc.
-    // Il parser è flessibile: riconosce le colonne per nome/pattern.
     function csvToGlobalData(rows) {
-      if (rows.length < 2) throw new Error("CSV troppo corto (meno di 2 righe)");
-
-      const headers = rows[0].map(h => h.trim().toLowerCase().replace(/\r/g, ''));
-      console.log("CSV headers:", headers);
-
-      // Trova indici colonne chiave
-      const idxResidenza = headers.findIndex(h => /residen|sede/.test(h));
-      const idxId = headers.findIndex(h => /^id$|^badge$|^matricola$|^num/.test(h));
-      const idxAgente = headers.findIndex(h => /agente|cognome|nome/.test(h));
-
-      if (idxAgente === -1) {
-        // Mostra le intestazioni per debug
-        const msg = "Colonna 'agente'/'cognome'/'nome' non trovata.\nIntestazioni rilevate:\n" + headers.join(', ');
-        document.getElementById("csv-debug-banner").textContent = "⚠️ " + msg;
-        document.getElementById("csv-debug-banner").style.display = "block";
-        throw new Error(msg);
-      }
-
-      // Individua le colonne turno (tutto ciò che non è residenza/id/agente)
-      // Assegna ai week keys in ordine
-      const turnoColIndices = [];
-      for (let c = 0; c < headers.length; c++) {
-        if (c !== idxResidenza && c !== idxId && c !== idxAgente) {
-          turnoColIndices.push(c);
-        }
-      }
-
-      // Colonne turno: 5 settimane × 7 giorni = 35 colonne
-      // Se ci sono più o meno, adattiamo
       const weekKeys = settimaneInfo.map(s => s.key);
-
       const residenze = {};
+      const resName = "DESENZANO";
+      residenze[resName] = [];
 
-      for (let r = 1; r < rows.length; r++) {
+      for (let r = 0; r < rows.length; r++) {
         const row = rows[r];
-        if (!row || row.every(c => !c)) continue;
+        const agId   = (row[0] || "").trim().replace(/\r/g, "");
+        const agNome = (row[1] || "").trim().replace(/\r/g, "");
+        if (!agNome || !agId || isNaN(Number(agId))) continue;
 
-        const resName = idxResidenza >= 0 ? (row[idxResidenza] || "DESENZANO").trim().toUpperCase() : "DESENZANO";
-        const agId    = idxId >= 0 ? (row[idxId] || "").trim() : "";
-        const agNome  = (row[idxAgente] || "").trim();
-        if (!agNome) continue;
-
-        if (!residenze[resName]) residenze[resName] = [];
-
-        // Costruisci turni_settimanali
         const turni_settimanali = {};
         weekKeys.forEach((wKey, wIdx) => {
           const arr = [];
           for (let d = 0; d < 7; d++) {
-            const colIdx = turnoColIndices[wIdx * 7 + d];
-            const val = colIdx !== undefined ? (row[colIdx] || "rip").trim() : "rip";
-            arr.push(val || "rip");
+            const val = (row[3 + wIdx * 7 + d] || "rip").trim().replace(/\r/g, "") || "rip";
+            arr.push(val);
           }
           turni_settimanali[wKey] = arr;
         });
@@ -1721,78 +1578,68 @@
         residenze[resName].push({ id: agId, agente: agNome, turni_settimanali });
       }
 
-      if (Object.keys(residenze).length === 0) throw new Error("Nessuna residenza trovata nel CSV");
+      if (residenze[resName].length === 0) throw new Error("Nessun agente trovato nel CSV");
       return { residenze };
     }
 
     async function caricaDaGoogleSheets() {
       const statusEl = document.getElementById("upload-status");
       statusEl.textContent = "⏳ Caricamento da Google Sheets…";
-      const PROXY = "https://corsproxy.io/?url=";
-      const url = PROXY + encodeURIComponent(GOOGLE_SHEET_CSV_URL);
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const text = await resp.text();
+      let text = null;
+      const tentativi = [
+        GOOGLE_SHEET_CSV_URL,
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent(GOOGLE_SHEET_CSV_URL),
+        "https://corsproxy.io/?url=" + encodeURIComponent(GOOGLE_SHEET_CSV_URL),
+      ];
+      for (const url of tentativi) {
+        try {
+          const r = await fetch(url, { mode: "cors" });
+          if (r.ok) { text = await r.text(); break; }
+        } catch(e) { console.warn("tentativo fallito:", url.substring(0,40), e.message); }
+      }
+      if (!text) throw new Error("Fetch CSV non riuscito");
       const rows = parseCSV(text);
       const data = csvToGlobalData(rows);
-      // Salva in localStorage come cache
-      localStorage.setItem("turno_finali_data", JSON.stringify(data));
+      localStorage.setItem("turno_csv_cache", JSON.stringify(data));
       localStorage.setItem("turno_csv_timestamp", Date.now().toString());
       processJSONData(data);
       const ts = new Date().toLocaleTimeString("it-IT");
-      statusEl.textContent = `✅ Aggiornato da Google Sheets (${ts})`;
+      statusEl.textContent = "✅ Aggiornato da Google Sheets (" + ts + ")";
       document.getElementById("btn-refresh-sheets").style.display = "inline-flex";
+      return;
+
     }
 
     async function caricaJsonDaCartella() {
-      // 1) Prova Google Sheets (se cache < 5 min usa quella)
       const cachedTs = localStorage.getItem("turno_csv_timestamp");
       const cacheAge = cachedTs ? Date.now() - parseInt(cachedTs) : Infinity;
       if (cacheAge < 5 * 60 * 1000) {
-        const saved = localStorage.getItem("turno_finali_data");
+        const saved = localStorage.getItem("turno_csv_cache");
         if (saved) {
           try {
             processJSONData(JSON.parse(saved));
-            document.getElementById("upload-status").textContent = "✅ Da cache locale (< 5 min)";
+            document.getElementById("upload-status").textContent = "✅ Da cache (< 5 min) — 🔄 per aggiornare";
             document.getElementById("btn-refresh-sheets").style.display = "inline-flex";
             return;
           } catch(e) {}
         }
       }
-
-      // 2) Fetch live da Google Sheets
       try {
         await caricaDaGoogleSheets();
-        return;
-      } catch(errSheets) {
-        console.warn("Google Sheets fallito:", errSheets);
+      } catch(e) {
+        console.warn("Google Sheets non disponibile:", e);
+        const saved = localStorage.getItem("turno_csv_cache");
+        if (saved) {
+          try {
+            processJSONData(JSON.parse(saved));
+            document.getElementById("upload-status").textContent = "⚠️ Offline — dati dalla cache locale";
+            document.getElementById("btn-refresh-sheets").style.display = "inline-flex";
+            return;
+          } catch(e2) {}
+        }
+        document.getElementById("welcome-notice").style.display = "block";
+        document.getElementById("upload-status").textContent = "❌ Impossibile caricare i dati";
       }
-
-      // 3) Fallback: turni_finali.json locale
-      try {
-        const response = await fetch('turni_finali.json');
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const datiJson = await response.json();
-        processJSONData(datiJson);
-        document.getElementById("upload-status").textContent = "✅ Caricato da turni_finali.json (fallback)";
-        return;
-      } catch(errFile) {
-        console.warn("File locale fallito:", errFile);
-      }
-
-      // 4) Ultimo fallback: localStorage vecchio
-      const saved = localStorage.getItem("turno_finali_data");
-      if (saved) {
-        try {
-          processJSONData(JSON.parse(saved));
-          document.getElementById("upload-status").textContent = "✅ Caricato da memoria locale (offline)";
-          document.getElementById("btn-refresh-sheets").style.display = "inline-flex";
-          return;
-        } catch(e) {}
-      }
-
-      document.getElementById("welcome-notice").style.display = "block";
-      document.getElementById("upload-status").textContent = "❌ Nessuna fonte disponibile";
     }
 
     window.addEventListener("DOMContentLoaded", () => {
