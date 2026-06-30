@@ -85,7 +85,12 @@ def build():
         "stations": stations_data
     }
 
-    with open("vento.json", "w", encoding="utf-8") as f:
+    import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+file_path = os.path.join(BASE_DIR, "vento.json")
+
+with open(file_path, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
     print("vento.json aggiornato")
