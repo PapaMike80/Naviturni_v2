@@ -1,8 +1,15 @@
-- name: Debug structure
-  run: |
-    echo "=== ROOT ==="
-    ls -R
+name: Test Workflow
 
-- name: Show location
-  run: |
-    pwd
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show files
+        run: ls -R
