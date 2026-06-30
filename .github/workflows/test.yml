@@ -1,0 +1,8 @@
+- name: Debug structure
+  run: |
+    echo "=== ROOT ==="
+    ls -R
+
+- name: Show location
+  run: |
+    pwd
