@@ -2,8 +2,8 @@ name: Aggiornamento vento Garda
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
-  workflow_dispatch:
+    - cron: "*/5 * * * *"   # ogni 5 minuti
+  workflow_dispatch:        # esecuzione manuale
 
 jobs:
   update:
@@ -18,13 +18,25 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Run script
-        run: python vento/scripts/update_vento.py
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Debug repository structure
+        run: |
+          echo "=== WORKDIR ==="
+          pwd
+          echo "=== FILE TREE ==="
+          ls -R
+
+      - name: Run update script
+        run: |
+          python -u vento/scripts/update_vento.py
 
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add vento.json
-          git diff --cached --quiet || git commit -m "🌬️ update vento"
+          git diff --cached --quiet || git commit -m "🌬️ update vento data"
           git push
