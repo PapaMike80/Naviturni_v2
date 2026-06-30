@@ -1,0 +1,61 @@
+{
+  "updated": "30-06-2026 10:35",
+  "stations": [
+    {
+      "name": "Desenzano",
+      "wind": 20.8,
+      "dir": "N",
+      "max": 31.3,
+      "maxTime": "06:28",
+      "last": "30-06-2026 10:35"
+    },
+    {
+      "name": "Peschiera",
+      "wind": 4.3,
+      "dir": "N",
+      "max": 34.8,
+      "maxTime": "N/D",
+      "last": "live"
+    },
+    {
+      "name": "Salò",
+      "wind": 1.3,
+      "dir": "NNE",
+      "max": 7.2,
+      "maxTime": "01:32",
+      "last": "30-06-2026 10:35"
+    },
+    {
+      "name": "Toscolano",
+      "wind": 1.2,
+      "dir": "ESE",
+      "max": 3.5,
+      "maxTime": "01:00",
+      "last": "30-06-2026 10:36"
+    },
+    {
+      "name": "Gargnano",
+      "wind": 5,
+      "dir": "SSE",
+      "max": 27,
+      "maxTime": "00:13",
+      "last": "live"
+    },
+    {
+      "name": "Campione del Garda",
+      "wind": 17.4,
+      "dir": "N",
+      "max": 29.5,
+      "maxTime": "N/D",
+      "last": "30-06-2026 10:35"
+    },
+    {
+      "name": "Malcesine",
+      "wind": 8.7,
+      "dir": "ENE",
+      "max": 29.5,
+      "maxTime": "01:08",
+      "last": "30-06-2026 10:06"
+    }
+  ]
+}
