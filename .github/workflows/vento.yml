@@ -24,7 +24,7 @@ jobs:
 
       - name: Run update script
         run: |
-          python scripts/update_vento.py
+          python vento/scripts/update_vento.py
 
       - name: Commit changes
         run: |
