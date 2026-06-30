@@ -3,7 +3,7 @@
   "stations": [
     {
       "name": "Desenzano",
-      "wind": 20.8,
+      "wind": 55.8,
       "dir": "N",
       "max": 31.3,
       "maxTime": "06:28",
