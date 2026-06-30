@@ -3,35 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <title>Vento - Stazioni Lago di Garda</title>
+
 <style>
   body { font-family: Arial, Helvetica, sans-serif; background:#0d1b2a; color:#e0e6ed; margin:0; padding:20px; }
   h1 { text-align:center; color:#7fd1ff; }
   .updated { text-align:center; color:#9aa7b2; margin-bottom:20px; font-size:0.9em; }
-  table { width:100%; max-width:900px; margin:0 auto; border-collapse:collapse; background:#13263b; box-shadow:0 0 15px rgba(0,0,0,0.4); }
-  th, td { padding:10px 14px; text-align:center; border-bottom:1px solid #1f3a52; }
+
+  table {
+    width:100%;
+    max-width:900px;
+    margin:0 auto;
+    border-collapse:collapse;
+    background:#13263b;
+    box-shadow:0 0 15px rgba(0,0,0,0.4);
+  }
+
+  th, td {
+    padding:10px 14px;
+    text-align:center;
+    border-bottom:1px solid #1f3a52;
+  }
+
   th { background:#0f2a44; color:#7fd1ff; }
   tr:hover { background:#1a3552; }
+
   a { color:#7fd1ff; text-decoration:none; }
   a:hover { text-decoration:underline; }
+
   .wind-high { color:#ff6b6b; font-weight:bold; }
   .wind-mid { color:#ffd166; font-weight:bold; }
   .wind-low { color:#8be9a3; font-weight:bold; }
-  .note { max-width:900px; margin:20px auto; padding:12px 16px; background:#1f3a52; border-left:4px solid #ffd166; font-size:0.9em; border-radius:4px; }
-  .source { text-align:center; margin-top:20px; font-size:0.8em; color:#6c7a89; }
-  .map-wrap { max-width:480px; margin:10px auto 30px; background:#13263b; border-radius:10px; padding:15px; box-shadow:0 0 15px rgba(0,0,0,0.4); }
-  .station-label { font-size:11px; fill:#e0e6ed; font-family:Arial, sans-serif; }
-  .station-speed { font-size:13px; font-weight:bold; font-family:Arial, sans-serif; }
-  .lake-shape { fill:#0d2a44; stroke:#2a4a66; stroke-width:1.5; }
-  .compass-text { font-size:9px; fill:#5a7488; font-family:Arial, sans-serif; }
-  .station-tooltip { background:#13263b; color:#e0e6ed; border:1px solid #2a4a66; font-size:12px; font-weight:bold; padding:2px 6px; }
-  .leaflet-popup-content-wrapper { background:#13263b; color:#e0e6ed; }
-  .leaflet-popup-tip { background:#13263b; }
+
+  .map-wrap {
+    max-width:480px;
+    margin:10px auto 30px;
+    background:#13263b;
+    border-radius:10px;
+    padding:15px;
+    box-shadow:0 0 15px rgba(0,0,0,0.4);
+  }
+
+  .station-tooltip {
+    background:#13263b;
+    color:#e0e6ed;
+    border:1px solid #2a4a66;
+    font-size:12px;
+    font-weight:bold;
+    padding:2px 6px;
+  }
+
+  .source {
+    text-align:center;
+    margin-top:20px;
+    font-size:0.8em;
+    color:#6c7a89;
+  }
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 </head>
+
 <body>
 
 <h1>🌬️ Vento - Stazioni Lago di Garda</h1>
-<div class="updated">Dati aggiornati al 30-06-2026 · valori in nodi</div>
+
+<div class="updated">Caricamento dati...</div>
 
 <table id="windTable">
   <thead>
@@ -44,24 +80,22 @@
       <th>Ultima rilevazione</th>
     </tr>
   </thead>
-  <tbody>
-    <tr><td><a href="https://www.meteopassione.com/stazioni/desenzano" target="_blank">Desenzano</a></td><td class="wind-high">20.8</td><td>N</td><td class="wind-high">31.3</td><td>06:28</td><td>30-06-2026 10:35</td></tr>
-    <tr><td><a href="https://www.meteonetwork.eu/it/weather-station/vnt259-stazione-meteorologica-di-peschiera-del-garda" target="_blank">Peschiera</a></td><td class="wind-low">4.3</td><td>N</td><td class="wind-high">34.8</td><td>N/D</td><td>live</td></tr>
-    <tr><td><a href="https://www.meteopassione.com/stazioni/salo-lago-di-garda" target="_blank">Salò</a></td><td class="wind-low">1.3</td><td>NNE</td><td class="wind-low">7.2</td><td>01:32</td><td>30-06-2026 10:35</td></tr>
-    <tr><td><a href="https://www.meteopassione.com/stazioni/museo-della-carta-toscolano-maderno" target="_blank">Toscolano</a></td><td class="wind-low">1.2</td><td>ESE</td><td class="wind-low">3.5</td><td>01:00</td><td>30-06-2026 10:36</td></tr>
-    <tr><td><a href="https://www.circolovelagargnano.it/" target="_blank">Gargnano</a></td><td class="wind-low">5</td><td>SSE</td><td class="wind-mid">27</td><td>00:13</td><td>live</td></tr>
-    <tr><td><a href="https://www.meteopassione.com/stazioni/campione" target="_blank">Campione</a></td><td class="wind-mid">17.4</td><td>N</td><td class="wind-high">29.5</td><td>N/D</td><td>30-06-2026 10:35</td></tr>
-    <tr><td><a href="https://stazioni.meteoproject.it/dati/malcesine/" target="_blank">Malcesine</a></td><td class="wind-mid">8.7</td><td>ENE</td><td class="wind-mid">29.5</td><td>01:08</td><td>30-06-2026 10:06</td></tr>
-  </tbody>
+  <tbody></tbody>
 </table>
 
-<div class="map-wrap" id="mapWrap">
-<div id="map" style="width:100%; height:520px; border-radius:8px;"></div>
+<div class="map-wrap">
+  <div id="map" style="width:100%; height:520px; border-radius:8px;"></div>
 </div>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<div class="source">
+  Fonti dati: meteopassione.com, meteonetwork.eu, meteoproject.it, circolovelagargnano.it
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
 <script>
+/* ---------------- MAPPA ---------------- */
+
 const map = L.map('map', { scrollWheelZoom:false });
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -70,87 +104,99 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 let markers = [];
-let bounds = [];
+
+/* ---------------- FUNZIONE UPDATE ---------------- */
 
 async function aggiornaDati() {
 
-  const res = await fetch("vento.json?t=" + Date.now());
-  const data = await res.json();
+  try {
 
-  document.querySelector(".updated").innerText =
-    "Ultimo aggiornamento: " + data.updated + " · valori in nodi";
+    const res = await fetch("vento.json?t=" + Date.now());
+    const data = await res.json();
 
-  // reset mappa
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
-  bounds = [];
+    // update header
+    document.querySelector(".updated").innerText =
+      "Ultimo aggiornamento: " + data.updated + " · valori in nodi";
 
-  data.stations.forEach(s => {
+    // reset markers
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
 
-    bounds.push([s.lat, s.lon]);
+    let bounds = [];
 
-    const color =
-      s.wind >= 18 ? "#ff6b6b" :
-      s.wind >= 8  ? "#ffd166" :
-                     "#8be9a3";
+    // aggiorna tabella
+    const tbody = document.querySelector("#windTable tbody");
+    tbody.innerHTML = "";
 
-    const marker = L.circleMarker([s.lat, s.lon], {
-      radius: 9,
-      fillColor: color,
-      color: "#0d1b2a",
-      weight: 2,
-      fillOpacity: 0.95
-    }).addTo(map);
+    data.stations.forEach(s => {
 
-    marker.bindPopup(
-      `<b>${s.name}</b><br>${s.wind} kn ${s.dir}<br>max ${s.max}`
-    );
+      bounds.push([s.lat, s.lon]);
 
-    marker.bindTooltip(
-      `${s.name} — ${s.wind} kn`,
-      { permanent: true, direction: "right", className: "station-tooltip" }
-    );
+      const color =
+        s.wind >= 18 ? "#ff6b6b" :
+        s.wind >= 8  ? "#ffd166" :
+                       "#8be9a3";
 
-    markers.push(marker);
-  });
+      // TABELL A
+      const row = `
+        <tr>
+          <td>${s.name}</td>
+          <td class="${colorClass(s.wind)}">${s.wind}</td>
+          <td>${s.dir}</td>
+          <td class="${colorClass(s.wind)}">${s.max}</td>
+          <td>${s.maxTime}</td>
+          <td>${s.last}</td>
+        </tr>
+      `;
 
-  if (bounds.length) {
-    map.fitBounds(bounds, { padding: [40, 40] });
+      tbody.innerHTML += row;
+
+      // MAPPA
+      const marker = L.circleMarker([s.lat, s.lon], {
+        radius: 9,
+        fillColor: color,
+        color: "#0d1b2a",
+        weight: 2,
+        fillOpacity: 0.95
+      }).addTo(map);
+
+      marker.bindPopup(`
+        <b>${s.name}</b><br>
+        ${s.wind} kn ${s.dir}<br>
+        max ${s.max}
+      `);
+
+      marker.bindTooltip(
+        `${s.name} — ${s.wind} kn`,
+        { permanent: true, direction: "right", className: "station-tooltip" }
+      );
+
+      markers.push(marker);
+    });
+
+    if (bounds.length) {
+      map.fitBounds(bounds, { padding: [40, 40] });
+    }
+
+  } catch (err) {
+    console.error("Errore aggiornamento:", err);
   }
-
-  // aggiorna tabella
-  const tbody = document.querySelector("#windTable tbody");
-  tbody.innerHTML = "";
-
-  data.stations.forEach(s => {
-
-    const cls =
-      s.wind >= 18 ? "wind-high" :
-      s.wind >= 8  ? "wind-mid" :
-                     "wind-low";
-
-    tbody.innerHTML += `
-      <tr>
-        <td>${s.name}</td>
-        <td class="${cls}">${s.wind}</td>
-        <td>${s.dir}</td>
-        <td class="${cls}">${s.max}</td>
-        <td>${s.maxTime}</td>
-        <td>${s.last}</td>
-      </tr>
-    `;
-  });
 }
 
-// prima esecuzione
-aggiornaDati();
+/* ---------------- UTILS ---------------- */
 
-// refresh ogni 5 minuti
+function colorClass(wind) {
+  if (wind >= 18) return "wind-high";
+  if (wind >= 8) return "wind-mid";
+  return "wind-low";
+}
+
+/* ---------------- START ---------------- */
+
+aggiornaDati();
 setInterval(aggiornaDati, 5 * 60 * 1000);
 
 </script>
-
-<div class="source">Fonti dati: meteopassione.com, meteonetwork.eu, meteoproject.it, circolovelagargnano.it (WeatherLink)</div>
 
 </body>
 </html>
