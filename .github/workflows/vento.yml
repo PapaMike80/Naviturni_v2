@@ -1,6 +1,6 @@
 - name: Debug filesystem
   run: |
-    echo "==== STRUCTURE ===="
+    echo "==== STRUCTURE ==="
     ls -R
 
 - name: Run script
