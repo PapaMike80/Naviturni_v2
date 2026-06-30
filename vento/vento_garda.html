@@ -5,9 +5,26 @@
 <title>Vento - Stazioni Lago di Garda</title>
 
 <style>
-  body { font-family: Arial, Helvetica, sans-serif; background:#0d1b2a; color:#e0e6ed; margin:0; padding:20px; }
-  h1 { text-align:center; color:#7fd1ff; }
-  .updated { text-align:center; color:#9aa7b2; margin-bottom:20px; font-size:0.9em; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background:#0d1b2a;
+    color:#e0e6ed;
+    margin:0;
+    padding:20px;
+  }
+
+  h1 {
+    text-align:center;
+    color:#7fd1ff;
+    margin-bottom:10px;
+  }
+
+  .updated {
+    text-align:center;
+    color:#9aa7b2;
+    margin-bottom:20px;
+    font-size:0.9em;
+  }
 
   table {
     width:100%;
@@ -16,41 +33,28 @@
     border-collapse:collapse;
     background:#13263b;
     box-shadow:0 0 15px rgba(0,0,0,0.4);
+    border-radius:8px;
+    overflow:hidden;
   }
 
   th, td {
-    padding:10px 14px;
+    padding:12px 14px;
     text-align:center;
     border-bottom:1px solid #1f3a52;
   }
 
-  th { background:#0f2a44; color:#7fd1ff; }
-  tr:hover { background:#1a3552; }
+  th {
+    background:#0f2a44;
+    color:#7fd1ff;
+  }
 
-  a { color:#7fd1ff; text-decoration:none; }
-  a:hover { text-decoration:underline; }
+  tr:hover {
+    background:#1a3552;
+  }
 
   .wind-high { color:#ff6b6b; font-weight:bold; }
-  .wind-mid { color:#ffd166; font-weight:bold; }
-  .wind-low { color:#8be9a3; font-weight:bold; }
-
-  .map-wrap {
-    max-width:480px;
-    margin:10px auto 30px;
-    background:#13263b;
-    border-radius:10px;
-    padding:15px;
-    box-shadow:0 0 15px rgba(0,0,0,0.4);
-  }
-
-  .station-tooltip {
-    background:#13263b;
-    color:#e0e6ed;
-    border:1px solid #2a4a66;
-    font-size:12px;
-    font-weight:bold;
-    padding:2px 6px;
-  }
+  .wind-mid  { color:#ffd166; font-weight:bold; }
+  .wind-low  { color:#8be9a3; font-weight:bold; }
 
   .source {
     text-align:center;
@@ -58,9 +62,13 @@
     font-size:0.8em;
     color:#6c7a89;
   }
-</style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  .loading {
+    text-align:center;
+    color:#9aa7b2;
+    margin-top:10px;
+  }
+</style>
 </head>
 
 <body>
@@ -73,128 +81,68 @@
   <thead>
     <tr>
       <th>Stazione</th>
-      <th>Vento attuale (nodi)</th>
+      <th>Vento (kn)</th>
       <th>Direzione</th>
-      <th>Vento massimo (nodi)</th>
-      <th>Ora del massimo</th>
-      <th>Ultima rilevazione</th>
+      <th>Raffica max (kn)</th>
+      <th>Ora max</th>
+      <th>Ultimo aggiornamento</th>
     </tr>
   </thead>
   <tbody></tbody>
 </table>
 
-<div class="map-wrap">
-  <div id="map" style="width:100%; height:520px; border-radius:8px;"></div>
-</div>
-
 <div class="source">
-  Fonti dati: meteopassione.com, meteonetwork.eu, meteoproject.it, circolovelagargnano.it
+  Dati meteo Lago di Garda · aggiornamento automatico ogni 5 minuti
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
 <script>
-/* ---------------- MAPPA ---------------- */
 
-const map = L.map('map', { scrollWheelZoom:false });
+/* ---------------- CORE UPDATE ---------------- */
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors',
-  maxZoom: 18
-}).addTo(map);
-
-let markers = [];
-
-/* ---------------- FUNZIONE UPDATE ---------------- */
-
-async function aggiornaDati() {
+async function aggiorna() {
 
   try {
 
     const res = await fetch("vento.json?t=" + Date.now());
     const data = await res.json();
 
-    // update header
     document.querySelector(".updated").innerText =
-      "Ultimo aggiornamento: " + data.updated + " · valori in nodi";
+      "Ultimo aggiornamento: " + data.updated;
 
-    // reset markers
-    markers.forEach(m => map.removeLayer(m));
-    markers = [];
-
-    let bounds = [];
-
-    // aggiorna tabella
     const tbody = document.querySelector("#windTable tbody");
     tbody.innerHTML = "";
 
     data.stations.forEach(s => {
 
-      bounds.push([s.lat, s.lon]);
+      const cls =
+        s.wind >= 18 ? "wind-high" :
+        s.wind >= 8  ? "wind-mid" :
+                       "wind-low";
 
-      const color =
-        s.wind >= 18 ? "#ff6b6b" :
-        s.wind >= 8  ? "#ffd166" :
-                       "#8be9a3";
-
-      // TABELL A
-      const row = `
+      tbody.innerHTML += `
         <tr>
           <td>${s.name}</td>
-          <td class="${colorClass(s.wind)}">${s.wind}</td>
+          <td class="${cls}">${s.wind}</td>
           <td>${s.dir}</td>
-          <td class="${colorClass(s.wind)}">${s.max}</td>
+          <td class="${cls}">${s.max}</td>
           <td>${s.maxTime}</td>
           <td>${s.last}</td>
         </tr>
       `;
 
-      tbody.innerHTML += row;
-
-      // MAPPA
-      const marker = L.circleMarker([s.lat, s.lon], {
-        radius: 9,
-        fillColor: color,
-        color: "#0d1b2a",
-        weight: 2,
-        fillOpacity: 0.95
-      }).addTo(map);
-
-      marker.bindPopup(`
-        <b>${s.name}</b><br>
-        ${s.wind} kn ${s.dir}<br>
-        max ${s.max}
-      `);
-
-      marker.bindTooltip(
-        `${s.name} — ${s.wind} kn`,
-        { permanent: true, direction: "right", className: "station-tooltip" }
-      );
-
-      markers.push(marker);
     });
 
-    if (bounds.length) {
-      map.fitBounds(bounds, { padding: [40, 40] });
-    }
-
   } catch (err) {
-    console.error("Errore aggiornamento:", err);
+    console.error("Errore caricamento vento.json:", err);
+    document.querySelector(".updated").innerText =
+      "Errore caricamento dati";
   }
 }
 
-/* ---------------- UTILS ---------------- */
+/* ---------------- START + AUTO REFRESH ---------------- */
 
-function colorClass(wind) {
-  if (wind >= 18) return "wind-high";
-  if (wind >= 8) return "wind-mid";
-  return "wind-low";
-}
-
-/* ---------------- START ---------------- */
-
-aggiornaDati();
-setInterval(aggiornaDati, 5 * 60 * 1000);
+aggiorna();
+setInterval(aggiorna, 5 * 60 * 1000);
 
 </script>
 
