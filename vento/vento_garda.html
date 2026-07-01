@@ -2,147 +2,199 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Vento - Stazioni Lago di Garda</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vento Lago di Garda</title>
 
 <style>
-  body {
-    font-family: Arial, Helvetica, sans-serif;
+body{
+    font-family:Arial,Helvetica,sans-serif;
     background:#0d1b2a;
     color:#e0e6ed;
     margin:0;
     padding:20px;
-  }
+}
 
-  h1 {
+h1{
     text-align:center;
     color:#7fd1ff;
-    margin-bottom:10px;
-  }
+}
 
-  .updated {
+.updated{
     text-align:center;
     color:#9aa7b2;
     margin-bottom:20px;
-    font-size:0.9em;
-  }
+    font-size:.9em;
+}
 
-  table {
+table{
     width:100%;
-    max-width:900px;
-    margin:0 auto;
+    max-width:950px;
+    margin:auto;
     border-collapse:collapse;
     background:#13263b;
-    box-shadow:0 0 15px rgba(0,0,0,0.4);
-    border-radius:8px;
-    overflow:hidden;
-  }
+    box-shadow:0 0 15px rgba(0,0,0,.4);
+}
 
-  th, td {
-    padding:12px 14px;
-    text-align:center;
+th,td{
+    padding:10px 14px;
     border-bottom:1px solid #1f3a52;
-  }
+    text-align:center;
+}
 
-  th {
+th{
     background:#0f2a44;
     color:#7fd1ff;
-  }
+}
 
-  tr:hover {
+tr:hover{
     background:#1a3552;
-  }
+}
 
-  .wind-high { color:#ff6b6b; font-weight:bold; }
-  .wind-mid  { color:#ffd166; font-weight:bold; }
-  .wind-low  { color:#8be9a3; font-weight:bold; }
+a{
+    color:#7fd1ff;
+    text-decoration:none;
+    font-weight:bold;
+}
 
-  .source {
-    text-align:center;
+a:hover{
+    text-decoration:underline;
+}
+
+.wind-low{
+    color:#8be9a3;
+    font-weight:bold;
+}
+
+.wind-mid{
+    color:#ffd166;
+    font-weight:bold;
+}
+
+.wind-high{
+    color:#ff6b6b;
+    font-weight:bold;
+}
+
+.source{
     margin-top:20px;
-    font-size:0.8em;
-    color:#6c7a89;
-  }
-
-  .loading {
     text-align:center;
-    color:#9aa7b2;
-    margin-top:10px;
-  }
+    font-size:.85em;
+    color:#7c8b98;
+}
 </style>
+
 </head>
 
 <body>
 
-<h1>🌬️ Vento - Stazioni Lago di Garda</h1>
+<h1>🌬️ Vento - Lago di Garda</h1>
 
-<div class="updated">Caricamento dati...</div>
+<div class="updated" id="updated">
+Caricamento...
+</div>
 
-<table id="windTable">
-  <thead>
-    <tr>
-      <th>Stazione</th>
-      <th>Vento (kn)</th>
-      <th>Direzione</th>
-      <th>Raffica max (kn)</th>
-      <th>Ora max</th>
-      <th>Ultimo aggiornamento</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
+<table>
+
+<thead>
+<tr>
+<th>Stazione</th>
+<th>Vento</th>
+<th>Direzione</th>
+<th>Raffica</th>
+<th>Ora raffica</th>
+<th>Ultima rilevazione</th>
+</tr>
+</thead>
+
+<tbody id="tbody">
+</tbody>
+
 </table>
 
 <div class="source">
-  Dati meteo Lago di Garda · aggiornamento automatico ogni 5 minuti
+Aggiornamento automatico ogni 5 minuti
 </div>
 
 <script>
 
-/* ---------------- CORE UPDATE ---------------- */
+const stationLinks = {
 
-async function aggiorna() {
+"Desenzano":"https://www.meteopassione.com/stazioni/desenzano",
 
-  try {
+"Peschiera":"https://www.meteonetwork.eu/it/weather-station/vnt259-stazione-meteorologica-di-peschiera-del-garda",
 
-    const res = await fetch("vento.json?t=" + Date.now());
-    const data = await res.json();
+"Salò":"https://www.meteopassione.com/stazioni/salo-lago-di-garda",
 
-    document.querySelector(".updated").innerText =
-      "Ultimo aggiornamento: " + data.updated;
+"Toscolano":"https://www.meteopassione.com/stazioni/museo-della-carta-toscolano-maderno",
 
-    const tbody = document.querySelector("#windTable tbody");
-    tbody.innerHTML = "";
+"Gargnano":"https://www.circolovelagargnano.it/",
 
-    data.stations.forEach(s => {
+"Campione del Garda":"https://www.meteopassione.com/stazioni/campione",
 
-      const cls =
-        s.wind >= 18 ? "wind-high" :
-        s.wind >= 8  ? "wind-mid" :
-                       "wind-low";
+"Malcesine":"https://stazioni.meteoproject.it/dati/malcesine/"
 
-      tbody.innerHTML += `
-        <tr>
-          <td>${s.name}</td>
-          <td class="${cls}">${s.wind}</td>
-          <td>${s.dir}</td>
-          <td class="${cls}">${s.max}</td>
-          <td>${s.maxTime}</td>
-          <td>${s.last}</td>
-        </tr>
-      `;
+};
+
+function windClass(v){
+
+    if(v>=15) return "wind-high";
+
+    if(v>=8) return "wind-mid";
+
+    return "wind-low";
+
+}
+
+async function loadData(){
+
+    const response = await fetch("vento.json?t="+Date.now());
+
+    const data = await response.json();
+
+    document.getElementById("updated").innerHTML =
+        "Ultimo aggiornamento: <b>"+data.updated+"</b>";
+
+    const tbody=document.getElementById("tbody");
+
+    tbody.innerHTML="";
+
+    data.stations.forEach(st=>{
+
+        tbody.innerHTML+=`
+
+<tr>
+
+<td>
+<a href="${stationLinks[st.name]}" target="_blank">
+${st.name}
+</a>
+</td>
+
+<td class="${windClass(st.wind)}">
+${st.wind.toFixed(1)} kn
+</td>
+
+<td>${st.dir}</td>
+
+<td class="${windClass(st.max)}">
+${st.max.toFixed(1)} kn
+</td>
+
+<td>${st.maxTime}</td>
+
+<td>${st.last}</td>
+
+</tr>
+
+`;
 
     });
 
-  } catch (err) {
-    console.error("Errore caricamento vento.json:", err);
-    document.querySelector(".updated").innerText =
-      "Errore caricamento dati";
-  }
 }
 
-/* ---------------- START + AUTO REFRESH ---------------- */
+loadData();
 
-aggiorna();
-setInterval(aggiorna, 5 * 60 * 1000);
+setInterval(loadData,300000);
 
 </script>
 
