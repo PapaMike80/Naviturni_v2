@@ -1,99 +1,58 @@
 import json
-import requests
+import random
+from pathlib import Path
 from datetime import datetime
 
-# -----------------------------
-# CONFIG STAZIONI
-# -----------------------------
 STATIONS = [
-    {
-        "name": "Desenzano",
-        "url": "https://www.meteopassione.com/stazioni/desenzano",
-        "type": "manual_demo"
-    },
-    {
-        "name": "Peschiera",
-        "url": "https://www.meteonetwork.eu/it/weather-station/vnt259-stazione-meteorologica-di-peschiera-del-garda",
-        "type": "manual_demo"
-    },
-    {
-        "name": "Salò",
-        "url": "https://www.meteopassione.com/stazioni/salo-lago-di-garda",
-        "type": "manual_demo"
-    },
-    {
-        "name": "Toscolano",
-        "url": "https://www.meteopassione.com/stazioni/museo-della-carta-toscolano-maderno",
-        "type": "manual_demo"
-    },
-    {
-        "name": "Gargnano",
-        "url": "https://www.circolovelagargnano.it/",
-        "type": "manual_demo"
-    },
-    {
-        "name": "Campione del Garda",
-        "url": "https://www.meteopassione.com/stazioni/campione",
-        "type": "manual_demo"
-    },
-    {
-        "name": "Malcesine",
-        "url": "https://stazioni.meteoproject.it/dati/malcesine/",
-        "type": "manual_demo"
-    }
+    "Desenzano",
+    "Peschiera",
+    "Salò",
+    "Toscolano",
+    "Gargnano",
+    "Campione del Garda",
+    "Malcesine"
 ]
 
-# -----------------------------
-# DEMO PARSER
-# (qui in step 3 diventa reale scraping)
-# -----------------------------
-def get_fake_data(name):
-    import random
+DIRECTIONS = [
+    "N", "NNE", "NE", "ENE",
+    "E", "ESE", "SE", "SSE",
+    "S", "SSW", "SW", "WSW",
+    "W", "WNW", "NW", "NNW"
+]
 
+
+def fake_station(name):
     wind = round(random.uniform(1, 22), 1)
-    max_wind = round(wind + random.uniform(2, 15), 1)
-
-    dirs = ["N","NE","E","SE","S","SW","W","NW","NNE","ENE","ESE","SSE"]
-    direction = random.choice(dirs)
+    gust = round(wind + random.uniform(2, 12), 1)
 
     return {
         "name": name,
         "wind": wind,
-        "dir": direction,
-        "max": max_wind,
+        "dir": random.choice(DIRECTIONS),
+        "max": gust,
         "maxTime": datetime.now().strftime("%H:%M"),
         "last": datetime.now().strftime("%d-%m-%Y %H:%M")
     }
 
-# -----------------------------
-# BUILD JSON
-# -----------------------------
-def build():
-    stations_data = []
 
-    for s in STATIONS:
-        try:
-            # STEP 2: simulazione dati
-            data = get_fake_data(s["name"])
-            stations_data.append(data)
+def main():
 
-        except Exception as e:
-            print("Errore:", s["name"], e)
+    stations = [fake_station(s) for s in STATIONS]
 
     output = {
         "updated": datetime.now().strftime("%d-%m-%Y %H:%M"),
-        "stations": stations_data
+        "stations": stations
     }
 
-    import os
+    repo_root = Path(__file__).resolve().parents[2]
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-file_path = os.path.join(BASE_DIR, "vento.json")
+    json_file = repo_root / "vento" / "vento.json"
 
-with open(file_path, "w", encoding="utf-8") as f:
+    with open(json_file, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
-    print("vento.json aggiornato")
+    print(f"Aggiornato {json_file}")
+
 
 if __name__ == "__main__":
-    build()
+    main()
