@@ -3,147 +3,273 @@
 <head>
 <meta charset="UTF-8">
 <title>Vento - Stazioni Lago di Garda</title>
-
 <style>
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    background:#0d1b2a;
-    color:#e0e6ed;
-    margin:0;
-    padding:20px;
-  }
-
-  h1 {
-    text-align:center;
-    color:#7fd1ff;
-    margin-bottom:10px;
-  }
-
-  .updated {
-    text-align:center;
-    color:#9aa7b2;
-    margin-bottom:20px;
-    font-size:0.9em;
-  }
-
-  table {
-    width:100%;
-    max-width:900px;
-    margin:0 auto;
-    border-collapse:collapse;
-    background:#13263b;
-    box-shadow:0 0 15px rgba(0,0,0,0.4);
-    border-radius:8px;
-    overflow:hidden;
-  }
-
-  th, td {
-    padding:12px 14px;
-    text-align:center;
-    border-bottom:1px solid #1f3a52;
-  }
-
-  th {
-    background:#0f2a44;
-    color:#7fd1ff;
-  }
-
-  tr:hover {
-    background:#1a3552;
-  }
-
+  body { font-family: Arial, Helvetica, sans-serif; background:#0d1b2a; color:#e0e6ed; margin:0; padding:20px; }
+  h1 { text-align:center; color:#7fd1ff; margin-bottom:6px; }
+  .updated { text-align:center; color:#9aa7b2; margin-bottom:16px; font-size:0.9em; }
+  .refresh-bar { text-align:center; margin-bottom:20px; }
+  #refreshBtn { background:#0f2a44; color:#7fd1ff; border:1px solid #2a4a66; padding:10px 22px; border-radius:8px; font-size:14px; font-weight:bold; cursor:pointer; transition:background 0.2s; }
+  #refreshBtn:hover { background:#1a3552; }
+  #refreshBtn:disabled { opacity:0.6; cursor:wait; }
+  #refreshStatus { display:block; margin-top:8px; font-size:0.8em; color:#6c7a89; }
+  table { width:100%; max-width:900px; margin:0 auto; border-collapse:collapse; background:#13263b; box-shadow:0 0 15px rgba(0,0,0,0.4); }
+  th, td { padding:10px 14px; text-align:center; border-bottom:1px solid #1f3a52; }
+  th { background:#0f2a44; color:#7fd1ff; }
+  tr:hover { background:#1a3552; }
+  a { color:#7fd1ff; text-decoration:none; }
+  a:hover { text-decoration:underline; }
   .wind-high { color:#ff6b6b; font-weight:bold; }
-  .wind-mid  { color:#ffd166; font-weight:bold; }
-  .wind-low  { color:#8be9a3; font-weight:bold; }
-
-  .source {
-    text-align:center;
-    margin-top:20px;
-    font-size:0.8em;
-    color:#6c7a89;
-  }
-
-  .loading {
-    text-align:center;
-    color:#9aa7b2;
-    margin-top:10px;
-  }
+  .wind-mid { color:#ffd166; font-weight:bold; }
+  .wind-low { color:#8be9a3; font-weight:bold; }
+  .source { text-align:center; margin-top:20px; font-size:0.8em; color:#6c7a89; }
+  .map-wrap { max-width:480px; margin:30px auto 10px; background:#13263b; border-radius:10px; padding:15px; box-shadow:0 0 15px rgba(0,0,0,0.4); }
+  .station-tooltip { background:#13263b; color:#e0e6ed; border:1px solid #2a4a66; font-size:12px; font-weight:bold; padding:2px 6px; }
+  .leaflet-popup-content-wrapper { background:#13263b; color:#e0e6ed; }
+  .leaflet-popup-tip { background:#13263b; }
+  .status-ok { color:#8be9a3; }
+  .status-fail { color:#ff6b6b; }
+  .status-skip { color:#6c7a89; }
 </style>
 </head>
-
 <body>
 
 <h1>🌬️ Vento - Stazioni Lago di Garda</h1>
+<div class="updated">Valori in nodi · ordine sud → nord</div>
 
-<div class="updated">Caricamento dati...</div>
+<div class="refresh-bar">
+  <button id="refreshBtn" onclick="refreshAll()">🔄 Aggiorna Dati</button>
+  <span id="refreshStatus">Dati statici (ultimo controllo manuale: 30-06-2026)</span>
+</div>
 
 <table id="windTable">
   <thead>
     <tr>
       <th>Stazione</th>
-      <th>Vento (kn)</th>
+      <th>Vento attuale (nodi)</th>
       <th>Direzione</th>
-      <th>Raffica max (kn)</th>
-      <th>Ora max</th>
-      <th>Ultimo aggiornamento</th>
+      <th>Vento massimo (nodi)</th>
+      <th>Ora del massimo</th>
+      <th>Stato</th>
     </tr>
   </thead>
-  <tbody></tbody>
+  <tbody id="windTableBody">
+  </tbody>
 </table>
 
-<div class="source">
-  Dati meteo Lago di Garda · aggiornamento automatico ogni 5 minuti
+<div class="map-wrap" id="mapWrap">
+<div id="map" style="width:100%; height:520px; border-radius:8px;"></div>
 </div>
 
+<div class="source">Fonti dati: meteopassione.com, meteonetwork.eu, meteoproject.it · Gargnano (WeatherLink) non scrapabile, dato manuale</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
+const KMH_TO_KN = 0.539957;
 
-/* ---------------- CORE UPDATE ---------------- */
+const stations = [
+  { id:"desenzano", name:"Desenzano", lat:45.4698239, lon:10.536538,
+    sourceUrl:"https://www.meteopassione.com/stazioni/desenzano",
+    parser:"meteopassione", unit:"kmh",
+    fallback:{speed:20.8, dir:"N", max:31.3, maxTime:"06:28"} },
 
-async function aggiorna() {
+  { id:"peschiera", name:"Peschiera", lat:45.4396483, lon:10.686844,
+    sourceUrl:"https://www.meteonetwork.eu/it/weather-station/vnt259-stazione-meteorologica-di-peschiera-del-garda",
+    parser:"meteonetwork", unit:"kmh",
+    fallback:{speed:4.3, dir:"N", max:34.8, maxTime:"N/D"} },
 
+  { id:"salo", name:"Salò", lat:45.608392, lon:10.5104769,
+    sourceUrl:"https://www.meteopassione.com/stazioni/salo-lago-di-garda",
+    parser:"meteopassione", unit:"kmh",
+    fallback:{speed:1.3, dir:"NNE", max:7.2, maxTime:"01:32"} },
+
+  { id:"toscolano", name:"Toscolano", lat:45.6368065, lon:10.6051948,
+    sourceUrl:"https://www.meteopassione.com/stazioni/museo-della-carta-toscolano-maderno",
+    parser:"meteopassione", unit:"kmh",
+    fallback:{speed:1.2, dir:"ESE", max:3.5, maxTime:"01:00"} },
+
+  { id:"gargnano", name:"Gargnano", lat:45.6888313, lon:10.6624366,
+    sourceUrl:"https://www.circolovelagargnano.it/",
+    parser:"none", unit:"kn",
+    fallback:{speed:5, dir:"SSE", max:27, maxTime:"00:13"} },
+
+  { id:"campione", name:"Campione", lat:45.7531257, lon:10.749762,
+    sourceUrl:"https://www.meteopassione.com/stazioni/campione",
+    parser:"meteopassione", unit:"kmh",
+    fallback:{speed:17.4, dir:"N", max:29.5, maxTime:"N/D"} },
+
+  { id:"malcesine", name:"Malcesine", lat:45.7640104, lon:10.8100579,
+    sourceUrl:"https://stazioni.meteoproject.it/dati/malcesine/",
+    parser:"meteoproject", unit:"kn",
+    fallback:{speed:8.7, dir:"ENE", max:29.5, maxTime:"01:08"} }
+];
+
+// Inizializza ogni stazione con i valori di fallback come stato corrente
+stations.forEach(s => {
+  s.current = { ...s.fallback, status:"cache" }; // status: cache | ok | fail
+});
+
+function speedClass(kn) {
+  if (kn >= 15) return "wind-high";
+  if (kn >= 5) return "wind-mid";
+  return "wind-low";
+}
+
+function markerColor(kn) {
+  if (kn >= 15) return "#ff6b6b";
+  if (kn >= 5) return "#ffd166";
+  return "#8be9a3";
+}
+
+function toKnots(value, unit) {
+  if (unit === "kmh") return value * KMH_TO_KN;
+  return value;
+}
+
+// ---- Parser per ogni fonte (lavorano sul testo semplice della pagina) ----
+function parseMeteopassione(text) {
+  const re = /Vento[\s\S]{0,40}?([\d.]+)\s*Km\/h\s*([NSEW]{1,3})[\s\S]{0,100}?Massima[\s\S]{0,20}?([\d.]+)\s*Km\/h\s*Alle ore\s*(\d{2}:\d{2})/i;
+  const m = text.match(re);
+  if (!m) return null;
+  return { speed: parseFloat(m[1]), dir: m[2], max: parseFloat(m[3]), maxTime: m[4], unit:"kmh" };
+}
+
+function parseMeteonetwork(text) {
+  const re = /Vento[\s\S]{0,30}?([\d.]+)\s*km\/h\s*\(([NSEW]{1,3})\)[\s\S]{0,80}?Raffica\s*([\d.]+)\s*km\/h/i;
+  const m = text.match(re);
+  if (!m) return null;
+  return { speed: parseFloat(m[1]), dir: m[2], max: parseFloat(m[3]), maxTime:"N/D", unit:"kmh" };
+}
+
+function parseMeteoproject(text) {
+  const re = /Velocit[àa] attuale:\s*([\d.]+)\s*kts\s*([NSEW]{1,3})[\s\S]{0,200}?Raffica giornaliera:\s*([\d.]+)\s*kts[\s\S]{0,60}?Ora Raffica:\s*([\d:.]{4,5})/i;
+  const m = text.match(re);
+  if (!m) return null;
+  return { speed: parseFloat(m[1]), dir: m[2], max: parseFloat(m[3]), maxTime: m[4].replace('.',':'), unit:"kn" };
+}
+
+const PARSERS = {
+  meteopassione: parseMeteopassione,
+  meteonetwork: parseMeteonetwork,
+  meteoproject: parseMeteoproject
+};
+
+// ---- Fetch via proxy CORS pubblico ----
+async function fetchViaProxy(url) {
+  const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+  const res = await fetch(proxyUrl, { cache: "no-store" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return await res.text();
+}
+
+function htmlToText(html) {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return doc.body ? doc.body.textContent : "";
+}
+
+async function scrapeStation(s) {
+  if (s.parser === "none") {
+    s.current = { ...s.fallback, status:"skip" };
+    return;
+  }
   try {
-
-    const res = await fetch("vento.json?t=" + Date.now());
-    const data = await res.json();
-
-    document.querySelector(".updated").innerText =
-      "Ultimo aggiornamento: " + data.updated;
-
-    const tbody = document.querySelector("#windTable tbody");
-    tbody.innerHTML = "";
-
-    data.stations.forEach(s => {
-
-      const cls =
-        s.wind >= 18 ? "wind-high" :
-        s.wind >= 8  ? "wind-mid" :
-                       "wind-low";
-
-      tbody.innerHTML += `
-        <tr>
-          <td>${s.name}</td>
-          <td class="${cls}">${s.wind}</td>
-          <td>${s.dir}</td>
-          <td class="${cls}">${s.max}</td>
-          <td>${s.maxTime}</td>
-          <td>${s.last}</td>
-        </tr>
-      `;
-
-    });
-
+    const html = await fetchViaProxy(s.sourceUrl);
+    const text = htmlToText(html);
+    const parsed = PARSERS[s.parser](text);
+    if (!parsed) throw new Error("parsing fallito");
+    s.current = { ...parsed, status:"ok" };
   } catch (err) {
-    console.error("Errore caricamento vento.json:", err);
-    document.querySelector(".updated").innerText =
-      "Errore caricamento dati";
+    console.warn("Scraping fallito per", s.name, err);
+    s.current = { ...s.current, status:"fail" };
   }
 }
 
-/* ---------------- START + AUTO REFRESH ---------------- */
+let map, markers = {};
 
-aggiorna();
-setInterval(aggiorna, 5 * 60 * 1000);
+function initMap() {
+  map = L.map('map', { scrollWheelZoom:false });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
 
+  const bounds = [];
+  stations.forEach(s => {
+    bounds.push([s.lat, s.lon]);
+    const marker = L.circleMarker([s.lat, s.lon], {
+      radius: 9,
+      fillColor: markerColor(toKnots(s.current.speed, s.current.unit || "kn")),
+      color: "#0d1b2a",
+      weight: 2,
+      fillOpacity: 0.95
+    }).addTo(map);
+    const isLeft = s.name === "Campione";
+    marker.bindTooltip("", {
+      permanent: true,
+      direction: isLeft ? "left" : "right",
+      offset: isLeft ? [-10,0] : [10,0],
+      className: "station-tooltip"
+    });
+    markers[s.id] = marker;
+  });
+  map.fitBounds(bounds, { padding: [40, 40] });
+}
+
+function renderAll() {
+  const tbody = document.getElementById("windTableBody");
+  tbody.innerHTML = "";
+  stations.forEach(s => {
+    const kn = toKnots(s.current.speed, s.current.unit || "kn");
+    const maxKn = toKnots(s.current.max, s.current.unit || "kn");
+    const cls = speedClass(kn);
+    const maxCls = speedClass(maxKn);
+
+    let statusLabel = "";
+    if (s.current.status === "ok") statusLabel = '<span class="status-ok">✅ live</span>';
+    else if (s.current.status === "fail") statusLabel = '<span class="status-fail">⚠️ cache</span>';
+    else if (s.current.status === "skip") statusLabel = '<span class="status-skip">manuale</span>';
+    else statusLabel = '<span class="status-skip">cache</span>';
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><a href="${s.sourceUrl}" target="_blank">${s.name}</a></td>
+      <td class="${cls}">${kn.toFixed(1)}</td>
+      <td>${s.current.dir}</td>
+      <td class="${maxCls}">${maxKn.toFixed(1)}</td>
+      <td>${s.current.maxTime}</td>
+      <td>${statusLabel}</td>
+    `;
+    tbody.appendChild(tr);
+
+    if (markers[s.id]) {
+      markers[s.id].setStyle({ fillColor: markerColor(kn) });
+      markers[s.id].setTooltipContent(`${s.name} — ${kn.toFixed(1)} kn ${s.current.dir}`);
+      markers[s.id].setPopupContent(`<b>${s.name}</b><br>${kn.toFixed(1)} kn ${s.current.dir}<br>max ${maxKn.toFixed(1)} kn alle ${s.current.maxTime}`);
+    }
+  });
+}
+
+async function refreshAll() {
+  const btn = document.getElementById("refreshBtn");
+  const status = document.getElementById("refreshStatus");
+  btn.disabled = true;
+  status.textContent = "Aggiornamento in corso...";
+
+  await Promise.all(stations.map(s => scrapeStation(s)));
+
+  renderAll();
+
+  const okCount = stations.filter(s => s.current.status === "ok").length;
+  const failCount = stations.filter(s => s.current.status === "fail").length;
+  const skipCount = stations.filter(s => s.current.status === "skip").length;
+  const now = new Date().toLocaleTimeString("it-IT");
+  status.textContent = `Ultimo aggiornamento: ${now} — ${okCount} live, ${failCount} fallite (cache), ${skipCount} manuali`;
+  btn.disabled = false;
+}
+
+// Render iniziale con i dati di fallback, poi mappa
+renderAll();
+initMap();
 </script>
 
 </body>
