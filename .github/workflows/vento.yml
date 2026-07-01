@@ -31,11 +31,11 @@ jobs:
           pwd
           echo "=== FILE TREE ==="
           ls -R
-
-      - name: Run script
+      - name: Run update script
         run: |
           python vento/scripts/update_vento.py
-
+          echo "===== vento.json ====="
+          cat vento.json
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
@@ -43,3 +43,7 @@ jobs:
           git add vento.json
           git diff --cached --quiet || git commit -m "🌬️ update vento data"
           git push
+      - name: Git status
+        run: |
+         git status
+        git diff --stat
