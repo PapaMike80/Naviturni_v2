@@ -1,61 +1,61 @@
 {
-  "updated": "02-07-2026 22:43",
+  "updated": "02-07-2026 23:47",
   "stations": [
     {
       "name": "Desenzano",
-      "wind": 4.2,
+      "wind": 1.4,
       "dir": "NNE",
-      "max": 7.1,
-      "maxTime": "22:43",
-      "last": "02-07-2026 22:43"
+      "max": 6.8,
+      "maxTime": "23:47",
+      "last": "02-07-2026 23:47"
     },
     {
       "name": "Peschiera",
-      "wind": 15.0,
-      "dir": "NNE",
-      "max": 26.8,
-      "maxTime": "22:43",
-      "last": "02-07-2026 22:43"
+      "wind": 20.1,
+      "dir": "SW",
+      "max": 27.6,
+      "maxTime": "23:47",
+      "last": "02-07-2026 23:47"
     },
     {
       "name": "Salò",
-      "wind": 3.9,
-      "dir": "WNW",
-      "max": 13.3,
-      "maxTime": "22:43",
-      "last": "02-07-2026 22:43"
+      "wind": 13.6,
+      "dir": "SW",
+      "max": 24.6,
+      "maxTime": "23:47",
+      "last": "02-07-2026 23:47"
     },
     {
       "name": "Toscolano",
-      "wind": 7.0,
-      "dir": "ENE",
-      "max": 9.5,
-      "maxTime": "22:43",
-      "last": "02-07-2026 22:43"
+      "wind": 22.0,
+      "dir": "SSW",
+      "max": 24.7,
+      "maxTime": "23:47",
+      "last": "02-07-2026 23:47"
     },
     {
       "name": "Gargnano",
-      "wind": 5.1,
-      "dir": "W",
-      "max": 15.6,
-      "maxTime": "22:43",
-      "last": "02-07-2026 22:43"
+      "wind": 13.3,
+      "dir": "SW",
+      "max": 20.8,
+      "maxTime": "23:47",
+      "last": "02-07-2026 23:47"
     },
     {
       "name": "Campione del Garda",
-      "wind": 4.2,
-      "dir": "SW",
-      "max": 7.0,
-      "maxTime": "22:43",
-      "last": "02-07-2026 22:43"
+      "wind": 4.5,
+      "dir": "NNW",
+      "max": 13.3,
+      "maxTime": "23:47",
+      "last": "02-07-2026 23:47"
     },
     {
       "name": "Malcesine",
-      "wind": 14.4,
-      "dir": "W",
-      "max": 22.2,
-      "maxTime": "22:43",
-      "last": "02-07-2026 22:43"
+      "wind": 2.7,
+      "dir": "ESE",
+      "max": 7.4,
+      "maxTime": "23:47",
+      "last": "02-07-2026 23:47"
     }
   ]
 }
