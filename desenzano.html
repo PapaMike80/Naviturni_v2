@@ -996,10 +996,10 @@
       <a href="TURNO_DAL_22-06_AL_26-07-2026.pdf" class="btn btn-pdf" target="_blank">
         📄 PDF Turni
       </a>
-      <button class="btn-mode" id="toggle-edit-btn" onclick="toggleEditMode()">✍ Abilita Modifiche</button>
-      <button class="btn-save-action" id="save-edit-btn" onclick="saveChanges()">💾 Salva</button>
-      <button class="btn-download-action" id="download-json-btn" onclick="downloadUpdatedJSON()">⬇ Esporta JSON</button>
-    </div>
+      <a href="editor_turni.html" class="btn btn" target="_blank">
+        📄 Editor Turni
+      </a>      
+     </div>
   </div>
 
   <main>
@@ -1031,25 +1031,6 @@
       </table>
     </div>
 
-    <div class="upload-container" id="upload-container">
-      <div class="upload-header" onclick="toggleUpload()">
-        <span>⬆ Carica / Aggiorna <code>turni_finali.json</code></span>
-        <span id="upload-toggle-icon">▼ espandi</span>
-      </div>
-      <div id="upload-body">
-        <textarea class="csv-textarea" id="json-paste-input" placeholder="Incolla il contenuto del file JSON qui..."></textarea>
-        <div class="upload-actions">
-          <input type="file" id="json-file-input" accept=".json">
-          <button class="btn-primary" onclick="loadPastedJSON()">Salva Dati</button>
-          <button class="btn-danger" onclick="clearSavedMemory()">Svuota</button>
-          <span id="upload-status"></span>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <footer>Dati letti da turni_finali.json · Modifiche salvate in locale</footer>
 
   <script>
     let globalData = null;
