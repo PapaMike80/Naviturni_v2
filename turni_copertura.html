@@ -1162,11 +1162,40 @@
       renderLegend();
       renderMatrix();
     }
+  function goToToday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
+  const weeks = model[state.residenza].weekKeys;
+
+  for (let wi = 0; wi < weeks.length; wi++) {
+    const start = parseWeekStart(weeks[wi]);
+
+    for (let di = 0; di < 7; di++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + di);
+      d.setHours(0, 0, 0, 0);
+
+      if (d.getTime() === today.getTime()) {
+        state.weekIndex = wi;
+        state.dayIndex = di;
+        return;
+      }
+    }
+  }
+
+  // Se la data odierna non è presente nel periodo,
+  // rimane selezionato il primo giorno.
+  state.weekIndex = 0;
+  state.dayIndex = 0;
+}
     // ---------- inizializzazione con caricamento JSON esterno ----------
     function initApp() {
       // Imposta stato iniziale
       state.residenza = RESIDENZE[0] || '';
+      
+  // Vai automaticamente alla data odierna
+      goToToday();
       // Aggiorna periodo
       if (RAW && RAW.periodo) {
         elPeriodLabel.textContent = RAW.periodo;
