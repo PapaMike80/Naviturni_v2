@@ -483,7 +483,6 @@
       min-width: 1200px;
     }
 
-    /* Colonne fisse con larghezze proporzionali */
     .scroll-wrap table td:nth-child(1),
     .scroll-wrap table th:nth-child(1) {
       width: 50px;
@@ -503,7 +502,6 @@
       max-width: 40px;
     }
 
-    /* Colonne giorni */
     .scroll-wrap table td:nth-child(n+4),
     .scroll-wrap table th:nth-child(n+4) {
       width: 48px;
@@ -762,7 +760,6 @@
       border-color: var(--accent);
     }
 
-    /* Gradi bordi */
     .grado-capitano td:first-child {
       border-left: 3px solid #facc15;
     }
@@ -982,7 +979,7 @@
     <div class="title-row">
       <div class="company-name">Navigazione sul Lago di Garda</div>
       <h1 class="doc-title"><span class="wave">⚓</span> Pannello Operativo Turni</h1>
-      <span class="doc-subtitle">STAGIONE 2026 (DAL 22-06 AL 02-08-2026)</span>
+      <span class="doc-subtitle" id="periodLabel">STAGIONE 2026 (DAL 22-06 AL 02-08-2026)</span>
     </div>
   </header>
 
@@ -990,16 +987,10 @@
     <div class="resistence-block" id="res-selector-container"></div>
 
     <div class="admin-panel" id="admin-panel" style="display:none;">
-      <a href="turni_copertura.html" class="btn" target="_blank">
-        👥 Turni Copertura
-      </a>
-      <a href="TURNO_DAL_22-06_AL_26-07-2026.pdf" class="btn btn-pdf" target="_blank">
-        📄 PDF Turni
-      </a>
-      <a href="editor_turni.html" class="btn btn" target="_blank">
-        📄 Editor Turni
-      </a>      
-     </div>
+      <a href="turni_copertura.html" class="btn" target="_blank">👥 Turni Copertura</a>
+      <a href="editor_turni.html" class="btn" target="_blank">✍ Editor Turni</a>
+      <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
+    </div>
   </div>
 
   <main>
@@ -1031,6 +1022,24 @@
       </table>
     </div>
 
+    <div class="upload-container" id="upload-container">
+      <div class="upload-header" onclick="toggleUpload()">
+        <span>📂 Carica / Gestisci dati</span>
+        <span id="upload-toggle-icon">▼ espandi</span>
+      </div>
+      <div id="upload-body">
+        <textarea class="csv-textarea" id="json-paste-input" placeholder="Incolla qui il contenuto di turni_finali.json..."></textarea>
+        <div class="upload-actions">
+          <button class="btn-primary" onclick="loadPastedJSON()">📥 Carica da testo</button>
+          <button class="btn-danger" onclick="clearSavedMemory()">🗑 Cancella memoria</button>
+          <span id="upload-status"></span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>Pagina generata localmente — dati letti da turni_finali.json · nessun invio a server esterni</footer>
 
   <script>
     let globalData = null;
@@ -1550,6 +1559,16 @@
       globalData = data;
       document.getElementById("welcome-notice").style.display = "none";
       document.getElementById("admin-panel").style.display = "flex";
+      
+      // Aggiorna il periodo nel titolo
+      if (data.periodo) {
+        document.getElementById("periodLabel").textContent = data.periodo;
+        // Aggiorna anche il link PDF
+        const pdfLink = document.getElementById("pdfLink");
+        const periodoClean = data.periodo.replace(/[^a-zA-Z0-9\-]/g, '_');
+        pdfLink.href = `TURNO_${periodoClean}.pdf`;
+      }
+      
       renderResidenceButtons();
       let keys = Object.keys(data.residenze || {});
       if (keys.length > 0) selectResidence(keys[0]);
@@ -1579,7 +1598,7 @@
     function toggleUpload() {
       const body = document.getElementById("upload-body");
       const icon = document.getElementById("upload-toggle-icon");
-      if (body.style.display === "none") {
+      if (body.style.display === "none" || body.style.display === "") {
         body.style.display = "flex";
         icon.textContent = "▲ comprimi";
       } else {
