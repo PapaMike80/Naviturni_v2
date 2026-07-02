@@ -878,17 +878,16 @@
     }
 
     function renderResidenceTabs() {
-      elResidenceTabs.innerHTML = RESIDENZE.map(r =>
-        `<button class="tab ${r === state.residenza ? 'active' : ''}" data-res="${r}">${r}</button>`
-      ).join('');
       elResidenceTabs.querySelectorAll('.tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-          state.residenza = btn.dataset.res;
-          state.weekIndex = 0;
-          state.dayIndex = 0;
-          renderAll();
-        });
-      });
+  btn.addEventListener('click', () => {
+    state.residenza = btn.dataset.res;
+
+    // Vai automaticamente al giorno odierno anche nella nuova residenza
+    goToToday();
+
+    renderAll();
+  });
+});
     }
 
     function renderWeekBar() {
