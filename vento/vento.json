@@ -1,61 +1,61 @@
 {
-  "updated": "03-07-2026 18:19",
+  "updated": "03-07-2026 19:55",
   "stations": [
     {
       "name": "Desenzano",
-      "wind": 13.8,
-      "dir": "SSW",
-      "max": 17.7,
-      "maxTime": "18:19",
-      "last": "03-07-2026 18:19"
+      "wind": 17.0,
+      "dir": "NW",
+      "max": 25.6,
+      "maxTime": "19:55",
+      "last": "03-07-2026 19:55"
     },
     {
       "name": "Peschiera",
-      "wind": 16.9,
+      "wind": 11.5,
       "dir": "WSW",
-      "max": 26.3,
-      "maxTime": "18:19",
-      "last": "03-07-2026 18:19"
+      "max": 14.7,
+      "maxTime": "19:55",
+      "last": "03-07-2026 19:55"
     },
     {
       "name": "Salò",
-      "wind": 16.5,
-      "dir": "SSE",
-      "max": 24.1,
-      "maxTime": "18:19",
-      "last": "03-07-2026 18:19"
+      "wind": 15.8,
+      "dir": "S",
+      "max": 21.6,
+      "maxTime": "19:55",
+      "last": "03-07-2026 19:55"
     },
     {
       "name": "Toscolano",
-      "wind": 19.8,
-      "dir": "ESE",
-      "max": 22.8,
-      "maxTime": "18:19",
-      "last": "03-07-2026 18:19"
+      "wind": 13.0,
+      "dir": "ENE",
+      "max": 18.7,
+      "maxTime": "19:55",
+      "last": "03-07-2026 19:55"
     },
     {
       "name": "Gargnano",
-      "wind": 13.3,
+      "wind": 11.2,
       "dir": "N",
-      "max": 25.3,
-      "maxTime": "18:19",
-      "last": "03-07-2026 18:19"
+      "max": 15.8,
+      "maxTime": "19:55",
+      "last": "03-07-2026 19:55"
     },
     {
       "name": "Campione del Garda",
-      "wind": 10.0,
-      "dir": "NW",
-      "max": 19.7,
-      "maxTime": "18:19",
-      "last": "03-07-2026 18:19"
+      "wind": 3.6,
+      "dir": "W",
+      "max": 13.1,
+      "maxTime": "19:55",
+      "last": "03-07-2026 19:55"
     },
     {
       "name": "Malcesine",
-      "wind": 19.7,
-      "dir": "ENE",
-      "max": 25.5,
-      "maxTime": "18:19",
-      "last": "03-07-2026 18:19"
+      "wind": 16.4,
+      "dir": "NNW",
+      "max": 26.6,
+      "maxTime": "19:55",
+      "last": "03-07-2026 19:55"
     }
   ]
 }
