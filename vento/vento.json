@@ -1,61 +1,61 @@
 {
-  "updated": "05-07-2026 07:47",
+  "updated": "05-07-2026 09:59",
   "stations": [
     {
       "name": "Desenzano",
-      "wind": 19.7,
-      "dir": "SSE",
-      "max": 23.3,
-      "maxTime": "07:47",
-      "last": "05-07-2026 07:47"
+      "wind": 14.0,
+      "dir": "NNW",
+      "max": 25.0,
+      "maxTime": "09:59",
+      "last": "05-07-2026 09:59"
     },
     {
       "name": "Peschiera",
-      "wind": 12.9,
-      "dir": "SSW",
-      "max": 16.0,
-      "maxTime": "07:47",
-      "last": "05-07-2026 07:47"
+      "wind": 7.4,
+      "dir": "NW",
+      "max": 9.5,
+      "maxTime": "09:59",
+      "last": "05-07-2026 09:59"
     },
     {
       "name": "Salò",
-      "wind": 20.0,
-      "dir": "NNW",
-      "max": 29.7,
-      "maxTime": "07:47",
-      "last": "05-07-2026 07:47"
+      "wind": 18.5,
+      "dir": "SSE",
+      "max": 22.7,
+      "maxTime": "09:59",
+      "last": "05-07-2026 09:59"
     },
     {
       "name": "Toscolano",
-      "wind": 18.8,
-      "dir": "ENE",
-      "max": 24.7,
-      "maxTime": "07:47",
-      "last": "05-07-2026 07:47"
+      "wind": 14.6,
+      "dir": "WNW",
+      "max": 20.9,
+      "maxTime": "09:59",
+      "last": "05-07-2026 09:59"
     },
     {
       "name": "Gargnano",
-      "wind": 9.2,
-      "dir": "SSW",
-      "max": 13.6,
-      "maxTime": "07:47",
-      "last": "05-07-2026 07:47"
+      "wind": 21.2,
+      "dir": "NNE",
+      "max": 29.2,
+      "maxTime": "09:59",
+      "last": "05-07-2026 09:59"
     },
     {
       "name": "Campione del Garda",
-      "wind": 14.9,
-      "dir": "S",
-      "max": 20.1,
-      "maxTime": "07:47",
-      "last": "05-07-2026 07:47"
+      "wind": 7.8,
+      "dir": "ESE",
+      "max": 14.8,
+      "maxTime": "09:59",
+      "last": "05-07-2026 09:59"
     },
     {
       "name": "Malcesine",
-      "wind": 4.3,
-      "dir": "S",
-      "max": 9.5,
-      "maxTime": "07:47",
-      "last": "05-07-2026 07:47"
+      "wind": 9.0,
+      "dir": "SSW",
+      "max": 18.8,
+      "maxTime": "09:59",
+      "last": "05-07-2026 09:59"
     }
   ]
 }
