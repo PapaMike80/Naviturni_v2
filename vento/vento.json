@@ -1,61 +1,61 @@
 {
-  "updated": "07-07-2026 21:54",
+  "updated": "07-07-2026 23:01",
   "stations": [
     {
       "name": "Desenzano",
-      "wind": 3.3,
-      "dir": "SE",
-      "max": 7.7,
-      "maxTime": "21:54",
-      "last": "07-07-2026 21:54"
+      "wind": 4.6,
+      "dir": "S",
+      "max": 11.5,
+      "maxTime": "23:01",
+      "last": "07-07-2026 23:01"
     },
     {
       "name": "Peschiera",
-      "wind": 7.6,
+      "wind": 12.1,
       "dir": "SE",
-      "max": 16.1,
-      "maxTime": "21:54",
-      "last": "07-07-2026 21:54"
+      "max": 14.2,
+      "maxTime": "23:01",
+      "last": "07-07-2026 23:01"
     },
     {
       "name": "Salò",
-      "wind": 2.0,
-      "dir": "SSE",
-      "max": 8.0,
-      "maxTime": "21:54",
-      "last": "07-07-2026 21:54"
+      "wind": 7.3,
+      "dir": "S",
+      "max": 14.9,
+      "maxTime": "23:01",
+      "last": "07-07-2026 23:01"
     },
     {
       "name": "Toscolano",
-      "wind": 11.5,
-      "dir": "SSE",
-      "max": 22.8,
-      "maxTime": "21:54",
-      "last": "07-07-2026 21:54"
+      "wind": 1.7,
+      "dir": "NE",
+      "max": 11.8,
+      "maxTime": "23:01",
+      "last": "07-07-2026 23:01"
     },
     {
       "name": "Gargnano",
-      "wind": 7.6,
-      "dir": "NE",
-      "max": 15.8,
-      "maxTime": "21:54",
-      "last": "07-07-2026 21:54"
+      "wind": 11.6,
+      "dir": "ESE",
+      "max": 21.3,
+      "maxTime": "23:01",
+      "last": "07-07-2026 23:01"
     },
     {
       "name": "Campione del Garda",
-      "wind": 2.9,
-      "dir": "S",
-      "max": 8.8,
-      "maxTime": "21:54",
-      "last": "07-07-2026 21:54"
+      "wind": 2.3,
+      "dir": "ENE",
+      "max": 9.2,
+      "maxTime": "23:01",
+      "last": "07-07-2026 23:01"
     },
     {
       "name": "Malcesine",
-      "wind": 21.0,
+      "wind": 17.0,
       "dir": "SW",
-      "max": 31.4,
-      "maxTime": "21:54",
-      "last": "07-07-2026 21:54"
+      "max": 23.7,
+      "maxTime": "23:01",
+      "last": "07-07-2026 23:01"
     }
   ]
 }
