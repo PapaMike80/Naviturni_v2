@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BOZZA Turno Personale — Gestione Turni</title>
+  <title>Turno Personale — Gestione Turni</title>
   <style>
     :root {
       --bg: #0b1c26;
@@ -1070,8 +1070,8 @@
   <header class="page-header">
     <div class="title-row">
       <div class="company-name">Navigazione sul Lago di Garda</div>
-      <h1 class="doc-title"><span class="wave">⚓</span> Pannello Operativo Turni — BOZZA</h1>
-      <span class="doc-subtitle" id="periodLabel">BOZZA — STAGIONE 2026 (DAL 22-06 AL 02-08-2026)</span>
+      <h1 class="doc-title"><span class="wave">⚓</span> Pannello Operativo Turni</h1>
+      <span class="doc-subtitle" id="periodLabel">STAGIONE 2026 (DAL 22-06 AL 02-08-2026)</span>
     </div>
   </header>
 
@@ -1079,9 +1079,9 @@
     <div class="resistence-block" id="res-selector-container"></div>
 
     <div class="admin-panel" id="admin-panel" style="display:none;">
-      <a href="desenzano.html" class="btn" target="_blank">👥 Turno 22/08 26/07</a>
-      <a href="bozza_turni_copertura.html" class="btn" target="_blank">👥 Turni Copertura</a>
-      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica JSON</button>
+      <a href="bozza_desenzano.html" class="btn" target="_blank">👥 BOZZA</a>
+      <a href="turni_copertura.html" class="btn" target="_blank">👥 Turni Copertura</a>
+      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
       <button class="btn" onclick="togglePastColumns()" id="togglePastBtn">👁 Mostra passato</button>
       <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
     </div>
@@ -1090,8 +1090,8 @@
   <main>
 
     <div id="welcome-notice">
-      <h3>📊 Nessun dato bozza caricato</h3>
-      <p>Metti <code>turni_bozza.json</code> nella stessa cartella della pagina, oppure incolla manualmente il JSON nella sezione in fondo.</p>
+      <h3>📊 Nessun dato turno caricato</h3>
+      <p>I dati vengono caricati automaticamente dal Foglio Google. Se serve, puoi ancora incollare manualmente un JSON nella sezione in fondo.</p>
     </div>
 
     <div class="shifts-filter-block" id="shift-filter-container">
@@ -1122,7 +1122,7 @@
         <span id="upload-toggle-icon">▼ espandi</span>
       </div>
       <div id="upload-body">
-        <textarea class="csv-textarea" id="json-paste-input" placeholder="Incolla qui il contenuto di turni_bozza.json..."></textarea>
+        <textarea class="csv-textarea" id="json-paste-input" placeholder="Incolla qui il contenuto di turni_finali.json..."></textarea>
         <div class="upload-actions">
           <button class="btn-primary" onclick="loadPastedJSON()">📥 Carica da testo</button>
           <button class="btn-danger" onclick="clearSavedMemory()">🗑 Cancella memoria</button>
@@ -1154,75 +1154,13 @@
     };
 
     const dateCalendario = [];
-    const settimaneInfo = [];
-
-    function pad2(n) {
-      return String(n).padStart(2, "0");
-    }
-
-    function parseWeekKey(key) {
-      const m = String(key || "").match(/settimana_(\d{2})-(\d{2})_al_(\d{2})-(\d{2})/);
-      if (!m) return null;
-      return {
-        key,
-        startDay: parseInt(m[1], 10),
-        startMonth: parseInt(m[2], 10),
-        endDay: parseInt(m[3], 10),
-        endMonth: parseInt(m[4], 10)
-      };
-    }
-
-    function annoDaDati(data) {
-      if (data && data.data_inizio) {
-        const d = new Date(data.data_inizio + "T00:00:00");
-        if (!isNaN(d)) return d.getFullYear();
-      }
-      const m = String((data && data.periodo) || "").match(/(\d{4})/);
-      return m ? parseInt(m[1], 10) : 2026;
-    }
-
-    function configuraSettimaneDaJSON(data) {
-      settimaneInfo.length = 0;
-      const anno = annoDaDati(data);
-      const keys = [];
-
-      Object.values(data.residenze || {}).forEach(lista => {
-        (lista || []).forEach(ag => {
-          Object.keys(ag.turni_settimanali || {}).forEach(k => {
-            if (!keys.includes(k)) keys.push(k);
-          });
-        });
-      });
-
-      keys.sort((a, b) => {
-        const pa = parseWeekKey(a);
-        const pb = parseWeekKey(b);
-        if (!pa || !pb) return a.localeCompare(b);
-        return new Date(anno, pa.startMonth - 1, pa.startDay) - new Date(anno, pb.startMonth - 1, pb.startDay);
-      });
-
-      keys.forEach(key => {
-        const p = parseWeekKey(key);
-        if (!p) return;
-        let count = 7;
-        Object.values(data.residenze || {}).some(lista => (lista || []).some(ag => {
-          const arr = ag.turni_settimanali && ag.turni_settimanali[key];
-          if (Array.isArray(arr) && arr.length) {
-            count = arr.length;
-            return true;
-          }
-          return false;
-        }));
-        settimaneInfo.push({
-          label: `Settimana ${pad2(p.startDay)}-${pad2(p.startMonth)} al ${pad2(p.endDay)}-${pad2(p.endMonth)}`,
-          key,
-          startDay: p.startDay,
-          month: p.startMonth - 1,
-          count,
-          year: anno
-        });
-      });
-    }
+    const settimaneInfo = [
+      { label: "Settimana 22-06 al 28-06", key: "settimana_22-06_al_28-06", startDay: 22, month: 5 },
+      { label: "Settimana 29-06 al 05-07", key: "settimana_29-06_al_05-07", startDay: 29, month: 5 },
+      { label: "Settimana 06-07 al 12-07", key: "settimana_06-07_al_12-07", startDay: 6, month: 6 },
+      { label: "Settimana 13-07 al 19-07", key: "settimana_13-07_al_19-07", startDay: 13, month: 6 },
+      { label: "Settimana 20-07 al 26-07", key: "settimana_20-07_al_26-07", startDay: 20, month: 6 }
+    ];
 
     const nomiGiorni = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
     const mesiNomi = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre",
@@ -1257,23 +1195,18 @@
       dateCalendario.length = 0;
       let colCounter = 3;
       settimaneInfo.forEach((sett, sIdx) => {
-        let baseDate = new Date(sett.year || 2026, sett.month, sett.startDay);
-        const giorni = sett.count || 7;
-        for (let g = 0; g < giorni; g++) {
+        let baseDate = new Date(2026, sett.month, sett.startDay);
+        for (let g = 0; g < 7; g++) {
           let d = new Date(baseDate);
           d.setDate(baseDate.getDate() + g);
-          const jsDay = d.getDay();
-          const dayIdx = (jsDay + 6) % 7;
-          const nomeGiorno = nomiGiorni[dayIdx];
           dateCalendario.push({
             col: colCounter,
             weekKey: sett.key,
             weekIdx: sIdx,
-            dayIdx: g,
             dayNum: d.getDate(),
-            giornoSett: nomeGiorno,
-            isDomenica: (jsDay === 0),
-            labelEstesa: `${nomeGiorno} ${d.getDate()} ${mesiNomi[d.getMonth()]}`,
+            giornoSett: nomiGiorni[g],
+            isDomenica: (g === 6),
+            labelEstesa: `${nomiGiorni[g]}dì ${d.getDate()} ${mesiNomi[d.getMonth()]}`,
             realObj: d
           });
           colCounter++;
@@ -1284,14 +1217,14 @@
     function getGradeClass(badge) {
       badge = Number(badge);
       if (!badge) return "grado-marinaio";
-      if ((badge >= 1 && badge <= 5) || (badge >= 38 && badge <= 41) || (badge >= 66 && badge <= 69) || (badge >= 105 && badge <=
-          110)) return "grado-capitano";
-      if ((badge >= 6 && badge <= 9) || badge === 42 || (badge >= 70 && badge <= 73) || (badge >= 111 && badge <= 114))
+      if ((badge >= 1 && badge <= 5) || (badge >= 38 && badge <= 41) || (badge >= 65 && badge <= 68) || (badge >= 104 && badge <=
+          109)) return "grado-capitano";
+      if ((badge >= 6 && badge <= 9) || badge === 42 || (badge >= 69 && badge <= 72) || (badge >= 110 && badge <= 113))
         return "grado-capo";
-      if ((badge >= 43 && badge <= 49) || (badge >= 74 && badge <= 77) || (badge >= 115 && badge <= 118)) return "grado-timoniere";
-      if ((badge >= 13 && badge <= 14) || (badge >= 78 && badge <= 80) || (badge >= 119 && badge <= 120)) return "grado-aiuto";
-      if ((badge >= 29 && badge <= 37) || (badge >= 61 && badge <= 64) || (badge >= 96 && badge <= 104) || (badge >= 138 && badge <=
-          148)) return "grado-motorista";
+      if ((badge >= 43 && badge <= 49) || (badge >= 73 && badge <= 76) || (badge >= 114 && badge <= 117)) return "grado-timoniere";
+      if ((badge >= 13 && badge <= 14) || (badge >= 77 && badge <= 79) || (badge >= 118 && badge <= 119)) return "grado-aiuto";
+      if ((badge >= 29 && badge <= 37) || (badge >= 61 && badge <= 64) || (badge >= 95 && badge <= 103) || (badge >= 137 && badge <=
+          147)) return "grado-motorista";
       return "grado-marinaio";
     }
 
@@ -1462,8 +1395,10 @@
       });
 
       dateCalendario.forEach(cal => {
-        let arrayTurniSettimana = agenteObj.turni_settimanali[cal.weekKey] || ["rip", "rip", "rip", "rip", "rip", "rip", "rip"];
-        let giornoInternoIdx = cal.dayIdx;
+        let arrayTurniSettimana = agenteObj.turni_settimanali[cal.weekKey] || ["rip", "rip", "rip", "rip", "rip", "rip",
+          "rip"
+        ];
+        let giornoInternoIdx = (cal.col - 3) % 7;
         let turnoVal = arrayTurniSettimana[giornoInternoIdx] || "rip";
 
         const td = document.createElement("td");
@@ -1505,7 +1440,7 @@
       if (targetTh) targetTh.classList.add("selected-day");
 
       let calInfo = dateCalendario.find(c => c.col === col);
-      let giornoInternoIdx = calInfo.dayIdx;
+      let giornoInternoIdx = (col - 3) % 7;
       let myShiftPuro = ottieniTurnoPulito(cellShiftValue);
 
       if (myShiftPuro === "" || !calInfo) {
@@ -1633,7 +1568,6 @@
         document.getElementById("matrix-scroll-wrap").style.display = "block";
         document.getElementById("hint").style.display = "block";
         renderTable();
-        setTimeout(scrollToToday, 80);
         if (selectedCol) {
           let cal = dateCalendario.find(c => c.col === selectedCol);
           if (cal) selectDay(selectedCol, cal.labelEstesa, activeShiftFilter || "");
@@ -1709,7 +1643,7 @@
       });
 
       globalData.residenze[currentResidence] = currentAgentsList;
-      localStorage.setItem("turno_bozza_data", JSON.stringify(globalData));
+      localStorage.setItem("turno_finali_data", JSON.stringify(globalData));
 
       alert("Cambio turni salvato correttamente in memoria locale!");
       toggleEditMode();
@@ -1719,7 +1653,7 @@
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(globalData, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "turni_bozza.json");
+      downloadAnchor.setAttribute("download", "turni_finali.json");
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -1740,31 +1674,30 @@
 
     function processJSONData(data) {
       globalData = data;
-      configuraSettimaneDaJSON(data);
-      inizializzaCalendario();
-      buildTableHeader();
-
       document.getElementById("welcome-notice").style.display = "none";
       document.getElementById("admin-panel").style.display = "flex";
       
+      // Aggiorna il periodo nel titolo
       if (data.periodo) {
-        document.getElementById("periodLabel").textContent = "BOZZA — " + data.periodo;
+        document.getElementById("periodLabel").textContent = data.periodo;
+        // Aggiorna anche il link PDF
         const pdfLink = document.getElementById("pdfLink");
         const periodoClean = data.periodo.replace(/[^a-zA-Z0-9\-]/g, '_');
-        pdfLink.href = `BOZZA_TURNO_${periodoClean}.pdf`;
+        pdfLink.href = `TURNO_${periodoClean}.pdf`;
       }
       
       renderResidenceButtons();
       let keys = Object.keys(data.residenze || {});
-      if (keys.length > 0) selectResidence(keys.includes("DESENZANO") ? "DESENZANO" : keys[0]);
+      if (keys.length > 0) selectResidence(keys[0]);
     }
 
     function loadPastedJSON() {
       const txt = document.getElementById("json-paste-input").value.trim();
       try {
         const parsed = JSON.parse(txt);
-        localStorage.setItem("turno_bozza_data", txt);
+        localStorage.setItem("turno_finali_data", txt);
         processJSONData(parsed);
+        setTimeout(scrollToToday, 80);
         toggleUpload();
         document.getElementById("upload-status").textContent = "✅ Dati caricati con successo!";
       } catch (e) {
@@ -1775,7 +1708,7 @@
 
     function clearSavedMemory() {
       if (confirm("Cancellare i turni memorizzati?")) {
-        localStorage.removeItem("turno_bozza_data");
+        localStorage.removeItem("turno_finali_data");
         location.reload();
       }
     }
@@ -1789,34 +1722,6 @@
       } else {
         body.style.display = "none";
         icon.textContent = "▼ espandi";
-      }
-    }
-
-    const LOCAL_JSON_FILE = "turni_bozza.json";
-
-    async function caricaDatiDaJSONLocale() {
-      try {
-        const response = await fetch(LOCAL_JSON_FILE + "?t=" + Date.now());
-        if (!response.ok) {
-          throw new Error(`Errore HTTP: ${response.status}`);
-        }
-        const datiJson = await response.json();
-        processJSONData(datiJson);
-        localStorage.setItem("turno_bozza_data", JSON.stringify(datiJson));
-        document.getElementById("upload-status").textContent = "✅ Caricato da turni_bozza.json — " + new Date().toLocaleTimeString("it-IT");
-      } catch (errore) {
-        console.warn("Caricamento JSON locale fallito, provo con la memoria locale.", errore);
-        const saved = localStorage.getItem("turno_bozza_data");
-        if (saved) {
-          try {
-            processJSONData(JSON.parse(saved));
-            document.getElementById("upload-status").textContent = "⚠️ File JSON non trovato — dati da memoria locale";
-          } catch (e) {
-            document.getElementById("welcome-notice").style.display = "block";
-          }
-        } else {
-          document.getElementById("welcome-notice").style.display = "block";
-        }
       }
     }
 
@@ -1838,10 +1743,45 @@
       }
 
       const th = document.querySelector(`.date-header th[data-col="${target.col}"]`);
+      const fixedCols = document.querySelectorAll(".date-header th:nth-child(1), .date-header th:nth-child(2)");
       if (!th) return;
-      const fixedWidth = 38 + 104;
-      const targetLeft = th.offsetLeft - fixedWidth - 12;
-      wrap.scrollLeft = Math.max(0, targetLeft);
+      const fixedWidth = Array.from(fixedCols).reduce((sum, el) => sum + el.offsetWidth, 0);
+
+      const offset = Math.max(0, th.offsetLeft - fixedWidth - 8);
+      wrap.scrollTo({ left: offset, behavior: "auto" });
+      document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
+      th.classList.add("selected-day");
+    }
+
+    // Carica i dati dal Google Sheet condiviso tramite Apps Script.
+    // Se il Google Sheet non risponde, usa l'ultima copia salvata nel browser.
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw38IoMZJ50bun_AL-KjQ7jG4UbMPRKxjr22TXrzpZ_pIM2s9ZqOR0LYFXgC007Yc0PpQ/exec";
+
+    async function caricaDatiDaGoogleSheet() {
+      try {
+        const response = await fetch(GOOGLE_SCRIPT_URL + "?t=" + Date.now());
+        if (!response.ok) throw new Error(`Errore HTTP: ${response.status}`);
+        const datiJson = await response.json();
+        processJSONData(datiJson);
+        localStorage.setItem("turno_finali_data", JSON.stringify(datiJson));
+        document.getElementById("upload-status").textContent = "✅ Dati caricati dal Foglio Google — " + new Date().toLocaleTimeString("it-IT");
+        setTimeout(scrollToToday, 80);
+      } catch (errore) {
+        console.warn("Caricamento dal Google Sheet fallito, provo con la memoria locale.", errore);
+        const saved = localStorage.getItem("turno_finali_data");
+        if (saved) {
+          try {
+            processJSONData(JSON.parse(saved));
+            document.getElementById("upload-status").textContent = "⚠️ Google Sheet non raggiungibile — dati da memoria locale";
+            setTimeout(scrollToToday, 80);
+            return;
+          } catch (e) {
+            localStorage.removeItem("turno_finali_data");
+          }
+        }
+        document.getElementById("welcome-notice").style.display = "block";
+        document.getElementById("upload-status").textContent = "❌ Impossibile caricare i dati: " + errore.message;
+      }
     }
 
     function ricaricaDati() {
@@ -1849,15 +1789,17 @@
       const testoOriginale = btn.textContent;
       btn.textContent = "🔄 Aggiorno...";
       btn.disabled = true;
-      localStorage.removeItem("turno_bozza_data");
-      caricaDatiDaJSONLocale().finally(() => {
+      localStorage.removeItem("turno_finali_data");
+      caricaDatiDaGoogleSheet().finally(() => {
         btn.textContent = testoOriginale;
         btn.disabled = false;
       });
     }
 
     window.addEventListener("DOMContentLoaded", () => {
-      caricaDatiDaJSONLocale();
+      inizializzaCalendario();
+      buildTableHeader();
+      caricaDatiDaGoogleSheet();
     });
   </script>
 
