@@ -60,6 +60,7 @@
       align-items: baseline;
       flex-wrap: wrap;
       gap: 14px;
+      width: 100%;
     }
 
     .page-nav {
@@ -67,14 +68,16 @@
       gap: 8px;
       flex-wrap: wrap;
       align-items: center;
-      margin-top: 14px;
+      justify-content: flex-end;
+      margin: 0;
     }
 
     .title-row {
       display: flex;
       align-items: baseline;
       gap: 14px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      width: 100%;
     }
 
     h1 {
@@ -93,12 +96,25 @@
       color: var(--ink-dim);
       font-size: 13px;
       font-variant: small-caps;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    .header-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 16px -28px 0;
+      padding: 14px 28px 0;
+      border-top: 1px solid var(--line);
     }
 
     .tabs {
       display: flex;
       gap: 6px;
-      margin-top: 12px;
+      margin: 0;
       flex-wrap: wrap;
       align-items: center;
     }
@@ -131,7 +147,7 @@
     main {
       max-width: 100%;
       margin: 0;
-      padding: 20px 28px 60px;
+      padding: 18px 26px 60px;
     }
 
     .weekbar,
@@ -565,9 +581,73 @@
     }
 
     @media (max-width:640px) {
-      main {
-        padding: 16px 14px 40px;
+      .title-row {
+        flex-wrap: wrap;
       }
+      .period {
+        margin-left: 0;
+        width: 100%;
+      }
+      .header-toolbar {
+        margin: 14px -14px 0;
+        padding: 12px 14px 0;
+        align-items: flex-start;
+      }
+      .page-nav {
+        justify-content: flex-start;
+      }
+      .title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: nowrap;
+      width: 100%;
+    }
+      .period {
+      color: var(--ink-dim);
+      font-size: 13px;
+      font-variant: small-caps;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+      .header-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 16px -28px 0;
+      padding: 14px 28px 0;
+      border-top: 1px solid var(--line);
+    }
+      .page-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      margin: 0;
+    }
+      .period {
+      color: var(--ink-dim);
+      font-size: 13px;
+      font-variant: small-caps;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+      .page-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      margin: 0;
+    }
+      main {
+      max-width: 100%;
+      margin: 0;
+      padding: 18px 26px 60px;
+    }
       header {
         padding: 16px 14px 10px;
       }
@@ -581,17 +661,19 @@
       <div class="title-row">
         <div class="company-name">Navigazione sul Lago di Garda</div>
         <h1><span class="wave">⚓</span> Pannello Operativo Turni — BOZZA</h1>
-        <span class="period" id="periodLabel">CARICAMENTO...</span>
+        <span class="period" id="periodLabel">BOZZA — DAL 27-07 AL 09-08-2026</span>
       </div>
     </div>
 
-    <div class="tabs" id="residenceTabs"></div>
+    <div class="header-toolbar">
+      <div class="tabs" id="residenceTabs"></div>
 
-    <div class="page-nav" id="pageNav">
-      <a href="bozza_desenzano.html" class="btn">👥 Turno Agenti</a>
-      <a href="bozza_turni_copertura.html" class="btn">👥 Turni Copertura</a>
-      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
-      <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
+      <div class="page-nav" id="pageNav">
+        <a href="bozza_desenzano.html" class="btn">👥 Turno 22/08 26/07</a>
+        <a href="bozza_turni_copertura.html" class="btn">👥 Turni Copertura</a>
+        <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
+        <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
+      </div>
     </div>
   </header>
 
@@ -744,7 +826,7 @@
             id: a.id,
             badge,
             nome: a.agente,
-            grade: gradeFromBadge(badge),
+            grade: getGradeClass(badge),
             turni: a.turni_settimanali
           };
         });
