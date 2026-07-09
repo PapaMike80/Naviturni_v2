@@ -463,12 +463,13 @@
     }
 
     .scroll-wrap {
-      overflow-x: auto;
+      overflow: auto;
       border-radius: var(--radius);
       border: 1px solid var(--line);
       display: none;
       background: var(--bg-panel);
       width: 100%;
+      max-height: calc(100vh - 170px);
     }
 
     .scroll-wrap table {
@@ -480,25 +481,46 @@
       min-width: 0;
     }
 
-    /* Una sola colonna fissa: numero + nome agente */
+    /* Prime due colonne fisse: numero + nome */
     .scroll-wrap table td:nth-child(1),
     .scroll-wrap table th:nth-child(1) {
-      width: 124px;
-      min-width: 124px;
-      max-width: 124px;
+      width: 38px;
+      min-width: 38px;
+      max-width: 38px;
       position: sticky;
       left: 0;
-      z-index: 4;
-      background: var(--bg-panel);
+      z-index: 9;
+      box-shadow: 1px 0 0 rgba(255,255,255,0.10);
+    }
+
+    .scroll-wrap table td:nth-child(2),
+    .scroll-wrap table th:nth-child(2) {
+      width: 104px;
+      min-width: 104px;
+      max-width: 104px;
+      position: sticky;
+      left: 38px;
+      z-index: 9;
       box-shadow: 2px 0 0 var(--line);
     }
 
     /* Colonne dei giorni più strette possibile */
-    .scroll-wrap table td:nth-child(n+2),
-    .scroll-wrap table th:nth-child(n+2) {
-      width: 42px;
-      min-width: 42px;
-      max-width: 42px;
+    .scroll-wrap table td:nth-child(n+3),
+    .scroll-wrap table th:nth-child(n+3) {
+      width: 40px;
+      min-width: 40px;
+      max-width: 40px;
+    }
+
+    /* Settimane alternate: lun-dom a blocchi */
+    .week-even { background-color: rgba(45, 212, 191, 0.035); }
+    .week-odd { background-color: rgba(255, 255, 255, 0.025); }
+    .week-start { border-left: 2px solid rgba(45, 212, 191, 0.55) !important; }
+    .week-end { border-right: 2px solid rgba(255, 255, 255, 0.12) !important; }
+
+    .today-col {
+      box-shadow: inset 2px 0 0 var(--accent), inset -2px 0 0 var(--accent);
+      background-color: rgba(45, 212, 191, 0.11) !important;
     }
 
     thead tr th {
@@ -573,7 +595,7 @@
       line-height: 1.15;
     }
 
-    .date-header th:not(:nth-child(1)):hover {
+    .date-header th:not(:nth-child(1)):not(:nth-child(2)):hover {
       background: var(--accent-dim);
       color: var(--accent);
     }
@@ -591,6 +613,41 @@
       color: var(--bad);
     }
 
+    .date-header .d-sab,
+    .date-header .d-dom {
+      color: var(--ink);
+    }
+
+    /* Colori per grado: Nr + Nome evidenti, resto riga sfumato e più trasparente */
+    tr.grado-capitano { --grade-rgb: 250, 204, 21; --grade-text: #111827; }
+    tr.grado-capo { --grade-rgb: 251, 146, 60; --grade-text: #111827; }
+    tr.grado-timoniere { --grade-rgb: 34, 197, 94; --grade-text: #052e16; }
+    tr.grado-aiuto { --grade-rgb: 59, 130, 246; --grade-text: #eff6ff; }
+    tr.grado-motorista { --grade-rgb: 168, 85, 247; --grade-text: #faf5ff; }
+    tr.grado-marinaio { --grade-rgb: 156, 163, 175; --grade-text: #f9fafb; }
+
+    tr td.td-num,
+    tr td.td-name {
+      background: rgba(var(--grade-rgb),0.24) !important;
+      color: var(--ink) !important;
+    }
+
+    tr td:not(.td-num):not(.td-name) {
+      background: rgba(var(--grade-rgb),0.08) !important;
+    }
+
+    td.td-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    tr td.td-name {
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+
     tbody tr {
       transition: background 0.3s ease;
     }
@@ -601,8 +658,10 @@
     }
 
     tbody tr.pinned-row td.td-name {
-      color: var(--accent) !important;
-      font-weight: 700;
+      color: var(--grade-text) !important;
+      font-weight: 900;
+      outline: 2px solid rgba(45, 212, 191, 0.65);
+      outline-offset: -2px;
     }
 
     tbody tr.pinned-row td.td-name::before {
@@ -649,7 +708,7 @@
     }
 
     tbody tr td.td-name:hover {
-      color: var(--accent) !important;
+      filter: brightness(1.15);
     }
 
     tbody.has-selection tr:not(.pinned-row) {
@@ -958,12 +1017,19 @@
       }
       .scroll-wrap table td:nth-child(1),
       .scroll-wrap table th:nth-child(1) {
-        width: 108px;
-        min-width: 108px;
-        max-width: 108px;
+        width: 34px;
+        min-width: 34px;
+        max-width: 34px;
       }
-      .scroll-wrap table td:nth-child(n+2),
-      .scroll-wrap table th:nth-child(n+2) {
+      .scroll-wrap table td:nth-child(2),
+      .scroll-wrap table th:nth-child(2) {
+        width: 92px;
+        min-width: 92px;
+        max-width: 92px;
+        left: 34px;
+      }
+      .scroll-wrap table td:nth-child(n+3),
+      .scroll-wrap table th:nth-child(n+3) {
         width: 34px;
         min-width: 34px;
         max-width: 34px;
@@ -1052,7 +1118,7 @@
 
   </main>
 
-  <footer>Dati letti da file JSON locale o dalla memoria del browser · nessun collegamento a Google Sheet</footer>
+  <footer>Dati letti da file JSON locale o dalla memoria del browser · nessun invio a server esterni</footer>
 
   <script>
     let globalData = null;
@@ -1186,11 +1252,24 @@
       return `<span class="cell-pill ${cls}">${v}</span>`;
     }
 
+    function isTodayDate(dateObj) {
+      const a = new Date(dateObj);
+      const b = new Date();
+      a.setHours(0, 0, 0, 0);
+      b.setHours(0, 0, 0, 0);
+      return a.getTime() === b.getTime();
+    }
+
     function buildTableHeader() {
       const container = document.getElementById("thead-container");
-      let html = `<tr class="date-header"><th>Agente</th>`;
+      let html = `<tr class="date-header"><th>Nr</th><th>Agente</th>`;
       dateCalendario.forEach(d => {
-        let cls = d.isDomenica ? 'class="d-dom"' : d.giornoSett === "Sab" ? 'class="d-sab"' : '';
+        const clsArr = [];
+        clsArr.push(d.weekIdx % 2 === 0 ? "week-even" : "week-odd");
+        if (d.giornoSett === "Lun") clsArr.push("week-start");
+        if (d.giornoSett === "Dom") clsArr.push("week-end");
+        if (isTodayDate(d.realObj)) clsArr.push("today-col");
+        const cls = `class="${clsArr.join(" ")}"`;
         html += `<th ${cls} data-col="${d.col}" onclick="eseguiRicercaHeader(${d.col})"><span class="date-head-day">${d.giornoSett}</span><span class="date-head-num">${d.dayNum}</span></th>`;
       });
       html += `</tr>`;
@@ -1281,7 +1360,8 @@
       tr.classList.add(getGradeClass(agenteObj.id));
       if (isPinned) tr.classList.add("pinned-row");
 
-      let html = `<td class="td-name" title="${agenteObj.id || ''} ${agenteObj.agente}"><span class="agent-cell"><span class="agent-badge">${agenteObj.id || '—'}</span><span class="agent-name-text">${agenteObj.agente}</span></span></td>`;
+      let html = `<td class="td-num" title="Numero agente">${agenteObj.id || "—"}</td>`;
+      html += `<td class="td-name" title="${agenteObj.id || ''} ${agenteObj.agente}"><span class="agent-name-text">${agenteObj.agente}</span></td>`;
       tr.innerHTML = html;
 
       tr.querySelector(".td-name").addEventListener("click", () => {
@@ -1307,7 +1387,12 @@
         let turnoVal = arrayTurniSettimana[giornoInternoIdx] || "rip";
 
         const td = document.createElement("td");
-        td.className = cal.isDomenica ? " dom" : cal.giornoSett === "Sab" ? " sab" : "";
+        const tdClasses = [];
+        tdClasses.push(cal.weekIdx % 2 === 0 ? "week-even" : "week-odd");
+        if (cal.giornoSett === "Lun") tdClasses.push("week-start");
+        if (cal.giornoSett === "Dom") tdClasses.push("week-end");
+        if (isTodayDate(cal.realObj)) tdClasses.push("today-col");
+        td.className = tdClasses.join(" ");
         td.dataset.col = cal.col;
 
         if (isEditMode) {
@@ -1643,10 +1728,11 @@
       }
 
       const th = document.querySelector(`.date-header th[data-col="${target.col}"]`);
-      const nameCol = document.querySelector(".date-header th:first-child");
-      if (!th || !nameCol) return;
+      const fixedCols = document.querySelectorAll(".date-header th:nth-child(1), .date-header th:nth-child(2)");
+      if (!th) return;
+      const fixedWidth = Array.from(fixedCols).reduce((sum, el) => sum + el.offsetWidth, 0);
 
-      const offset = Math.max(0, th.offsetLeft - nameCol.offsetWidth - 8);
+      const offset = Math.max(0, th.offsetLeft - fixedWidth - 8);
       wrap.scrollTo({ left: offset, behavior: "auto" });
       document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
       th.classList.add("selected-day");
