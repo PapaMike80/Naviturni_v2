@@ -342,6 +342,19 @@
       font-size: 12.5px;
     }
 
+    .extra-star {
+      color: #facc15;
+      font-weight: 900;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .extra-note {
+      color: #facc15;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
     .dot {
       width: 8px;
       height: 8px;
@@ -772,9 +785,30 @@
       return null;
     }
 
+    function splitStar(code) {
+      const raw = (code || '').toString().trim();
+      const isExtra = /\*$/.test(raw);
+      return {
+        raw,
+        code: raw.replace(/\*$/, '').trim(),
+        isExtra
+      };
+    }
+
+    function normalizeCode(code) {
+      return splitStar(code).code;
+    }
+
+    function codeMatches(rawCode, cleanCode) {
+      return normalizeCode(rawCode).toLowerCase() === (cleanCode || '').toString().trim().toLowerCase();
+    }
+
     function parseCode(code) {
-      const trimmed = (code || '').trim();
-      if (!/^c./i.test(trimmed)) return { isTransfer: false };
+      const info = splitStar(code);
+      const trimmed = info.code;
+      if (!/^c./i.test(trimmed)) {
+        return { isTransfer: false, isExtra: info.isExtra, code: trimmed, raw: info.raw };
+      }
       let inner = null;
       let m = trimmed.match(/^c(.+)c$/i);
       if (m && m[1].length >= 1) {
@@ -787,9 +821,16 @@
         const pm = inner.match(/^Po(n?)([MD])$/i);
         if (pm) inner = 'Pon' + pm[2].toUpperCase();
         const target = resolveTransferTarget(inner);
-        if (target) return { isTransfer: true, targetResidence: target, targetCode: inner, raw: trimmed };
+        if (target) return {
+          isTransfer: true,
+          isExtra: info.isExtra,
+          targetResidence: target,
+          targetCode: inner,
+          raw: info.raw,
+          cleanRaw: trimmed
+        };
       }
-      return { isTransfer: false };
+      return { isTransfer: false, isExtra: info.isExtra, code: trimmed, raw: info.raw };
     }
 
     const dayNames = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
@@ -836,7 +877,8 @@
         });
         const allCodes = new Set();
         agents.forEach(a => Object.values(a.turni).forEach(arr => arr.forEach(c => {
-          if (!parseCode(c).isTransfer) allCodes.add(c);
+          const parsed = parseCode(c);
+          if (!parsed.isTransfer && parsed.code) allCodes.add(parsed.code);
         })));
 
         weekKeySet.sort((a, b) => {
@@ -910,8 +952,8 @@
     }
 
     function matchExistingCode(res, inner) {
-      const found = model[res].codes.find(c => c.toLowerCase() === inner.toLowerCase());
-      return found || inner;
+      const found = model[res].codes.find(c => normalizeCode(c).toLowerCase() === normalizeCode(inner).toLowerCase());
+      return found || normalizeCode(inner);
     }
 
     const incomingTransfers = {};
@@ -929,8 +971,13 @@
                 const bucket = incomingTransfers[parsed.targetResidence];
                 if (!bucket[iso]) bucket[iso] = {};
                 if (!bucket[iso][matchedCode]) bucket[iso][matchedCode] = [];
-                bucket[iso][matchedCode].push({ nome: agent.nome, grade: agent.grade, from: res,
-                raw: code });
+                bucket[iso][matchedCode].push({
+                  nome: agent.nome,
+                  grade: agent.grade,
+                  from: res,
+                  raw: code,
+                  isExtra: parsed.isExtra
+                });
               }
             });
           });
@@ -942,7 +989,7 @@
       const iso = isoDate(weekKey, dayIndex);
       const bucket = incomingTransfers[res][iso];
       if (!bucket) return [];
-      return bucket[code] || [];
+      return bucket[code] || bucket[normalizeCode(code)] || [];
     }
 
     // ---------- stato ----------
@@ -994,7 +1041,7 @@
     function renderLegend() {
       elLegend.innerHTML = Object.values(gradeInfo).map(g =>
         `<span><span class="dot" style="background:${g.color}"></span>${g.label}</span>`
-      ).join('');
+      ).join('') + '<span><span class="extra-star">*</span> Sovrannumero / affiancamento</span>';
     }
 
     function renderResidenceTabs() {
@@ -1058,7 +1105,7 @@
         trasfOut = 0,
         trasfIn = 0;
       turnoCodes.forEach(code => {
-        const local = agents.filter(a => agentCodeOn(a, weekKey, state.dayIndex) === code).length;
+        const local = agents.filter(a => codeMatches(agentCodeOn(a, weekKey, state.dayIndex), code)).length;
         const incoming = incomingFor(res, weekKey, state.dayIndex, code).length;
         const total = local + incoming;
         const required = requiredFor(res, code);
@@ -1073,7 +1120,7 @@
         if (c === null) return;
         const parsed = parseCode(c);
         if (parsed.isTransfer && parsed.targetResidence !== res) { trasfOut++; return; }
-        if (turnoCodes.includes(c)) assigned++;
+        if (turnoCodes.includes(normalizeCode(c))) assigned++;
         else off++;
       });
 
@@ -1096,7 +1143,7 @@
       const search = state.search.trim().toLowerCase();
 
       elShiftCards.innerHTML = turnoCodes.map(code => {
-        let onShift = agents.filter(a => agentCodeOn(a, weekKey, state.dayIndex) === code);
+        let onShift = agents.filter(a => codeMatches(agentCodeOn(a, weekKey, state.dayIndex), code));
         let incoming = incomingFor(res, weekKey, state.dayIndex, code);
         if (search) {
           onShift = onShift.filter(a => a.nome.toLowerCase().includes(search));
@@ -1107,11 +1154,13 @@
         const status = coverageStatus(total, required);
         const localChips = onShift.map(a => {
           const g = gradeInfo[a.grade];
-          return `<div class="agent-chip"><span class="dot" style="background:${g.color}"></span>${a.nome} <span style="color:var(--ink-dim);font-size:11px;">· ${g.label}</span></div>`;
+          const rawCode = agentCodeOn(a, weekKey, state.dayIndex);
+          const extra = splitStar(rawCode).isExtra;
+          return `<div class="agent-chip"><span class="dot" style="background:${g.color}"></span>${a.nome}${extra ? ' <span class="extra-star" title="Sovrannumero / affiancamento">*</span>' : ''} <span style="color:var(--ink-dim);font-size:11px;">· ${g.label}${extra ? ' · affiancamento' : ''}</span></div>`;
         }).join('');
         const incomingChips = incoming.map(a => {
           const g = gradeInfo[a.grade];
-          return `<div class="agent-chip"><span class="dot" style="background:${g.color}"></span>${a.nome} <span style="color:var(--accent);font-size:11px;">· ↳ trasferta da ${a.from}</span></div>`;
+          return `<div class="agent-chip"><span class="dot" style="background:${g.color}"></span>${a.nome}${a.isExtra ? ' <span class="extra-star" title="Sovrannumero / affiancamento">*</span>' : ''} <span style="color:var(--accent);font-size:11px;">· ↳ trasferta da ${a.from}${a.isExtra ? ' · affiancamento' : ''}</span></div>`;
         }).join('');
         const countLabel = required != null ? `${total}/${required}` : `${total} agente${total === 1 ? '' : 'i'}`;
         const msg = status === 'empty' ?
@@ -1138,7 +1187,7 @@
 
       let offAgents = agents
         .map(a => ({ a, code: agentCodeOn(a, weekKey, state.dayIndex) }))
-        .filter(x => x.code !== null && !turnoCodes.includes(x.code) && !parseCode(x.code).isTransfer);
+        .filter(x => x.code !== null && !turnoCodes.includes(normalizeCode(x.code)) && !parseCode(x.code).isTransfer);
       if (search) offAgents = offAgents.filter(x => x.a.nome.toLowerCase().includes(search));
 
       elOffList.innerHTML = offAgents.map(({ a, code }) => {
@@ -1161,7 +1210,7 @@
 
       elTransferList.innerHTML = outAgents.map(({ a, parsed }) => {
         const g = gradeInfo[a.grade];
-        return `<div class="off-chip"><span class="dot" style="background:${g.color}"></span><b>${a.nome}</b><span class="code-tag">${parsed.raw} → ${parsed.targetResidence} (${parsed.targetCode})</span></div>`;
+        return `<div class="off-chip"><span class="dot" style="background:${g.color}"></span><b>${a.nome}${parsed.isExtra ? ' <span class="extra-star">*</span>' : ''}</b><span class="code-tag">${parsed.raw} → ${parsed.targetResidence} (${parsed.targetCode})${parsed.isExtra ? ' · affiancamento' : ''}</span></div>`;
       }).join('') || '<p style="color:var(--ink-dim);font-size:13px;">Nessuna trasferta in uscita oggi.</p>';
     }
 
@@ -1188,7 +1237,7 @@
       let rows = turnoCodes.map(code => {
         const required = requiredFor(res, code);
         let tds = cols.map(c => {
-          const local = agents.filter(a => agentCodeOn(a, c.wk, c.di) === code).length;
+          const local = agents.filter(a => codeMatches(agentCodeOn(a, c.wk, c.di), code)).length;
           const incoming = incomingFor(res, c.wk, c.di, code).length;
           const count = local + incoming;
           const isSel = (c.wi === state.weekIndex && c.di === state.dayIndex);
