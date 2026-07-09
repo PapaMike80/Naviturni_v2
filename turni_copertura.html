@@ -46,6 +46,21 @@
       z-index: 50;
     }
 
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .page-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
     .title-row {
       display: flex;
       align-items: baseline;
@@ -549,9 +564,17 @@
 <body>
 
   <header>
-    <div class="title-row">
-      <h1><span class="wave">⚓</span> Turno del Personale</h1>
-      <span class="period" id="periodLabel">CARICAMENTO...</span>
+    <div class="header-top">
+      <div class="title-row">
+        <h1><span class="wave">⚓</span> Turno del Personale</h1>
+        <span class="period" id="periodLabel">CARICAMENTO...</span>
+      </div>
+      <div class="page-nav" id="pageNav">
+        <a href="desenzano.html" class="btn">📋 Turni Agenti</a>
+        <a href="https://docs.google.com/spreadsheets/d/1MnAdg52IRaRYoxHv5nHMNqZ7dsC70J1-g8qXDhJrdCg/edit?usp=sharing" class="btn" target="_blank">📝 Foglio Google</a>
+        <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
+        <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
+      </div>
     </div>
     <div class="tabs" id="residenceTabs"></div>
   </header>
@@ -565,14 +588,6 @@
 
     <div class="toolbar">
       <input type="text" id="searchAgent" placeholder="Cerca agente per nome…">
-
-      <a href="desenzano.html" class="btn">
-        📋 Turni Agenti
-      </a>
-
-      <a href="TURNO_DAL_22-06_AL_26-07-2026.pdf" class="btn btn-pdf" target="_blank">
-        📄 PDF Turni
-      </a>
 
       <button class="btn" id="settingsBtn">
         ⚙ Configura codici turno
@@ -1214,34 +1229,66 @@
       renderAll();
     }
 
-    // Carica i dati da file esterno
-    fetch('turni_finali.json')
-      .then(response => {
-        if (!response.ok) throw new Error('Impossibile caricare turni_finali.json');
-        return response.json();
-      })
-      .then(data => {
-        RAW = data;
-        YEAR = parseYear(RAW.periodo || '');
-        buildModel();
-        buildIncomingTransfers();
-        dataLoaded = true;
-        initApp();
-      })
-      .catch(error => {
-        console.error('Errore caricamento dati:', error);
-        elPeriodLabel.textContent = 'ERRORE CARICAMENTO DATI';
-        document.querySelector('.period').textContent = 'ERRORE: ' + error.message;
-        document.querySelector('h1').innerHTML = '<span class="wave">⚠</span> ERRORE CARICAMENTO';
-        // Mostra un messaggio all'utente
-        document.querySelector('main').innerHTML = `
-          <div style="text-align:center;padding:60px 20px;color:var(--bad);">
-            <h2 style="font-size:24px;">⚠ Impossibile caricare i dati</h2>
-            <p style="color:var(--ink-dim);">Assicurati che il file <strong>turni_finali.json</strong> sia nella stessa cartella di questa pagina.</p>
-            <p style="color:var(--ink-dim);font-size:12px;">Errore: ${error.message}</p>
-          </div>
-        `;
+    // Carica i dati dal Google Sheet condiviso (via Apps Script)
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw38IoMZJ50bun_AL-KjQ7jG4UbMPRKxjr22TXrzpZ_pIM2s9ZqOR0LYFXgC007Yc0PpQ/exec";
+
+    function applicaDatiCaricati(data) {
+      RAW = data;
+      YEAR = parseYear(RAW.periodo || '');
+      buildModel();
+      buildIncomingTransfers();
+      dataLoaded = true;
+      initApp();
+    }
+
+    function mostraErroreCaricamento(error) {
+      elPeriodLabel.textContent = 'ERRORE CARICAMENTO DATI';
+      document.querySelector('.period').textContent = 'ERRORE: ' + error.message;
+      document.querySelector('h1').innerHTML = '<span class="wave">⚠</span> ERRORE CARICAMENTO';
+      document.querySelector('main').innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--bad);">
+          <h2 style="font-size:24px;">⚠ Impossibile caricare i dati</h2>
+          <p style="color:var(--ink-dim);">Il Google Sheet non è raggiungibile e non è disponibile una copia locale.</p>
+          <p style="color:var(--ink-dim);font-size:12px;">Errore: ${error.message}</p>
+        </div>
+      `;
+    }
+
+    async function caricaDatiDaGoogleSheet() {
+      try {
+        const response = await fetch(GOOGLE_SCRIPT_URL + "?t=" + Date.now());
+        if (!response.ok) throw new Error(`Errore HTTP: ${response.status}`);
+        const data = await response.json();
+        localStorage.setItem("turno_finali_data", JSON.stringify(data));
+        applicaDatiCaricati(data);
+      } catch (error) {
+        console.warn('Caricamento dal Google Sheet fallito, provo con la memoria locale.', error);
+        const saved = localStorage.getItem("turno_finali_data");
+        if (saved) {
+          try {
+            applicaDatiCaricati(JSON.parse(saved));
+          } catch (e) {
+            mostraErroreCaricamento(error);
+          }
+        } else {
+          mostraErroreCaricamento(error);
+        }
+      }
+    }
+
+    function ricaricaDati() {
+      const btn = document.getElementById("refreshBtn");
+      if (!btn) return;
+      const testoOriginale = btn.textContent;
+      btn.textContent = "🔄 Aggiorno...";
+      btn.disabled = true;
+      caricaDatiDaGoogleSheet().finally(() => {
+        btn.textContent = testoOriginale;
+        btn.disabled = false;
       });
+    }
+
+    caricaDatiDaGoogleSheet();
 
     // ---------- eventi ----------
     elSearch.addEventListener('input', () => {
