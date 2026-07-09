@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BOZZA Turno Personale — Gestione Turni</title>
+  <title>BOZZA Turni G.G.N.L. — Copertura equipaggi</title>
   <style>
     :root {
       --bg: #0b1c26;
@@ -20,60 +20,30 @@
       --good-bg: #10301d;
       --warn: #f59e0b;
       --radius: 10px;
-      --d1: #3b6bcc;
-      --d1-bg: #1a2a4a;
-      --d2: #2d9e6b;
-      --d2-bg: #142a22;
-      --d3: #e07b3a;
-      --d3-bg: #2a1a0e;
-      --d4: #c45cba;
-      --d4-bg: #2a122a;
-      --dt: #e6d44a;
-      --dt-bg: #282200;
-      --bis: #5ec4d4;
-      --bis-bg: #102a2e;
-      --pond: #f08080;
-      --pond-bg: #2a1212;
-      --rip: #6b7280;
-      --rip-bg: #1a1c22;
-      --cong: #a78bfa;
-      --cong-bg: #1e1530;
-      --agb: #60a5fa;
-      --agb-bg: #102040;
-      --fp: #94a3b8;
-      --fp-bg: #1a1e28;
-      --other: #94a3b8;
-      --other-bg: #1e2230;
-      --edit-mode-bg: #221616;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
+      margin: 0;
       background: radial-gradient(1200px 600px at 10% -10%, #123544 0%, transparent 60%),
         radial-gradient(900px 500px at 110% 10%, #0e2a36 0%, transparent 55%),
         var(--bg);
       color: var(--ink);
       min-height: 100vh;
-      padding: 0;
     }
 
-    .page-header {
-      padding: 18px 24px 12px;
+    header {
+      padding: 22px 28px 14px;
       border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
       background: rgba(11, 28, 38, 0.92);
-    }
-
-    .title-row {
-      display: flex;
-      align-items: baseline;
-      gap: 14px;
-      flex-wrap: wrap;
+      backdrop-filter: blur(6px);
+      z-index: 50;
     }
 
     .company-name {
@@ -84,7 +54,33 @@
       color: var(--accent);
     }
 
-    .doc-title {
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .page-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      margin: 0;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: nowrap;
+      width: 100%;
+    }
+
+    h1 {
       font-size: 20px;
       margin: 0;
       letter-spacing: 0.3px;
@@ -92,35 +88,38 @@
       color: var(--ink);
     }
 
-    .doc-title .wave {
+    h1 .wave {
       color: var(--accent);
     }
 
-    .doc-subtitle {
+    .period {
       color: var(--ink-dim);
       font-size: 13px;
       font-variant: small-caps;
       margin-left: auto;
+      white-space: nowrap;
     }
 
-    .toolbar-container {
+    .header-toolbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
-      padding: 14px 28px 10px;
+      gap: 14px;
       flex-wrap: wrap;
-      border-bottom: 1px solid var(--line);
+      margin: 16px -28px 0;
+      padding: 14px 28px 0;
+      border-top: 1px solid var(--line);
     }
 
-    .resistence-block {
+    .tabs {
       display: flex;
       gap: 6px;
-      align-items: center;
+      margin: 0;
       flex-wrap: wrap;
+      align-items: center;
     }
 
-    .res-btn {
+    .tab {
       background: var(--bg-card);
       border: 1px solid var(--line);
       color: var(--ink-dim);
@@ -134,22 +133,301 @@
       text-transform: uppercase;
     }
 
-    .res-btn:hover {
+    .tab:hover {
       border-color: var(--accent);
       color: var(--ink);
     }
 
-    .res-btn.active {
+    .tab.active {
       background: var(--accent);
       color: #06201c;
       border-color: var(--accent);
     }
 
-    .admin-panel {
+    main {
+      max-width: 100%;
+      margin: 0;
+      padding: 18px 26px 60px;
+    }
+
+    .weekbar,
+    .daybar {
       display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+
+    .chip {
+      flex: 0 0 auto;
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      color: var(--ink-dim);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12.5px;
+      white-space: nowrap;
+      transition: .15s;
+    }
+
+    .chip:hover {
+      border-color: var(--accent);
+    }
+
+    .chip.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .daybar .chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 62px;
+    }
+
+    .daybar .chip .dname {
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--ink);
+    }
+
+    .daybar .chip .ddate {
+      font-size: 11px;
+      color: var(--ink-dim);
+    }
+
+    .daybar .chip.active .ddate {
+      color: #06201c;
+    }
+
+    .daybar .chip.active .dname {
+      color: #06201c;
+    }
+
+    .summary-strip {
+      display: flex;
+      gap: 10px;
+      margin: 16px 0 18px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      min-width: 130px;
+    }
+
+    .stat .num {
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .stat .lbl {
+      font-size: 11px;
+      color: var(--ink-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat.ok .num {
+      color: var(--good);
+    }
+
+    .stat.ko .num {
+      color: var(--bad);
+    }
+
+    .stat.warn .num {
+      color: var(--warn);
+    }
+
+    .section-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--ink-dim);
+      margin: 26px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 12px;
+    }
+
+    .shift-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      border-left: 4px solid var(--good);
+    }
+
+    .shift-card.empty {
+      border-left-color: var(--bad);
+      background: var(--bad-bg);
+    }
+
+    .shift-card.partial {
+      border-left-color: var(--warn);
+      background: #3a2a0e;
+    }
+
+    .shift-card .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .shift-card .code {
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: 0.3px;
+    }
+
+    .shift-card .count {
+      font-size: 11px;
+      background: var(--good-bg);
+      color: var(--good);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .shift-card .count.empty {
+      background: var(--bad-bg);
+      color: var(--bad);
+    }
+
+    .shift-card .count.partial {
+      background: #3a2a0e;
+      color: var(--warn);
+    }
+
+    .shift-card.empty .count {
+      background: var(--bad-bg);
+      color: var(--bad);
+    }
+
+    .shift-card .empty-msg {
+      font-size: 12px;
+      color: var(--bad);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .agent-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 0;
+      font-size: 12.5px;
+    }
+
+    .extra-star {
+      color: #facc15;
+      font-weight: 900;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .extra-note {
+      color: #facc15;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    .offlist {
+      display: flex;
+      flex-wrap: wrap;
       gap: 8px;
+    }
+
+    .off-chip {
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--ink-dim);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .off-chip b {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .off-chip .code-tag {
+      background: var(--bg-card);
+      padding: 1px 6px;
+      border-radius: 5px;
+      font-size: 10.5px;
+      color: var(--accent);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--ink-dim);
+    }
+
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
       align-items: center;
       flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    input[type=text] {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      min-width: 220px;
+    }
+
+    input[type=text]:focus {
+      outline: none;
+      border-color: var(--accent);
     }
 
     .btn {
@@ -162,11 +440,11 @@
       font-size: 13px;
       font-weight: 600;
       letter-spacing: 0.3px;
-      transition: .15s;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: .15s;
     }
 
     .btn:hover {
@@ -185,822 +463,127 @@
       color: #fff;
     }
 
-    .btn-mode {
-      background: var(--bg-card);
-      border: 1px solid var(--line);
-      color: var(--ink-dim);
-      padding: 7px 16px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      transition: .15s;
-    }
-
-    .btn-mode:hover {
-      border-color: var(--accent);
-      color: var(--ink);
-    }
-
-    .btn-mode.editing {
-      background: var(--bad-bg);
-      border-color: var(--bad);
-      color: var(--bad);
-    }
-
-    .btn-save-action {
-      background: var(--good-bg);
-      border: 1px solid var(--good);
-      color: var(--good);
-      padding: 7px 16px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      transition: .15s;
-      display: none;
-    }
-
-    .btn-save-action:hover {
-      background: var(--good);
-      color: #06201c;
-    }
-
-    .btn-download-action {
-      background: #1a1a3a;
-      border: 1px solid #a78bfa;
-      color: #a78bfa;
-      padding: 7px 16px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      transition: .15s;
-      display: none;
-    }
-
-    .btn-download-action:hover {
-      background: #a78bfa;
-      color: #06201c;
-    }
-
-    main {
-      max-width: 100%;
-      margin: 0;
-      padding: 16px 12px 40px;
-    }
-
-    #welcome-notice {
-      background: var(--bg-card);
-      border: 1px dashed var(--accent);
-      border-radius: var(--radius);
-      padding: 24px 20px;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    #welcome-notice h3 {
-      color: var(--accent);
-      margin-bottom: 6px;
-      font-size: 18px;
-    }
-
-    #welcome-notice p {
-      font-size: 13px;
-      color: var(--ink-dim);
-    }
-
-    #welcome-notice code {
-      color: var(--accent);
-      background: var(--bg-panel);
-      padding: 2px 8px;
-      border-radius: 4px;
-    }
-
-    .shifts-filter-block {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      background: var(--bg-panel);
-      padding: 12px 16px;
-      border-radius: var(--radius);
-      border: 1px solid var(--line);
-      margin-bottom: 16px;
-      display: none;
-    }
-
-    .filter-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--accent);
-      letter-spacing: 0.5px;
-    }
-
-    .shift-buttons-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .shift-filter-btn {
-      background: var(--bg-card);
-      border: 1px solid var(--line);
-      color: var(--ink-dim);
-      padding: 5px 14px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      transition: .15s;
-    }
-
-    .shift-filter-btn:hover {
-      border-color: var(--accent);
-      color: var(--ink);
-    }
-
-    .shift-filter-btn.active {
-      background: var(--accent);
-      color: #06201c;
-      border-color: var(--accent);
-    }
-
-    #day-panel {
-      margin-bottom: 16px;
+    .matrix-wrap {
+      overflow-x: auto;
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: var(--bg-panel);
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transform: translateY(-6px);
-      pointer-events: none;
-      transition: all 0.3s ease;
     }
 
-    #day-panel.open {
-      max-height: 800px;
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px 8px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .panel-date {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--ink);
-      text-transform: uppercase;
-    }
-
-    .panel-date span {
-      color: var(--accent);
-      margin-right: 6px;
-    }
-
-    .panel-close {
-      background: none;
-      border: 1px solid var(--line);
-      color: var(--ink-dim);
-      cursor: pointer;
-      font-size: 12px;
-      padding: 4px 12px;
-      border-radius: 999px;
-      transition: .15s;
-    }
-
-    .panel-close:hover {
-      color: var(--ink);
-      border-color: var(--ink);
-    }
-
-    .panel-groups {
-      padding: 12px 16px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .shift-group {
-      min-width: 140px;
-      flex: 1;
-      min-width: 280px;
-    }
-
-    .shift-group-label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--ink-dim);
-      margin-bottom: 6px;
-    }
-
-    .colleague-cards {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .colleague-card {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 10px;
-      background: var(--bg-card);
-      border-radius: 4px;
-      border-left: 3px solid transparent;
-    }
-
-    .colleague-card .c-num {
-      font-size: 10px;
-      color: var(--ink-dim);
-      font-family: 'DM Mono', monospace;
-      min-width: 20px;
-    }
-
-    .colleague-card .c-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    .colleague-card .c-res {
-      font-size: 10px;
-      font-family: 'DM Mono', monospace;
-      color: var(--accent);
-      margin-left: 6px;
-    }
-
-    .colleague-card .c-grade {
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 1px 6px;
-      border-radius: 3px;
-      margin-left: auto;
-    }
-
-    .hint {
-      text-align: center;
-      font-size: 12px;
-      color: var(--ink-dim);
-      margin: 10px 0 16px;
-      font-family: 'DM Mono', monospace;
-      display: none;
-    }
-
-    .scroll-wrap {
-      overflow: auto;
-      border-radius: var(--radius);
-      border: 1px solid var(--line);
-      display: none;
-      background: var(--bg-panel);
+    table.matrix {
+      border-collapse: collapse;
       width: 100%;
-      max-height: calc(100vh - 170px);
+      font-size: 11.5px;
     }
 
-    .scroll-wrap table {
-      border-collapse: separate;
-      border-spacing: 0;
-      width: max-content;
-      font-size: 12px;
-      table-layout: fixed;
-      min-width: 0;
+    table.matrix th,
+    table.matrix td {
+      padding: 5px 7px;
+      text-align: center;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      white-space: nowrap;
     }
 
-    /* Prime due colonne fisse: numero + nome */
-    .scroll-wrap table td:nth-child(1),
-    .scroll-wrap table th:nth-child(1) {
-      width: 38px;
-      min-width: 38px;
-      max-width: 38px;
+    table.matrix th.code-col,
+    table.matrix td.code-col {
       position: sticky;
       left: 0;
-      z-index: 9;
-      box-shadow: 1px 0 0 rgba(255,255,255,0.10);
+      background: var(--bg-panel);
+      text-align: left;
+      font-weight: 700;
+      z-index: 2;
     }
 
-    .scroll-wrap table td:nth-child(2),
-    .scroll-wrap table th:nth-child(2) {
-      width: 104px;
-      min-width: 104px;
-      max-width: 104px;
-      position: sticky;
-      left: 38px;
-      z-index: 9;
-      box-shadow: 2px 0 0 var(--line);
-    }
-
-    /* Colonne dei giorni più strette possibile */
-    .scroll-wrap table td:nth-child(n+3),
-    .scroll-wrap table th:nth-child(n+3) {
-      width: 40px;
-      min-width: 40px;
-      max-width: 40px;
-    }
-
-    /* Settimane alternate: lun-dom a blocchi */
-    .week-even { background-color: rgba(45, 212, 191, 0.035); }
-    .week-odd { background-color: rgba(255, 255, 255, 0.025); }
-    .week-start { border-left: 2px solid rgba(45, 212, 191, 0.55) !important; }
-    .week-end { border-right: 2px solid rgba(255, 255, 255, 0.12) !important; }
-
-    .today-col {
-      box-shadow: inset 2px 0 0 var(--accent), inset -2px 0 0 var(--accent);
-      background-color: rgba(45, 212, 191, 0.11) !important;
-    }
-
-    thead tr th {
-      background: var(--bg-card);
+    table.matrix thead th {
+      background: var(--bg-panel);
       color: var(--ink-dim);
       font-weight: 600;
-      text-align: center;
-      padding: 6px 4px;
-      border-bottom: 2px solid var(--line);
-      font-size: 11px;
+      position: sticky;
+      top: 0;
+      z-index: 3;
     }
 
-    .week-header th {
-      font-weight: 700;
-      text-transform: uppercase;
-      border-bottom: 1px solid var(--line);
-      font-size: 11px;
-      padding: 4px 3px;
+    table.matrix thead th.code-col {
+      z-index: 4;
     }
 
-    .week-header .wk-even {
-      background: rgba(45, 212, 191, 0.08);
-      color: var(--accent);
-    }
-
-    .week-header .wk-odd {
-      background: rgba(45, 212, 191, 0.04);
-      color: var(--accent);
-    }
-
-    .day-header th {
-      font-size: 10px;
-      color: var(--ink-dim);
-      background: var(--bg-card);
-      padding: 3px 2px;
-    }
-
-    .date-header th {
-      font-weight: 700;
-      background: var(--bg-card);
+    table.matrix td.cell {
       cursor: pointer;
-      user-select: none;
-      transition: .15s;
-      font-size: 12px;
-      padding: 4px 2px;
+      font-weight: 700;
     }
 
-    /* Quando scorri in verticale resta visibile solo la riga con le date */
-    .date-header th {
-      position: sticky;
-      top: 0;
-      z-index: 6;
-      box-shadow: 0 2px 0 var(--line);
-    }
-
-    /* Celle Nr e Agente: ferme sia in alto sia a sinistra */
-    .date-header th:nth-child(1),
-    .date-header th:nth-child(2) {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      background: var(--bg-card) !important;
-      color: var(--ink);
-      box-shadow: 0 2px 0 var(--line), 2px 0 0 var(--line);
-    }
-
-    .date-head-day {
-      display: block;
-      font-size: 9px;
-      font-weight: 600;
-      color: var(--ink-dim);
-      line-height: 1;
-    }
-
-    .date-head-num {
-      display: block;
-      font-size: 13px;
-      line-height: 1.15;
-    }
-
-    .date-header th:not(:nth-child(1)):not(:nth-child(2)):hover {
-      background: var(--accent-dim);
-      color: var(--accent);
-    }
-
-    .date-header th.selected-day {
-      background: var(--accent) !important;
-      color: #06201c !important;
-    }
-
-    .date-header .d-sab {
-      color: var(--warn);
-    }
-
-    .date-header .d-dom {
+    table.matrix td.cell.zero {
       color: var(--bad);
+      background: rgba(239, 68, 68, 0.08);
     }
 
-    .date-header .d-sab,
-    .date-header .d-dom {
-      color: var(--ink);
+    table.matrix td.cell.partial {
+      color: var(--warn);
+      background: rgba(245, 158, 11, 0.1);
     }
 
-    /* Colori per grado - Variante equilibrata: più colore nelle righe, senza diventare pesante */
-    tr.grado-capitano { --grade-rgb: 250, 204, 21; --grade-text: var(--ink); }
-    tr.grado-capo { --grade-rgb: 251, 146, 60; --grade-text: var(--ink); }
-    tr.grado-timoniere { --grade-rgb: 34, 197, 94; --grade-text: var(--ink); }
-    tr.grado-aiuto { --grade-rgb: 59, 130, 246; --grade-text: var(--ink); }
-    tr.grado-motorista { --grade-rgb: 168, 85, 247; --grade-text: var(--ink); }
-    tr.grado-marinaio { --grade-rgb: 156, 163, 175; --grade-text: var(--ink); }
-
-    tr td.td-num,
-    tr td.td-name {
-      background: rgba(var(--grade-rgb), 0.22) !important;
-      color: var(--grade-text) !important;
+    table.matrix td.cell.ok {
+      color: var(--good);
     }
 
-    tr td:not(.td-num):not(.td-name) {
-      background: rgba(var(--grade-rgb), 0.14) !important;
-    }
-
-    td.today-col, th.today-col {
-      box-shadow: inset 2px 0 0 var(--accent), inset -2px 0 0 var(--accent) !important;
-    }
-
-    td.col-selected {
-      outline: 2px solid rgba(45, 212, 191, 0.65);
+    table.matrix td.cell.sel {
+      outline: 2px solid var(--accent);
       outline-offset: -2px;
     }
 
-    td.td-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      font-weight: 800;
-      text-align: center;
-    }
-
-    tr td.td-name {
-      font-weight: 800;
-      letter-spacing: -0.2px;
-    }
-
-    tbody tr {
-      transition: background 0.3s ease;
-    }
-
-    tbody tr.pinned-row {
-      background: rgba(45, 212, 191, 0.12) !important;
-      border-bottom: 2px solid var(--accent);
-    }
-
-    tbody tr.pinned-row td.td-name {
-      color: var(--grade-text) !important;
-      font-weight: 900;
-      outline: 2px solid rgba(45, 212, 191, 0.65);
-      outline-offset: -2px;
-    }
-
-    tbody tr.pinned-row td.td-name::before {
-      content: "📌 ";
-      font-size: 10px;
-    }
-
-    tbody tr td.td-name {
-      cursor: pointer;
-      color: var(--ink);
-      font-weight: 600;
-      font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-align: left;
-    }
-
-    .agent-cell {
-      display: flex;
+    /* settings modal */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
       align-items: center;
-      gap: 4px;
-      min-width: 0;
+      justify-content: center;
+      z-index: 100;
     }
 
-    .agent-badge {
-      flex: 0 0 auto;
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      color: var(--accent);
-      background: rgba(45, 212, 191, 0.10);
-      border: 1px solid rgba(45, 212, 191, 0.22);
-      border-radius: 4px;
-      padding: 1px 3px;
-      min-width: 20px;
-      text-align: center;
+    .overlay.show {
+      display: flex;
     }
 
-    .agent-name-text {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    tbody tr td.td-name:hover {
-      filter: brightness(1.15);
-    }
-
-    tbody.has-selection tr:not(.pinned-row) {
-      opacity: 0.25;
-    }
-
-    tbody.has-selection tr.row-match {
-      opacity: 1 !important;
-      filter: brightness(1.1);
-    }
-
-    tbody.has-selection tr.grado-capitano.row-match {
-      background: rgba(250, 204, 21, 0.15) !important;
-    }
-    tbody.has-selection tr.grado-timoniere.row-match {
-      background: rgba(34, 197, 94, 0.15) !important;
-    }
-    tbody.has-selection tr.grado-motorista.row-match {
-      background: rgba(168, 85, 247, 0.15) !important;
-    }
-    tbody.has-selection tr.grado-marinaio.row-match {
-      background: rgba(255, 255, 255, 0.05) !important;
-    }
-
-    td {
-      padding: 4px 4px;
-      text-align: center;
-      border-bottom: 1px solid var(--line);
-      white-space: nowrap;
-      font-size: 11px;
-    }
-
-    td.td-name {
-      text-align: left;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    td.sab {
-      background: rgba(245, 158, 11, 0.03);
-    }
-
-    td.dom {
-      background: rgba(239, 68, 68, 0.04);
-    }
-
-    td.col-selected {
-      background: rgba(45, 212, 191, 0.08) !important;
-    }
-
-    .cell-pill {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: 600;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-
-    .c-d1 {
-      color: var(--d1);
-      background: var(--d1-bg);
-    }
-    .c-d2 {
-      color: var(--d2);
-      background: var(--d2-bg);
-    }
-    .c-d3 {
-      color: var(--d3);
-      background: var(--d3-bg);
-    }
-    .c-d4 {
-      color: var(--d4);
-      background: var(--d4-bg);
-    }
-    .c-dt {
-      color: var(--dt);
-      background: var(--dt-bg);
-    }
-    .c-bis {
-      color: var(--bis);
-      background: var(--bis-bg);
-    }
-    .c-pond {
-      color: var(--pond);
-      background: var(--pond-bg);
-    }
-    .c-rip {
-      color: var(--rip);
-      background: var(--rip-bg);
-    }
-    .c-cong {
-      color: var(--cong);
-      background: var(--cong-bg);
-    }
-    .c-agb {
-      color: var(--agb);
-      background: var(--agb-bg);
-    }
-    .c-fp {
-      color: var(--fp);
-      background: var(--fp-bg);
-    }
-    .c-other {
-      color: var(--other);
-      background: var(--other-bg);
-    }
-
-    .edit-input {
-      width: 50px;
-      background: var(--edit-mode-bg);
-      border: 1px solid var(--bad);
-      color: var(--ink);
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      text-align: center;
-      padding: 2px 4px;
-      border-radius: 3px;
-      text-transform: uppercase;
-    }
-
-    .edit-input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    .grado-capitano td:first-child {
-      border-left: 3px solid #facc15;
-    }
-    .grado-capo td:first-child {
-      border-left: 3px solid #fb923c;
-    }
-    .grado-timoniere td:first-child {
-      border-left: 3px solid #22c55e;
-    }
-    .grado-aiuto td:first-child {
-      border-left: 3px solid #3b82f6;
-    }
-    .grado-motorista td:first-child {
-      border-left: 3px solid #a855f7;
-    }
-    .grado-marinaio td:first-child {
-      border-left: 3px solid #9ca3af;
-    }
-
-    .grado-capo {
-      background: rgba(251, 146, 60, 0.02) !important;
-    }
-    .grado-capitano {
-      background: rgba(250, 204, 21, 0.03);
-    }
-    .grado-capo {
-      background: rgba(251, 146, 60, 0.03);
-    }
-    .grado-timoniere {
-      background: rgba(34, 197, 94, 0.03);
-    }
-    .grado-aiuto {
-      background: rgba(59, 130, 246, 0.03);
-    }
-    .grado-motorista {
-      background: rgba(168, 85, 247, 0.03);
-    }
-    .grado-marinaio {
-      background: rgba(156, 163, 175, 0.02);
-    }
-
-    tbody tr:hover {
-      background: rgba(255, 255, 255, 0.05) !important;
-    }
-
-    tbody tr.pinned-row {
-      background: rgba(45, 212, 191, 0.12) !important;
-    }
-
-    .upload-container {
+    .modal {
       background: var(--bg-panel);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 12px 16px;
-      margin-top: 20px;
+      width: min(520px, 92vw);
+      max-height: 80vh;
+      overflow: auto;
+      padding: 20px 22px;
     }
 
-    .upload-header {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
+    .modal h3 {
+      margin: 0 0 4px;
+      font-size: 16px;
+    }
+
+    .modal p {
       color: var(--ink-dim);
+      font-size: 12.5px;
+      margin: 0 0 14px;
+    }
+
+    .code-row {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      user-select: none;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
     }
 
-    .upload-header:hover {
-      color: var(--ink);
-    }
-
-    .csv-textarea {
-      width: 100%;
-      height: 60px;
-      background: var(--bg);
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 6px 10px;
-      color: var(--ink);
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      resize: vertical;
-    }
-
-    .csv-textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    #upload-body {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      padding-top: 10px;
-    }
-
-    .upload-actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .upload-actions input[type="file"] {
-      font-size: 12px;
-      color: var(--ink-dim);
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #06201c;
-      border-color: var(--accent);
-      padding: 6px 16px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      border: 1px solid;
-      transition: .15s;
-    }
-
-    .btn-primary:hover {
-      background: transparent;
+    .code-row code {
       color: var(--accent);
+      font-weight: 700;
     }
 
-    .btn-danger {
-      background: var(--bad-bg);
-      color: var(--bad);
-      border-color: var(--bad);
-      padding: 6px 16px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      border: 1px solid;
-      transition: .15s;
-    }
-
-    .btn-danger:hover {
-      background: var(--bad);
-      color: #fff;
-    }
-
-    #upload-status {
-      font-size: 11px;
-      color: var(--ink-dim);
+    .modal .close-row {
+      margin-top: 16px;
+      text-align: right;
     }
 
     footer {
@@ -1008,227 +591,156 @@
       color: var(--ink-dim);
       font-size: 11.5px;
       padding: 30px 10px;
-      border-top: 1px solid var(--line);
-      margin-top: 20px;
     }
 
-    @media (max-width: 640px) {
-      .page-header {
-        padding: 16px 14px 10px;
+    @media (max-width:640px) {
+      .title-row {
+        flex-wrap: wrap;
       }
-      .toolbar-container {
-        padding: 10px 14px;
-      }
-      main {
-        padding: 10px 4px 40px;
-      }
-      .doc-subtitle {
+      .period {
         margin-left: 0;
         width: 100%;
       }
-      .admin-panel {
-        width: 100%;
+      .header-toolbar {
+        margin: 14px -14px 0;
+        padding: 12px 14px 0;
+        align-items: flex-start;
+      }
+      .page-nav {
         justify-content: flex-start;
       }
-      .scroll-wrap table td:nth-child(1),
-      .scroll-wrap table th:nth-child(1) {
-        width: 34px;
-        min-width: 34px;
-        max-width: 34px;
+      .title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: nowrap;
+      width: 100%;
+    }
+      .period {
+      color: var(--ink-dim);
+      font-size: 13px;
+      font-variant: small-caps;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+      .header-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 16px -28px 0;
+      padding: 14px 28px 0;
+      border-top: 1px solid var(--line);
+    }
+      .page-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      margin: 0;
+    }
+      .period {
+      color: var(--ink-dim);
+      font-size: 13px;
+      font-variant: small-caps;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+      .page-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      margin: 0;
+    }
+      main {
+      max-width: 100%;
+      margin: 0;
+      padding: 18px 26px 60px;
+    }
+      header {
+        padding: 16px 14px 10px;
       }
-      .scroll-wrap table td:nth-child(2),
-      .scroll-wrap table th:nth-child(2) {
-        width: 92px;
-        min-width: 92px;
-        max-width: 92px;
-        left: 34px;
-      }
-      .scroll-wrap table td:nth-child(n+3),
-      .scroll-wrap table th:nth-child(n+3) {
-        width: 34px;
-        min-width: 34px;
-        max-width: 34px;
-      }
-      td {
-        font-size: 9px;
-        padding: 2px 2px;
-      }
-      .cell-pill {
-        font-size: 8px;
-        padding: 1px 3px;
-      }
-      .date-header th {
-        font-size: 10px;
-        padding: 2px 1px;
-      }
-
     }
   </style>
 </head>
 <body>
 
-  <header class="page-header">
-    <div class="title-row">
-      <div class="company-name">Navigazione sul Lago di Garda</div>
-      <h1 class="doc-title"><span class="wave">⚓</span> Pannello Operativo Turni — BOZZA</h1>
-      <span class="doc-subtitle" id="periodLabel">BOZZA — STAGIONE 2026 (DAL 22-06 AL 02-08-2026)</span>
+  <header>
+    <div class="header-top">
+      <div class="title-row">
+        <div class="company-name">Navigazione sul Lago di Garda</div>
+        <h1><span class="wave">⚓</span> Pannello Operativo Turni — BOZZA</h1>
+        <span class="period" id="periodLabel">BOZZA — DAL 27-07 AL 09-08-2026</span>
+      </div>
+    </div>
+
+    <div class="header-toolbar">
+      <div class="tabs" id="residenceTabs"></div>
+
+      <div class="page-nav" id="pageNav">
+        <a href="bozza_desenzano.html" class="btn">👥 Turno 22/08 26/07</a>
+        <a href="bozza_turni_copertura.html" class="btn">👥 Turni Copertura</a>
+        <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
+        <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
+      </div>
     </div>
   </header>
 
-  <div class="toolbar-container">
-    <div class="resistence-block" id="res-selector-container"></div>
-
-    <div class="admin-panel" id="admin-panel" style="display:none;">
-      <a href="desenzano.html" class="btn" target="_blank">👥 Turno 22/08 26/07</a>
-      <a href="bozza_turni_copertura.html" class="btn" target="_blank">👥 Turni Copertura</a>
-      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica JSON</button>
-      <button class="btn" onclick="togglePastColumns()" id="togglePastBtn">👁 Mostra passato</button>
-      <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
-    </div>
-  </div>
-
   <main>
 
-    <div id="welcome-notice">
-      <h3>📊 Nessun dato bozza caricato</h3>
-      <p>Metti <code>turni_bozza.json</code> nella stessa cartella della pagina, oppure incolla manualmente il JSON nella sezione in fondo.</p>
+    <div class="weekbar" id="weekBar"></div>
+    <div class="daybar" id="dayBar"></div>
+
+    <div class="summary-strip" id="summaryStrip"></div>
+
+    <div class="toolbar">
+      <input type="text" id="searchAgent" placeholder="Cerca agente per nome…">
+
+      <button class="btn" id="settingsBtn">
+        ⚙ Configura codici turno
+      </button>
     </div>
 
-    <div class="shifts-filter-block" id="shift-filter-container">
-      <span class="filter-label">Seleziona un Turno per la ricerca Equipaggi:</span>
-      <div class="shift-buttons-grid" id="shift-buttons-wrapper"></div>
-    </div>
+    <div class="section-title">Turni del giorno</div>
+    <div class="cards-grid" id="shiftCards"></div>
 
-    <div id="day-panel">
-      <div class="panel-header">
-        <div class="panel-date" id="panel-date-label"></div>
-        <button class="panel-close" onclick="clearSelection()">✕ Chiudi Equipaggio</button>
-      </div>
-      <div class="panel-groups" id="panel-groups"></div>
-    </div>
+    <div class="section-title">Trasferte in uscita</div>
+    <div class="offlist" id="transferList"></div>
 
-    <div class="hint" id="hint">💡 <b>1. Seleziona un Turno</b> in alto · <b>2. Clicca sul Giorno</b> (numero nella tabella) per calcolare l'equipaggio completo</div>
+    <div class="section-title">Assenti / riposo / altro</div>
+    <div class="offlist" id="offList"></div>
 
-    <div class="scroll-wrap" id="matrix-scroll-wrap">
-      <table>
-        <thead id="thead-container"></thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
+    <div class="section-title">Legenda gradi</div>
+    <div class="legend" id="gradeLegend"></div>
 
-    <div class="upload-container" id="upload-container">
-      <div class="upload-header" onclick="toggleUpload()">
-        <span>📂 Carica / Gestisci dati</span>
-        <span id="upload-toggle-icon">▼ espandi</span>
-      </div>
-      <div id="upload-body">
-        <textarea class="csv-textarea" id="json-paste-input" placeholder="Incolla qui il contenuto di turni_bozza.json..."></textarea>
-        <div class="upload-actions">
-          <button class="btn-primary" onclick="loadPastedJSON()">📥 Carica da testo</button>
-          <button class="btn-danger" onclick="clearSavedMemory()">🗑 Cancella memoria</button>
-          <span id="upload-status"></span>
-        </div>
-      </div>
+    <div class="section-title">Copertura turni — intero periodo</div>
+    <div class="matrix-wrap">
+      <table class="matrix" id="matrixTable"></table>
     </div>
 
   </main>
 
-  <footer>Dati letti da file JSON locale o dalla memoria del browser · nessun invio a server esterni</footer>
+  <div class="overlay" id="settingsOverlay">
+    <div class="modal">
+      <h3>Codici turno — <span id="modalResName"></span></h3>
+      <p>Seleziona quali codici rappresentano un turno di lavoro da coprire. I codici deselezionati (riposi, congedi, corsi…) non vengono considerati per il controllo di copertura.</p>
+      <div id="codeList"></div>
+      <div class="close-row"><button class="btn" id="closeSettings">Chiudi</button></div>
+    </div>
+  </div>
+
+  <footer>Pagina generata localmente — dati letti dalla BOZZA (Google Sheet) · nessun invio a server esterni</footer>
 
   <script>
-    let globalData = null;
-    let currentResidence = "";
-    let currentAgentsList = [];
-    let selectedCol = null;
-    let trElements = [];
-    let pinnedAgentIdx = null;
-    let activeShiftFilter = null;
-    let showPastColumns = false;
-    let isEditMode = false;
+    // ---------- dati caricati da file esterno ----------
+    let RAW = null;
+    let dataLoaded = false;
 
-    const turniMappaResidenze = {
-      "desenzano": ["D1", "D2", "D3", "D4", "BIS"],
-      "maderno": ["T1", "T2", "M1"],
-      "riva": ["R1", "R2", "R3", "R4", "CAR"],
-      "peschiera": ["P1", "P2", "P3", "P4", "CAP", "SR1"]
-    };
-
-    const dateCalendario = [];
-    const settimaneInfo = [];
-
-    function pad2(n) {
-      return String(n).padStart(2, "0");
-    }
-
-    function parseWeekKey(key) {
-      const m = String(key || "").match(/settimana_(\d{2})-(\d{2})_al_(\d{2})-(\d{2})/);
-      if (!m) return null;
-      return {
-        key,
-        startDay: parseInt(m[1], 10),
-        startMonth: parseInt(m[2], 10),
-        endDay: parseInt(m[3], 10),
-        endMonth: parseInt(m[4], 10)
-      };
-    }
-
-    function annoDaDati(data) {
-      if (data && data.data_inizio) {
-        const d = new Date(data.data_inizio + "T00:00:00");
-        if (!isNaN(d)) return d.getFullYear();
-      }
-      const m = String((data && data.periodo) || "").match(/(\d{4})/);
-      return m ? parseInt(m[1], 10) : 2026;
-    }
-
-    function configuraSettimaneDaJSON(data) {
-      settimaneInfo.length = 0;
-      const anno = annoDaDati(data);
-      const keys = [];
-
-      Object.values(data.residenze || {}).forEach(lista => {
-        (lista || []).forEach(ag => {
-          Object.keys(ag.turni_settimanali || {}).forEach(k => {
-            if (!keys.includes(k)) keys.push(k);
-          });
-        });
-      });
-
-      keys.sort((a, b) => {
-        const pa = parseWeekKey(a);
-        const pb = parseWeekKey(b);
-        if (!pa || !pb) return a.localeCompare(b);
-        return new Date(anno, pa.startMonth - 1, pa.startDay) - new Date(anno, pb.startMonth - 1, pb.startDay);
-      });
-
-      keys.forEach(key => {
-        const p = parseWeekKey(key);
-        if (!p) return;
-        let count = 7;
-        Object.values(data.residenze || {}).some(lista => (lista || []).some(ag => {
-          const arr = ag.turni_settimanali && ag.turni_settimanali[key];
-          if (Array.isArray(arr) && arr.length) {
-            count = arr.length;
-            return true;
-          }
-          return false;
-        }));
-        settimaneInfo.push({
-          label: `Settimana ${pad2(p.startDay)}-${pad2(p.startMonth)} al ${pad2(p.endDay)}-${pad2(p.endMonth)}`,
-          key,
-          startDay: p.startDay,
-          month: p.startMonth - 1,
-          count,
-          year: anno
-        });
-      });
-    }
-
-    const nomiGiorni = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
-    const mesiNomi = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre",
-      "novembre", "dicembre"
-    ];
-
+    // ---------- variabili globali ----------
     const gradeInfo = {
       "grado-capitano": { label: "Capitano", color: "#facc15" },
       "grado-capo": { label: "Capo Timoniere", color: "#fb923c" },
@@ -1238,50 +750,7 @@
       "grado-marinaio": { label: "Marinaio", color: "#9ca3af" }
     };
 
-    const shiftBorderColor = {
-      "c-d1": "#3b6bcc",
-      "c-d2": "#2d9e6b",
-      "c-d3": "#e07b3a",
-      "c-d4": "#c45cba",
-      "c-dt": "#e6d44a",
-      "c-bis": "#5ec4d4",
-      "c-pond": "#f08080",
-      "c-rip": "#6b7280",
-      "c-cong": "#a78bfa",
-      "c-agb": "#60a5fa",
-      "c-fp": "#94a3b8",
-      "c-other": "#94a3b8"
-    };
-
-    function inizializzaCalendario() {
-      dateCalendario.length = 0;
-      let colCounter = 3;
-      settimaneInfo.forEach((sett, sIdx) => {
-        let baseDate = new Date(sett.year || 2026, sett.month, sett.startDay);
-        const giorni = sett.count || 7;
-        for (let g = 0; g < giorni; g++) {
-          let d = new Date(baseDate);
-          d.setDate(baseDate.getDate() + g);
-          const jsDay = d.getDay();
-          const dayIdx = (jsDay + 6) % 7;
-          const nomeGiorno = nomiGiorni[dayIdx];
-          dateCalendario.push({
-            col: colCounter,
-            weekKey: sett.key,
-            weekIdx: sIdx,
-            dayIdx: g,
-            dayNum: d.getDate(),
-            giornoSett: nomeGiorno,
-            isDomenica: (jsDay === 0),
-            labelEstesa: `${nomeGiorno} ${d.getDate()} ${mesiNomi[d.getMonth()]}`,
-            realObj: d
-          });
-          colCounter++;
-        }
-      });
-    }
-
-    function getGradeClass(badge) {
+     function getGradeClass(badge) {
       badge = Number(badge);
       if (!badge) return "grado-marinaio";
       if ((badge >= 1 && badge <= 5) || (badge >= 38 && badge <= 41) || (badge >= 66 && badge <= 69) || (badge >= 105 && badge <=
@@ -1295,570 +764,700 @@
       return "grado-marinaio";
     }
 
-    function ottieniTurnoPulito(v) {
-      if (!v) return "";
-      let txt = v.toUpperCase().trim().replace(/\*/g, "").replace(/--/g, "");
-      if (txt === "" || txt === "RIP" || txt === "RIP." || txt === "----") return "";
+    const DEFAULT_NON_TURNO = /^(rip\.?|riposo|cong\.?|con;|corso|l\.?d\.?|s\.?s\.?\??|#|c-+|-+|crip\.?)$/i;
 
-      let match = txt.match(/(?:^C)?([DRMP]\d|BIS|POND|T1|M1|DT|T2|CAR|CAP|SR1)(?:C|$)/i);
-      if (match && match[1]) {
-        return match[1].toUpperCase();
-      }
-      return txt;
+    // ---------- trasferte ----------
+    function resolveTransferTarget(inner) {
+      if (!inner) return null;
+      let m;
+      if ((m = inner.match(/^Pon?([MD])/i))) return m[1].toUpperCase() === 'M' ? 'MADERNO' : 'DESENZANO';
+      if (/^BIS/i.test(inner)) return 'DESENZANO';
+      if (/^DT/i.test(inner)) return 'DESENZANO';
+      if (/^SR/i.test(inner)) return 'PESCHIERA';
+      if (/^CAP/i.test(inner)) return 'PESCHIERA';
+      if (/^PT/i.test(inner)) return 'PESCHIERA';
+      if (/^I\.?E\.?/i.test(inner)) return 'PESCHIERA';
+      if (/^R\d/i.test(inner)) return 'RIVA';
+      if (/^M\d/i.test(inner)) return 'MADERNO';
+      if (/^T\d/i.test(inner)) return 'MADERNO';
+      if (/^D\d/i.test(inner)) return 'DESENZANO';
+      if (/^P\d/i.test(inner)) return 'PESCHIERA';
+      return null;
     }
 
-    function classify(v) {
-      if (!v || v === "") return null;
-      let uPulito = ottieniTurnoPulito(v);
-      if (uPulito === "") return "c-rip";
-
-      if (/^D1/.test(uPulito) || /^R1/.test(uPulito) || /^P1/.test(uPulito)) return "c-d1";
-      if (/^D2/.test(uPulito) || /^R2/.test(uPulito) || /^P2/.test(uPulito)) return "c-d2";
-      if (/^D3/.test(uPulito) || /^R3/.test(uPulito) || /^P3/.test(uPulito)) return "c-d3";
-      if (/^D4/.test(uPulito) || /^R4/.test(uPulito) || /^P4/.test(uPulito)) return "c-d4";
-      if (/^DT/.test(uPulito) || uPulito === "T2" || /^T1/.test(uPulito) || /^M1/.test(uPulito)) return "c-dt";
-      if (/^BIS/.test(uPulito)) return "c-bis";
-      if (/^POND/.test(uPulito)) return "c-pond";
-      if (/^AGB/.test(uPulito)) return "c-agb";
-      if (uPulito.startsWith("CONG") || uPulito === "CON;") return "c-cong";
-      if (uPulito === "FP" || uPulito === "F.P." || uPulito === "CORSO") return "c-fp";
-      return "c-other";
+    function splitStar(code) {
+      const raw = (code || '').toString().trim();
+      const isExtra = /\*$/.test(raw);
+      return {
+        raw,
+        code: raw.replace(/\*$/, '').trim(),
+        isExtra
+      };
     }
 
-    function pill(v) {
-      if (!v || v.trim() === "" || v.trim() === "----" || v.trim().toLowerCase() === "rip" || v.trim().toLowerCase() === "rip.") {
-        return '<span class="cell-pill c-rip">rip</span>';
-      }
-      const cls = classify(v);
-      if (!cls) return `<span style="color:#3a3f50">${v}</span>`;
-      return `<span class="cell-pill ${cls}">${v}</span>`;
+    function normalizeCode(code) {
+      return splitStar(code).code;
     }
 
-    function isTodayDate(dateObj) {
-      const a = new Date(dateObj);
-      const b = new Date();
-      a.setHours(0, 0, 0, 0);
-      b.setHours(0, 0, 0, 0);
-      return a.getTime() === b.getTime();
+    function codeMatches(rawCode, cleanCode) {
+      return normalizeCode(rawCode).toLowerCase() === (cleanCode || '').toString().trim().toLowerCase();
     }
 
-    function buildTableHeader() {
-      const container = document.getElementById("thead-container");
-      let html = `<tr class="date-header"><th>Nr</th><th>Agente</th>`;
-      dateCalendario.forEach(d => {
-        const clsArr = [];
-        clsArr.push(d.weekIdx % 2 === 0 ? "week-even" : "week-odd");
-        if (d.giornoSett === "Lun") clsArr.push("week-start");
-        if (d.giornoSett === "Dom") clsArr.push("week-end");
-        if (isTodayDate(d.realObj)) clsArr.push("today-col");
-        const cls = `class="${clsArr.join(" ")}"`;
-        html += `<th ${cls} data-col="${d.col}" onclick="eseguiRicercaHeader(${d.col})"><span class="date-head-day">${d.giornoSett}</span><span class="date-head-num">${d.dayNum}</span></th>`;
-      });
-      html += `</tr>`;
-      container.innerHTML = html;
+    function parseCode(code) {
+      const info = splitStar(code);
+      const trimmed = info.code;
+      if (!/^c./i.test(trimmed)) {
+        return { isTransfer: false, isExtra: info.isExtra, code: trimmed, raw: info.raw };
+      }
+      let inner = null;
+      let m = trimmed.match(/^c(.+)c$/i);
+      if (m && m[1].length >= 1) {
+        inner = m[1];
+      } else {
+        m = trimmed.match(/^c(.+)$/i);
+        if (m) inner = m[1].replace(/\.$/, '');
+      }
+      if (inner) {
+        const pm = inner.match(/^Po(n?)([MD])$/i);
+        if (pm) inner = 'Pon' + pm[2].toUpperCase();
+        const target = resolveTransferTarget(inner);
+        if (target) return {
+          isTransfer: true,
+          isExtra: info.isExtra,
+          targetResidence: target,
+          targetCode: inner,
+          raw: info.raw,
+          cleanRaw: trimmed
+        };
+      }
+      return { isTransfer: false, isExtra: info.isExtra, code: trimmed, raw: info.raw };
     }
 
-    function eseguiRicercaHeader(colonnaCliccata) {
-      if (isEditMode) return;
-      if (!activeShiftFilter) {
-        alert("Scegli prima un turno dalla barra in alto per avviare la ricerca dell'equipaggio.");
-        return;
-      }
-      let cal = dateCalendario.find(c => c.col === colonnaCliccata);
-      if (cal) {
-        selectDay(cal.col, cal.labelEstesa, activeShiftFilter);
-      }
+    const dayNames = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+    const monthAbbr = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+
+    function parseYear(periodo) {
+      const m = periodo.match(/(\d{4})/);
+      return m ? parseInt(m[1], 10) : new Date().getFullYear();
     }
 
-    function generaFiltriTurnoRiferimento() {
-      if (isEditMode) {
-        document.getElementById("shift-filter-container").style.display = "none";
-        return;
-      }
-      const wrapper = document.getElementById("shift-buttons-wrapper");
-      wrapper.innerHTML = "";
+    let YEAR = 2026;
 
-      const chiaveResidenza = currentResidence.toLowerCase().trim();
-      const turniFiltrati = turniMappaResidenze[chiaveResidenza] || [];
+    function parseWeekStart(weekKey) {
+      const m = weekKey.match(/settimana_(\d{2})-(\d{2})_al_(\d{2})-(\d{2})/);
+      if (!m) return null;
+      const [, d1, mo1] = m;
+      return new Date(YEAR, parseInt(mo1, 10) - 1, parseInt(d1, 10));
+    }
 
-      if (turniFiltrati.length === 0 || !currentResidence) {
-        document.getElementById("shift-filter-container").style.display = "none";
-        return;
-      }
+    function fmtDate(d) {
+      return d.getDate().toString().padStart(2, '0') + ' ' + monthAbbr[d.getMonth()];
+    }
 
-      document.getElementById("shift-filter-container").style.display = "flex";
+    // ---------- modello per residenza ----------
+    let RESIDENZE = [];
+    const model = {};
 
-      turniFiltrati.forEach(t => {
-        const btn = document.createElement("button");
-        btn.className = "shift-filter-btn";
-        btn.textContent = t;
-        if (activeShiftFilter === t) btn.classList.add("active");
-
-        btn.addEventListener("click", () => {
-          if (activeShiftFilter === t) {
-            activeShiftFilter = null;
-          } else {
-            activeShiftFilter = t;
-          }
-          generaFiltriTurnoRiferimento();
-          renderTable();
-          if (selectedCol) {
-            if (activeShiftFilter) {
-              let cal = dateCalendario.find(c => c.col === selectedCol);
-              if (cal) selectDay(selectedCol, cal.labelEstesa, activeShiftFilter);
-            } else {
-              clearSelection();
-            }
-          }
+    function buildModel() {
+      RESIDENZE = Object.keys(RAW.residenze);
+      RESIDENZE.forEach(res => {
+        const agents = RAW.residenze[res].map(a => {
+          const badge = parseInt(a.id, 10);
+          return {
+            id: a.id,
+            badge,
+            nome: a.agente,
+            grade: getGradeClass(badge),
+            turni: a.turni_settimanali
+          };
         });
-        wrapper.appendChild(btn);
-      });
-    }
-
-    function renderTable() {
-      const tbody = document.getElementById("tbody");
-      tbody.innerHTML = "";
-      trElements = [];
-
-      if (pinnedAgentIdx !== null && currentAgentsList[pinnedAgentIdx]) {
-        let trPinned = createRowDOM(currentAgentsList[pinnedAgentIdx], pinnedAgentIdx, true);
-        tbody.appendChild(trPinned);
-        trElements.push(trPinned);
-      }
-
-      currentAgentsList.forEach((agenteObj, ri) => {
-        if (ri === pinnedAgentIdx) return;
-        let tr = createRowDOM(agenteObj, ri, false);
-        tbody.appendChild(tr);
-        trElements.push(tr);
-      });
-
-      hidePastColumns();
-    }
-
-    function createRowDOM(agenteObj, ri, isPinned = false) {
-      const tr = document.createElement("tr");
-      tr.dataset.rowIndex = ri;
-      tr.classList.add(getGradeClass(agenteObj.id));
-      if (isPinned) tr.classList.add("pinned-row");
-
-      let html = `<td class="td-num" title="Numero agente">${agenteObj.id || "—"}</td>`;
-      html += `<td class="td-name" title="${agenteObj.id || ''} ${agenteObj.agente}"><span class="agent-name-text">${agenteObj.agente}</span></td>`;
-      tr.innerHTML = html;
-
-      tr.querySelector(".td-name").addEventListener("click", () => {
-        if (isEditMode) return;
-        if (pinnedAgentIdx === ri) {
-          pinnedAgentIdx = null;
-        } else {
-          pinnedAgentIdx = ri;
-        }
-        renderTable();
-        setTimeout(scrollToToday, 50);
-        if (selectedCol) {
-          let cal = dateCalendario.find(c => c.col === selectedCol);
-          if (cal) selectDay(selectedCol, cal.labelEstesa, activeShiftFilter || "");
-        }
-      });
-
-      dateCalendario.forEach(cal => {
-        let arrayTurniSettimana = agenteObj.turni_settimanali[cal.weekKey] || ["rip", "rip", "rip", "rip", "rip", "rip", "rip"];
-        let giornoInternoIdx = cal.dayIdx;
-        let turnoVal = arrayTurniSettimana[giornoInternoIdx] || "rip";
-
-        const td = document.createElement("td");
-        const tdClasses = [];
-        tdClasses.push(cal.weekIdx % 2 === 0 ? "week-even" : "week-odd");
-        if (cal.giornoSett === "Lun") tdClasses.push("week-start");
-        if (cal.giornoSett === "Dom") tdClasses.push("week-end");
-        if (isTodayDate(cal.realObj)) tdClasses.push("today-col");
-        td.className = tdClasses.join(" ");
-        td.dataset.col = cal.col;
-
-        if (isEditMode) {
-          const input = document.createElement("input");
-          input.type = "text";
-          input.className = "edit-input";
-          input.value = turnoVal;
-          input.dataset.weekKey = cal.weekKey;
-          input.dataset.dayIdx = giornoInternoIdx;
-          input.dataset.agentIdx = ri;
-          td.appendChild(input);
-        } else {
-          td.innerHTML = pill(turnoVal);
-          td.addEventListener("click", () => {
-            let turnoDaCercare = activeShiftFilter ? activeShiftFilter : turnoVal;
-            selectDay(cal.col, cal.labelEstesa, turnoDaCercare);
-          });
-        }
-        tr.appendChild(td);
-      });
-
-      return tr;
-    }
-
-    function selectDay(col, label, cellShiftValue) {
-      if (isEditMode) return;
-      selectedCol = col;
-      document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
-      let targetTh = document.querySelector(`.date-header th[data-col="${col}"]`);
-      if (targetTh) targetTh.classList.add("selected-day");
-
-      let calInfo = dateCalendario.find(c => c.col === col);
-      let giornoInternoIdx = calInfo.dayIdx;
-      let myShiftPuro = ottieniTurnoPulito(cellShiftValue);
-
-      if (myShiftPuro === "" || !calInfo) {
-        document.getElementById("tbody").classList.remove("has-selection");
-        trElements.forEach(tr => tr.classList.remove("row-match"));
-        document.getElementById("day-panel").classList.remove("open");
-        return;
-      }
-
-      document.getElementById("tbody").classList.add("has-selection");
-
-      trElements.forEach(tr => {
-        let ag = currentAgentsList[parseInt(tr.dataset.rowIndex)];
-        if (!ag) return;
-        let turniSett = ag.turni_settimanali[calInfo.weekKey] || [];
-        let hisShiftRaw = turniSett[giornoInternoIdx] || "rip";
-        let hisShiftPuro = ottieniTurnoPulito(hisShiftRaw);
-
-        let match = (hisShiftPuro === myShiftPuro);
-        tr.classList.toggle("row-match", match);
-
-        tr.querySelectorAll("td[data-col]").forEach(td => {
-          td.classList.toggle("col-selected", parseInt(td.dataset.col) === col);
+        const weekKeySet = [];
+        agents.forEach(a => {
+          Object.keys(a.turni).forEach(k => { if (!weekKeySet.includes(k)) weekKeySet.push(k); });
         });
+        const allCodes = new Set();
+        agents.forEach(a => Object.values(a.turni).forEach(arr => arr.forEach(c => {
+          const parsed = parseCode(c);
+          if (!parsed.isTransfer && parsed.code) allCodes.add(parsed.code);
+        })));
+
+        weekKeySet.sort((a, b) => {
+          const da = parseWeekStart(a);
+          const db = parseWeekStart(b);
+          if (!da || !db) return a.localeCompare(b);
+          return da - db;
+        });
+        model[res] = { agents, weekKeys: weekKeySet, codes: Array.from(allCodes).sort() };
       });
+    }
 
-      const panelGroups = document.getElementById("panel-groups");
-      panelGroups.innerHTML = "";
+    // ---------- classificazione codici ----------
+    function storageKey(res) { return 'ggnl_turni_classif_' + res; }
 
-      const myShiftCls = classify(cellShiftValue);
-      const myColor = shiftBorderColor[myShiftCls] || "#6b7280";
+    function getClassification(res) {
+      const stored = localStorage.getItem(storageKey(res));
+      let obj = {};
+      if (stored) {
+        try { obj = JSON.parse(stored); } catch (e) { obj = {}; }
+      }
+      model[res].codes.forEach(c => {
+        if (!(c in obj)) obj[c] = !DEFAULT_NON_TURNO.test(c.trim());
+      });
+      return obj;
+    }
 
-      const myDiv = document.createElement("div");
-      myDiv.className = "shift-group";
-      myDiv.innerHTML = `<div class="shift-group-label">Servizio Selezionato</div>
-        <div class="colleague-cards">
-          <div class="colleague-card" style="border-left-color:${myColor}; background:var(--accent-dim);">
-            <span class="c-name" style="margin-left:0; font-weight:600;">SERVIZIO DETTAGLIATO: <span class="cell-pill ${myShiftCls}">${myShiftPuro}</span></span>
-          </div>
-        </div>`;
-      panelGroups.appendChild(myDiv);
+    function setClassification(res, obj) {
+      localStorage.setItem(storageKey(res), JSON.stringify(obj));
+    }
 
-      let allColleagues = [];
-      Object.keys(globalData.residenze).forEach(resKey => {
-        globalData.residenze[resKey].forEach(ag => {
-          let turniSett = ag.turni_settimanali[calInfo.weekKey] || [];
-          let hisShiftRaw = turniSett[giornoInternoIdx] || "rip";
-          let hisShiftPuro = ottieniTurnoPulito(hisShiftRaw);
+    // ---------- requisiti ----------
+    function reqStorageKey(res) { return 'ggnl_turni_requisiti_' + res; }
 
-          if (hisShiftPuro === myShiftPuro) {
-            let rawUpper = hisShiftRaw.toUpperCase();
-            let isTrasfertaFlag = rawUpper.startsWith("C") || rawUpper.endsWith("C") || resKey !==
-              currentResidence;
+    const DEFAULT_REQUISITI = {
+      DESENZANO: { D1: 4, D2: 5, D3: 5, D4: 3, BIS: 3, AgB: 1, DT: 1, PonD: 1 }
+    };
 
-            allColleagues.push({
-              id: ag.id,
-              agente: ag.agente,
-              residenzaOrigine: resKey,
-              isTrasferta: isTrasfertaFlag,
-              rawShift: hisShiftRaw
+    function getRequisiti(res) {
+      const stored = localStorage.getItem(reqStorageKey(res));
+      let obj = {};
+      if (stored) {
+        try { obj = JSON.parse(stored); } catch (e) { obj = {}; }
+      } else if (DEFAULT_REQUISITI[res]) {
+        obj = { ...DEFAULT_REQUISITI[res] };
+      }
+      return obj;
+    }
+
+    function setRequisiti(res, obj) {
+      localStorage.setItem(reqStorageKey(res), JSON.stringify(obj));
+    }
+
+    function requiredFor(res, code) {
+      const r = getRequisiti(res);
+      return (code in r && r[code] !== '' && r[code] != null) ? parseInt(r[code], 10) : null;
+    }
+
+    function coverageStatus(count, required) {
+      if (count <= 0) return 'empty';
+      if (required != null && count < required) return 'partial';
+      return 'ok';
+    }
+
+    // ---------- trasferte in entrata ----------
+    function isoDate(weekKey, dayIndex) {
+      const start = parseWeekStart(weekKey);
+      const d = new Date(start);
+      d.setDate(d.getDate() + dayIndex);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function matchExistingCode(res, inner) {
+      const found = model[res].codes.find(c => normalizeCode(c).toLowerCase() === normalizeCode(inner).toLowerCase());
+      return found || normalizeCode(inner);
+    }
+
+    const incomingTransfers = {};
+
+    function buildIncomingTransfers() {
+      RESIDENZE.forEach(r => incomingTransfers[r] = {});
+      RESIDENZE.forEach(res => {
+        model[res].agents.forEach(agent => {
+          Object.keys(agent.turni).forEach(weekKey => {
+            agent.turni[weekKey].forEach((code, dayIndex) => {
+              const parsed = parseCode(code);
+              if (parsed.isTransfer && parsed.targetResidence !== res) {
+                const iso = isoDate(weekKey, dayIndex);
+                const matchedCode = matchExistingCode(parsed.targetResidence, parsed.targetCode);
+                const bucket = incomingTransfers[parsed.targetResidence];
+                if (!bucket[iso]) bucket[iso] = {};
+                if (!bucket[iso][matchedCode]) bucket[iso][matchedCode] = [];
+                bucket[iso][matchedCode].push({
+                  nome: agent.nome,
+                  grade: agent.grade,
+                  from: res,
+                  raw: code,
+                  isExtra: parsed.isExtra
+                });
+              }
             });
-          }
+          });
         });
       });
-
-      const div = document.createElement("div");
-      div.className = "shift-group";
-      div.innerHTML =
-        `<div class="shift-group-label">Equipaggio Integrato per il turno ${myShiftPuro} (${allColleagues.length} operatori trovati nel lago)</div><div class="colleague-cards" id="colleague-list"></div>`;
-      panelGroups.appendChild(div);
-
-      const list = div.querySelector("#colleague-list");
-      allColleagues.forEach(r => {
-        const gradeClass = getGradeClass(r.id);
-        const grade = gradeInfo[gradeClass] || { label: "Marinaio", color: "#9ca3af" };
-        const card = document.createElement("div");
-        card.className = "colleague-card";
-        card.style.cssText = `border-left-color:${grade.color};`;
-
-        let infoResidenza = "";
-        if (r.residenzaOrigine !== currentResidence) {
-          infoResidenza = `<span class="c-res">📍 APPARTIENE A: ${r.residenzaOrigine.toUpperCase()} (TRASFERTA)</span>`;
-        } else if (r.isTrasferta) {
-          infoResidenza = `<span class="c-res" style="color:#60a5fa;">✈ DISTACCATO (Codice: ${r.rawShift})</span>`;
-        } else {
-          infoResidenza = `<span class="c-res" style="color:var(--good); opacity:0.6;">✓ Locale</span>`;
-        }
-
-        card.innerHTML = `<span class="c-num">${r.id || "—"}</span>
-          <span class="c-name">${r.agente} ${infoResidenza}</span>
-          <span class="c-grade" style="color:${grade.color}; background:${grade.color}22; border:1px solid ${grade.color}44;">${grade.label}</span>`;
-        list.appendChild(card);
-      });
-
-      document.getElementById("panel-date-label").innerHTML = `<span>⬡</span>${label}`;
-      document.getElementById("day-panel").classList.add("open");
     }
 
-    function clearSelection() {
-      selectedCol = null;
-      document.getElementById("day-panel").classList.remove("open");
-      document.getElementById("tbody").classList.remove("has-selection");
-      document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
-      trElements.forEach(tr => {
-        tr.classList.remove("row-match");
-        tr.querySelectorAll("td").forEach(td => td.classList.remove("col-selected"));
-      });
+    function incomingFor(res, weekKey, dayIndex, code) {
+      const iso = isoDate(weekKey, dayIndex);
+      const bucket = incomingTransfers[res][iso];
+      if (!bucket) return [];
+      return bucket[code] || bucket[normalizeCode(code)] || [];
     }
 
-    function selectResidence(resName) {
-      if (isEditMode) {
-        if (!confirm("Uscire dalla modalità modifica senza salvare i cambi correnti?")) return;
-        toggleEditMode();
-      }
-      currentResidence = resName;
-      pinnedAgentIdx = null;
-      activeShiftFilter = null;
+    // ---------- stato ----------
+    const state = {
+      residenza: '',
+      weekIndex: 0,
+      dayIndex: 0,
+      search: ''
+    };
 
-      currentAgentsList = globalData.residenze[resName] || [];
-      document.querySelectorAll(".res-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.res === resName));
-
-      generaFiltriTurnoRiferimento();
-
-      if (currentAgentsList.length > 0) {
-        document.getElementById("matrix-scroll-wrap").style.display = "block";
-        document.getElementById("hint").style.display = "block";
-        renderTable();
-        setTimeout(scrollToToday, 80);
-        if (selectedCol) {
-          let cal = dateCalendario.find(c => c.col === selectedCol);
-          if (cal) selectDay(selectedCol, cal.labelEstesa, activeShiftFilter || "");
-        }
-      } else {
-        clearSelection();
-      }
+    // ---------- helpers ----------
+    function dayInfo(res, weekIndex, dayIndex) {
+      const wk = model[res].weekKeys[weekIndex];
+      const start = parseWeekStart(wk);
+      const date = new Date(start);
+      date.setDate(date.getDate() + dayIndex);
+      return { weekKey: wk, date, label: dayNames[dayIndex] };
     }
 
-    function hidePastColumns() {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      dateCalendario.forEach(cal => {
-        const isPast = cal.realObj < today;
-        const displayValue = (!showPastColumns && isPast) ? "none" : "table-cell";
-        document.querySelectorAll(`th[data-col="${cal.col}"]`).forEach(el => {
-          el.style.display = displayValue;
-          el.style.opacity = "1";
-        });
-        document.querySelectorAll(`td[data-col="${cal.col}"]`).forEach(td => {
-          td.style.display = displayValue;
-          td.style.opacity = "1";
+    function agentCodeOn(agent, weekKey, dayIndex) {
+      const arr = agent.turni[weekKey];
+      if (!arr) return null;
+      return arr[dayIndex] !== undefined ? arr[dayIndex] : null;
+    }
+
+    function turnoCodesFor(res) {
+      const cls = getClassification(res);
+      return model[res].codes.filter(c => cls[c]);
+    }
+
+    // ---------- rendering ----------
+    const elResidenceTabs = document.getElementById('residenceTabs');
+    const elWeekBar = document.getElementById('weekBar');
+    const elDayBar = document.getElementById('dayBar');
+    const elSummary = document.getElementById('summaryStrip');
+    const elShiftCards = document.getElementById('shiftCards');
+    const elOffList = document.getElementById('offList');
+    const elTransferList = document.getElementById('transferList');
+    const elLegend = document.getElementById('gradeLegend');
+    const elMatrix = document.getElementById('matrixTable');
+    const elSearch = document.getElementById('searchAgent');
+    const elSettingsBtn = document.getElementById('settingsBtn');
+    const elOverlay = document.getElementById('settingsOverlay');
+    const elCodeList = document.getElementById('codeList');
+    const elCloseSettings = document.getElementById('closeSettings');
+    const elModalResName = document.getElementById('modalResName');
+    const elPeriodLabel = document.getElementById('periodLabel');
+
+    function renderLegend() {
+      elLegend.innerHTML = Object.values(gradeInfo).map(g =>
+        `<span><span class="dot" style="background:${g.color}"></span>${g.label}</span>`
+      ).join('') + '<span><span class="extra-star">*</span> Sovrannumero / affiancamento</span>';
+    }
+
+    function renderResidenceTabs() {
+      elResidenceTabs.innerHTML = RESIDENZE.map(r =>
+        `<button class="tab ${r === state.residenza ? 'active' : ''}" data-res="${r}">${r}</button>`
+      ).join('');
+      elResidenceTabs.querySelectorAll('.tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.residenza = btn.dataset.res;
+    // Vai automaticamente al giorno odierno anche nella nuova residenza
+          goToToday();
+          
+          renderAll();
         });
       });
-
-      const btn = document.getElementById("togglePastBtn");
-      if (btn) btn.textContent = showPastColumns ? "🙈 Nascondi passato" : "👁 Mostra passato";
     }
 
-    function togglePastColumns() {
-      showPastColumns = !showPastColumns;
-      hidePastColumns();
-      setTimeout(scrollToToday, 30);
+    function renderWeekBar() {
+      const keys = model[state.residenza].weekKeys;
+      elWeekBar.innerHTML = keys.map((wk, i) => {
+        const start = parseWeekStart(wk);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 6);
+        return `<button class="chip ${i === state.weekIndex ? 'active' : ''}" data-w="${i}">${fmtDate(start)} – ${fmtDate(end)}</button>`;
+      }).join('');
+      elWeekBar.querySelectorAll('.chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.weekIndex = parseInt(btn.dataset.w, 10);
+          state.dayIndex = 0;
+          renderAll();
+        });
+      });
     }
 
-    function toggleEditMode() {
-      isEditMode = !isEditMode;
-      const btn = document.getElementById("toggle-edit-btn");
-      const btnSave = document.getElementById("save-edit-btn");
-      const btnDl = document.getElementById("download-json-btn");
-
-      if (isEditMode) {
-        clearSelection();
-        btn.textContent = "✕ Annulla";
-        btn.classList.add("editing");
-        btnSave.style.display = "inline-flex";
-        btnDl.style.display = "inline-flex";
-      } else {
-        btn.textContent = "✍ Abilita Modifiche";
-        btn.classList.remove("editing");
-        btnSave.style.display = "none";
-        btnDl.style.display = "none";
-      }
-
-      generaFiltriTurnoRiferimento();
-      renderTable();
+    function renderDayBar() {
+      elDayBar.innerHTML = dayNames.map((dn, i) => {
+        const info = dayInfo(state.residenza, state.weekIndex, i);
+        return `<button class="chip ${i === state.dayIndex ? 'active' : ''}" data-d="${i}">
+          <span class="dname">${dn}</span><span class="ddate">${fmtDate(info.date)}</span>
+        </button>`;
+      }).join('');
+      elDayBar.querySelectorAll('.chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.dayIndex = parseInt(btn.dataset.d, 10);
+          renderDaySpecific();
+        });
+      });
     }
 
-    function saveChanges() {
-      const inputs = document.querySelectorAll(".edit-input");
-      inputs.forEach(input => {
-        const aIdx = parseInt(input.dataset.agentIdx);
-        const wKey = input.dataset.weekKey;
-        const dIdx = parseInt(input.dataset.dayIdx);
-        const nuovoValore = input.value.trim() === "" ? "rip" : input.value.trim();
+    function renderSummary() {
+      const res = state.residenza;
+      const { weekKey } = dayInfo(res, state.weekIndex, state.dayIndex);
+      const turnoCodes = turnoCodesFor(res);
+      const agents = model[res].agents;
 
-        if (currentAgentsList[aIdx]) {
-          if (!currentAgentsList[aIdx].turni_settimanali[wKey]) {
-            currentAgentsList[aIdx].turni_settimanali[wKey] = ["rip", "rip", "rip", "rip", "rip", "rip", "rip"];
-          }
-          currentAgentsList[aIdx].turni_settimanali[wKey][dIdx] = nuovoValore;
+      let covered = 0,
+        partial = 0,
+        missing = 0,
+        assigned = 0,
+        off = 0,
+        trasfOut = 0,
+        trasfIn = 0;
+      turnoCodes.forEach(code => {
+        const local = agents.filter(a => codeMatches(agentCodeOn(a, weekKey, state.dayIndex), code)).length;
+        const incoming = incomingFor(res, weekKey, state.dayIndex, code).length;
+        const total = local + incoming;
+        const required = requiredFor(res, code);
+        const status = coverageStatus(total, required);
+        if (status === 'ok') covered++;
+        else if (status === 'partial') partial++;
+        else missing++;
+        trasfIn += incoming;
+      });
+      agents.forEach(a => {
+        const c = agentCodeOn(a, weekKey, state.dayIndex);
+        if (c === null) return;
+        const parsed = parseCode(c);
+        if (parsed.isTransfer && parsed.targetResidence !== res) { trasfOut++; return; }
+        if (turnoCodes.includes(normalizeCode(c))) assigned++;
+        else off++;
+      });
+
+      elSummary.innerHTML = `
+        <div class="stat ok"><div class="num">${covered}</div><div class="lbl">Turni completi</div></div>
+        <div class="stat warn"><div class="num">${partial}</div><div class="lbl">Equipaggi incompleti</div></div>
+        <div class="stat ${missing > 0 ? 'ko' : ''}"><div class="num">${missing}</div><div class="lbl">Turni scoperti</div></div>
+        <div class="stat"><div class="num">${assigned}</div><div class="lbl">Agenti in turno</div></div>
+        <div class="stat"><div class="num">${off}</div><div class="lbl">Assenti / riposo</div></div>
+        <div class="stat"><div class="num">${trasfOut}</div><div class="lbl">In trasferta (uscita)</div></div>
+        <div class="stat"><div class="num">${trasfIn}</div><div class="lbl">In trasferta (entrata)</div></div>
+      `;
+    }
+
+    function renderShiftCards() {
+      const res = state.residenza;
+      const { weekKey } = dayInfo(res, state.weekIndex, state.dayIndex);
+      const turnoCodes = turnoCodesFor(res);
+      const agents = model[res].agents;
+      const search = state.search.trim().toLowerCase();
+
+      elShiftCards.innerHTML = turnoCodes.map(code => {
+        let onShift = agents.filter(a => codeMatches(agentCodeOn(a, weekKey, state.dayIndex), code));
+        let incoming = incomingFor(res, weekKey, state.dayIndex, code);
+        if (search) {
+          onShift = onShift.filter(a => a.nome.toLowerCase().includes(search));
+          incoming = incoming.filter(a => a.nome.toLowerCase().includes(search));
+        }
+        const total = onShift.length + incoming.length;
+        const required = requiredFor(res, code);
+        const status = coverageStatus(total, required);
+        const localChips = onShift.map(a => {
+          const g = gradeInfo[a.grade];
+          const rawCode = agentCodeOn(a, weekKey, state.dayIndex);
+          const extra = splitStar(rawCode).isExtra;
+          return `<div class="agent-chip"><span class="dot" style="background:${g.color}"></span>${a.nome}${extra ? ' <span class="extra-star" title="Sovrannumero / affiancamento">*</span>' : ''} <span style="color:var(--ink-dim);font-size:11px;">· ${g.label}${extra ? ' · affiancamento' : ''}</span></div>`;
+        }).join('');
+        const incomingChips = incoming.map(a => {
+          const g = gradeInfo[a.grade];
+          return `<div class="agent-chip"><span class="dot" style="background:${g.color}"></span>${a.nome}${a.isExtra ? ' <span class="extra-star" title="Sovrannumero / affiancamento">*</span>' : ''} <span style="color:var(--accent);font-size:11px;">· ↳ trasferta da ${a.from}${a.isExtra ? ' · affiancamento' : ''}</span></div>`;
+        }).join('');
+        const countLabel = required != null ? `${total}/${required}` : `${total} agente${total === 1 ? '' : 'i'}`;
+        const msg = status === 'empty' ?
+          '<div class="empty-msg">⚠ NESSUN AGENTE — TURNO NON COPERTO</div>' :
+          status === 'partial' ?
+          `<div class="empty-msg" style="color:var(--warn);">⚠ EQUIPAGGIO INCOMPLETO (mancano ${required - total})</div>` :
+          '';
+        return `<div class="shift-card ${status === 'empty' ? 'empty' : ''} ${status === 'partial' ? 'partial' : ''}">
+          <div class="head">
+            <span class="code">${code}</span>
+            <span class="count ${status}">${countLabel}</span>
+          </div>
+          ${msg}${status === 'empty' ? '' : localChips + incomingChips}
+        </div>`;
+      }).join('') || '<p style="color:var(--ink-dim);">Nessun codice turno configurato come "turno di lavoro". Apri le impostazioni per definirli.</p>';
+    }
+
+    function renderOffList() {
+      const res = state.residenza;
+      const { weekKey } = dayInfo(res, state.weekIndex, state.dayIndex);
+      const turnoCodes = turnoCodesFor(res);
+      const agents = model[res].agents;
+      const search = state.search.trim().toLowerCase();
+
+      let offAgents = agents
+        .map(a => ({ a, code: agentCodeOn(a, weekKey, state.dayIndex) }))
+        .filter(x => x.code !== null && !turnoCodes.includes(normalizeCode(x.code)) && !parseCode(x.code).isTransfer);
+      if (search) offAgents = offAgents.filter(x => x.a.nome.toLowerCase().includes(search));
+
+      elOffList.innerHTML = offAgents.map(({ a, code }) => {
+        const g = gradeInfo[a.grade];
+        return `<div class="off-chip"><span class="dot" style="background:${g.color}"></span><b>${a.nome}</b><span class="code-tag">${code}</span></div>`;
+      }).join('') || '<p style="color:var(--ink-dim);font-size:13px;">Nessuno.</p>';
+    }
+
+    function renderTransferList() {
+      const res = state.residenza;
+      const { weekKey } = dayInfo(res, state.weekIndex, state.dayIndex);
+      const agents = model[res].agents;
+      const search = state.search.trim().toLowerCase();
+
+      let outAgents = agents
+        .map(a => ({ a, code: agentCodeOn(a, weekKey, state.dayIndex) }))
+        .map(x => ({ ...x, parsed: x.code !== null ? parseCode(x.code) : { isTransfer: false } }))
+        .filter(x => x.parsed.isTransfer && x.parsed.targetResidence !== res);
+      if (search) outAgents = outAgents.filter(x => x.a.nome.toLowerCase().includes(search));
+
+      elTransferList.innerHTML = outAgents.map(({ a, parsed }) => {
+        const g = gradeInfo[a.grade];
+        return `<div class="off-chip"><span class="dot" style="background:${g.color}"></span><b>${a.nome}${parsed.isExtra ? ' <span class="extra-star">*</span>' : ''}</b><span class="code-tag">${parsed.raw} → ${parsed.targetResidence} (${parsed.targetCode})${parsed.isExtra ? ' · affiancamento' : ''}</span></div>`;
+      }).join('') || '<p style="color:var(--ink-dim);font-size:13px;">Nessuna trasferta in uscita oggi.</p>';
+    }
+
+    function renderMatrix() {
+      const res = state.residenza;
+      const turnoCodes = turnoCodesFor(res);
+      const agents = model[res].agents;
+      const weekKeys = model[res].weekKeys;
+
+      const cols = [];
+      weekKeys.forEach((wk, wi) => {
+        for (let di = 0; di < 7; di++) {
+          const start = parseWeekStart(wk);
+          const date = new Date(start);
+          date.setDate(date.getDate() + di);
+          cols.push({ wk, wi, di, date });
         }
       });
 
-      globalData.residenze[currentResidence] = currentAgentsList;
-      localStorage.setItem("turno_bozza_data", JSON.stringify(globalData));
+      let thead = '<thead><tr><th class="code-col">Turno</th>' +
+        cols.map(c => `<th>${dayNames[c.di][0]}<br>${fmtDate(c.date)}</th>`).join('') +
+        '</tr></thead>';
 
-      alert("Cambio turni salvato correttamente in memoria locale!");
-      toggleEditMode();
-    }
+      let rows = turnoCodes.map(code => {
+        const required = requiredFor(res, code);
+        let tds = cols.map(c => {
+          const local = agents.filter(a => codeMatches(agentCodeOn(a, c.wk, c.di), code)).length;
+          const incoming = incomingFor(res, c.wk, c.di, code).length;
+          const count = local + incoming;
+          const isSel = (c.wi === state.weekIndex && c.di === state.dayIndex);
+          const status = coverageStatus(count, required);
+          const cls = status === 'empty' ? 'zero' : status === 'partial' ? 'partial' : 'ok';
+          const title = incoming > 0 ? ` title="${local} residenti + ${incoming} in trasferta"` : '';
+          const label = required != null ? `${count}/${required}` : (count || '·');
+          return `<td class="cell ${cls} ${isSel ? 'sel' : ''}" data-wi="${c.wi}" data-di="${c.di}"${title}>${label}</td>`;
+        }).join('');
+        const reqTag = required != null ? ` <span style="color:var(--ink-dim);font-weight:400;">(req. ${required})</span>` :
+        '';
+        return `<tr><td class="code-col">${code}${reqTag}</td>${tds}</tr>`;
+      }).join('');
 
-    function downloadUpdatedJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(globalData, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "turni_bozza.json");
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    }
+      elMatrix.innerHTML = thead + '<tbody>' + rows + '</tbody>';
 
-    function renderResidenceButtons() {
-      const container = document.getElementById("res-selector-container");
-      container.innerHTML = "";
-      Object.keys(globalData.residenze).forEach(res => {
-        const btn = document.createElement("button");
-        btn.className = "res-btn";
-        btn.dataset.res = res;
-        btn.textContent = res;
-        btn.addEventListener("click", () => selectResidence(res));
-        container.appendChild(btn);
+      elMatrix.querySelectorAll('td.cell').forEach(td => {
+        td.addEventListener('click', () => {
+          state.weekIndex = parseInt(td.dataset.wi, 10);
+          state.dayIndex = parseInt(td.dataset.di, 10);
+          renderAll();
+        });
       });
     }
 
-    function processJSONData(data) {
-      globalData = data;
-      configuraSettimaneDaJSON(data);
-      inizializzaCalendario();
-      buildTableHeader();
+    function renderSettingsModal() {
+      const res = state.residenza;
+      elModalResName.textContent = res;
+      const cls = getClassification(res);
+      const req = getRequisiti(res);
+      let html =
+        '<p style="color:var(--ink-dim);font-size:12px;margin:-6px 0 12px;">Imposta quanti membri servono per considerare l\'equipaggio completo. Lascia vuoto se basta almeno un agente presente.</p>';
+      html += model[res].codes.map(code => {
+        const checked = cls[code] ? 'checked' : '';
+        const reqVal = (code in req && req[code] != null) ? req[code] : '';
+        return `<div class="code-row">
+          <span><code>${code}</code></span>
+          <span style="display:flex;align-items:center;gap:14px;">
+            <label style="display:flex;align-items:center;gap:6px;">equipaggio min. <input type="number" min="0" step="1" data-req="${code}" value="${reqVal}" style="width:48px;background:var(--bg-card);border:1px solid var(--line);color:var(--ink);border-radius:5px;padding:3px 6px;font-size:12px;"></label>
+            <label><input type="checkbox" data-code="${code}" ${checked}> turno di lavoro</label>
+          </span>
+        </div>`;
+      }).join('');
 
-      document.getElementById("welcome-notice").style.display = "none";
-      document.getElementById("admin-panel").style.display = "flex";
+      const transferCodes = new Set();
+      model[res].agents.forEach(a => Object.values(a.turni).forEach(arr => arr.forEach(c => {
+        const p = parseCode(c);
+        if (p.isTransfer) transferCodes.add(`${c} → ${p.targetResidence} (${p.targetCode})`);
+      })));
+      if (transferCodes.size > 0) {
+        html +=
+          `<p style="margin-top:16px;color:var(--ink-dim);font-size:12px;">Codici di trasferta riconosciuti automaticamente (l'agente lascia ${res} per coprire il turno indicato altrove, non richiedono configurazione):</p>`;
+        html += Array.from(transferCodes).sort().map(t =>
+          `<div class="code-row" style="border-bottom:none;"><span><code>${t}</code></span></div>`).join('');
+      }
+
+      elCodeList.innerHTML = html;
+      elCodeList.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          const cls2 = getClassification(res);
+          cls2[cb.dataset.code] = cb.checked;
+          setClassification(res, cls2);
+          renderDaySpecific();
+          renderMatrix();
+        });
+      });
+      elCodeList.querySelectorAll('input[type=number]').forEach(inp => {
+        inp.addEventListener('change', () => {
+          const req2 = getRequisiti(res);
+          const v = inp.value.trim();
+          if (v === '') delete req2[inp.dataset.req];
+          else req2[inp.dataset.req] = parseInt(v, 10);
+          setRequisiti(res, req2);
+          renderDaySpecific();
+          renderMatrix();
+        });
+      });
+    }
+
+    function renderDaySpecific() {
+      renderDayBar();
+      renderSummary();
+      renderShiftCards();
+      renderTransferList();
+      renderOffList();
+    }
+
+    function renderAll() {
+      renderResidenceTabs();
+      renderWeekBar();
+      renderDaySpecific();
+      renderLegend();
+      renderMatrix();
+    }
+  function goToToday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const weeks = model[state.residenza].weekKeys;
+
+  for (let wi = 0; wi < weeks.length; wi++) {
+    const start = parseWeekStart(weeks[wi]);
+
+    for (let di = 0; di < 7; di++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + di);
+      d.setHours(0, 0, 0, 0);
+
+      if (d.getTime() === today.getTime()) {
+        state.weekIndex = wi;
+        state.dayIndex = di;
+        return;
+      }
+    }
+  }
+
+  // Se la data odierna non è presente nel periodo,
+  // rimane selezionato il primo giorno.
+  state.weekIndex = 0;
+  state.dayIndex = 0;
+}
+    // ---------- inizializzazione con caricamento JSON esterno ----------
+    function initApp() {
+      // Imposta stato iniziale
+      state.residenza = RESIDENZE[0] || '';
       
-      if (data.periodo) {
-        document.getElementById("periodLabel").textContent = "BOZZA — " + data.periodo;
-        const pdfLink = document.getElementById("pdfLink");
-        const periodoClean = data.periodo.replace(/[^a-zA-Z0-9\-]/g, '_');
-        pdfLink.href = `BOZZA_TURNO_${periodoClean}.pdf`;
-      }
-      
-      renderResidenceButtons();
-      let keys = Object.keys(data.residenze || {});
-      if (keys.length > 0) selectResidence(keys.includes("DESENZANO") ? "DESENZANO" : keys[0]);
-    }
-
-    function loadPastedJSON() {
-      const txt = document.getElementById("json-paste-input").value.trim();
-      try {
-        const parsed = JSON.parse(txt);
-        localStorage.setItem("turno_bozza_data", txt);
-        processJSONData(parsed);
-        toggleUpload();
-        document.getElementById("upload-status").textContent = "✅ Dati caricati con successo!";
-      } catch (e) {
-        alert("Errore nel file JSON: " + e.message);
-        document.getElementById("upload-status").textContent = "❌ Errore: " + e.message;
-      }
-    }
-
-    function clearSavedMemory() {
-      if (confirm("Cancellare i turni memorizzati?")) {
-        localStorage.removeItem("turno_bozza_data");
-        location.reload();
-      }
-    }
-
-    function toggleUpload() {
-      const body = document.getElementById("upload-body");
-      const icon = document.getElementById("upload-toggle-icon");
-      if (body.style.display === "none" || body.style.display === "") {
-        body.style.display = "flex";
-        icon.textContent = "▲ comprimi";
-      } else {
-        body.style.display = "none";
-        icon.textContent = "▼ espandi";
-      }
-    }
-
-    const LOCAL_JSON_FILE = "turni_bozza.json";
-
-    async function caricaDatiDaJSONLocale() {
-      try {
-        const response = await fetch(LOCAL_JSON_FILE + "?t=" + Date.now());
-        if (!response.ok) {
-          throw new Error(`Errore HTTP: ${response.status}`);
+  // Vai automaticamente alla data odierna
+      goToToday();
+      // Aggiorna periodo
+      if (RAW && RAW.periodo) {
+        elPeriodLabel.textContent = 'BOZZA — ' + RAW.periodo;
+        document.querySelector('.period').textContent = RAW.periodo;
+        // Aggiorna anche il titolo della pagina
+        document.title = RAW.titolo + ' — copertura equipaggi';
+        document.querySelector('h1').innerHTML = '<span class="wave">⚓</span> Pannello Operativo Turni — BOZZA';
+        // Aggiorna il link al PDF con il periodo corretto
+        const pdfLink = document.querySelector('.btn-pdf');
+        if (pdfLink) {
+          const periodoClean = RAW.periodo.replace(/[^a-zA-Z0-9\-]/g, '_');
+          pdfLink.href = `BOZZA_TURNO_${periodoClean}.pdf`;
         }
-        const datiJson = await response.json();
-        processJSONData(datiJson);
-        localStorage.setItem("turno_bozza_data", JSON.stringify(datiJson));
-        document.getElementById("upload-status").textContent = "✅ Caricato da turni_bozza.json — " + new Date().toLocaleTimeString("it-IT");
-      } catch (errore) {
-        console.warn("Caricamento JSON locale fallito, provo con la memoria locale.", errore);
+      }
+      renderAll();
+    }
+
+    // Carica i dati dal Google Sheet condiviso (via Apps Script)
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw38IoMZJ50bun_AL-KjQ7jG4UbMPRKxjr22TXrzpZ_pIM2s9ZqOR0LYFXgC007Yc0PpQ/exec";
+
+    function applicaDatiCaricati(data) {
+      RAW = data;
+      YEAR = parseYear(RAW.periodo || '');
+      buildModel();
+      buildIncomingTransfers();
+      dataLoaded = true;
+      initApp();
+    }
+
+    function mostraErroreCaricamento(error) {
+      elPeriodLabel.textContent = 'ERRORE CARICAMENTO DATI';
+      document.querySelector('.period').textContent = 'ERRORE: ' + error.message;
+      document.querySelector('h1').innerHTML = '<span class="wave">⚠</span> ERRORE CARICAMENTO';
+      document.querySelector('main').innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--bad);">
+          <h2 style="font-size:24px;">⚠ Impossibile caricare i dati</h2>
+          <p style="color:var(--ink-dim);">Il Google Sheet non è raggiungibile e non è disponibile una copia locale.</p>
+          <p style="color:var(--ink-dim);font-size:12px;">Errore: ${error.message}</p>
+        </div>
+      `;
+    }
+
+    async function caricaDatiDaGoogleSheet() {
+      try {
+        const response = await fetch(GOOGLE_SCRIPT_URL + "?tipo=bozza&t=" + Date.now());
+        if (!response.ok) throw new Error(`Errore HTTP: ${response.status}`);
+        const data = await response.json();
+        localStorage.setItem("turno_bozza_data", JSON.stringify(data));
+        applicaDatiCaricati(data);
+      } catch (error) {
+        console.warn('Caricamento dal Google Sheet fallito, provo con la memoria locale.', error);
         const saved = localStorage.getItem("turno_bozza_data");
         if (saved) {
           try {
-            processJSONData(JSON.parse(saved));
-            document.getElementById("upload-status").textContent = "⚠️ File JSON non trovato — dati da memoria locale";
+            applicaDatiCaricati(JSON.parse(saved));
           } catch (e) {
-            document.getElementById("welcome-notice").style.display = "block";
+            mostraErroreCaricamento(error);
           }
         } else {
-          document.getElementById("welcome-notice").style.display = "block";
+          mostraErroreCaricamento(error);
         }
       }
-    }
-
-    function scrollToToday() {
-      const wrap = document.getElementById("matrix-scroll-wrap");
-      if (!wrap || wrap.style.display === "none") return;
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      let target = dateCalendario.find(cal => {
-        const d = new Date(cal.realObj);
-        d.setHours(0, 0, 0, 0);
-        return d.getTime() === today.getTime();
-      });
-
-      if (!target) {
-        target = dateCalendario.find(cal => cal.realObj > today) || dateCalendario[dateCalendario.length - 1];
-      }
-
-      const th = document.querySelector(`.date-header th[data-col="${target.col}"]`);
-      if (!th) return;
-      const fixedWidth = 38 + 104;
-      const targetLeft = th.offsetLeft - fixedWidth - 12;
-      wrap.scrollLeft = Math.max(0, targetLeft);
     }
 
     function ricaricaDati() {
       const btn = document.getElementById("refreshBtn");
+      if (!btn) return;
       const testoOriginale = btn.textContent;
       btn.textContent = "🔄 Aggiorno...";
       btn.disabled = true;
-      localStorage.removeItem("turno_bozza_data");
-      caricaDatiDaJSONLocale().finally(() => {
+      caricaDatiDaGoogleSheet().finally(() => {
         btn.textContent = testoOriginale;
         btn.disabled = false;
       });
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
-      caricaDatiDaJSONLocale();
+    caricaDatiDaGoogleSheet();
+
+    // ---------- eventi ----------
+    elSearch.addEventListener('input', () => {
+      state.search = elSearch.value;
+      renderShiftCards();
+      renderOffList();
     });
+
+    elSettingsBtn.addEventListener('click', () => {
+      renderSettingsModal();
+      elOverlay.classList.add('show');
+    });
+
+    elCloseSettings.addEventListener('click', () => elOverlay.classList.remove('show'));
+    elOverlay.addEventListener('click', (e) => { if (e.target === elOverlay) elOverlay.classList.remove('show'); });
   </script>
 
 </body>
