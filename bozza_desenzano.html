@@ -1190,14 +1190,14 @@
     function getGradeClass(badge) {
       badge = Number(badge);
       if (!badge) return "grado-marinaio";
-      if ((badge >= 1 && badge <= 5) || (badge >= 38 && badge <= 41) || (badge >= 65 && badge <= 68) || (badge >= 104 && badge <=
+      if ((badge >= 1 && badge <= 5) || (badge >= 38 && badge <= 41) || (badge >= 66 && badge <= 66) || (badge >= 104 && badge <=
           109)) return "grado-capitano";
-      if ((badge >= 6 && badge <= 9) || badge === 42 || (badge >= 69 && badge <= 72) || (badge >= 110 && badge <= 113))
+      if ((badge >= 6 && badge <= 9) || badge === 42 || (badge >= 70 && badge <= 73) || (badge >= 110 && badge <= 113))
         return "grado-capo";
-      if ((badge >= 43 && badge <= 49) || (badge >= 73 && badge <= 76) || (badge >= 114 && badge <= 117)) return "grado-timoniere";
-      if ((badge >= 13 && badge <= 14) || (badge >= 77 && badge <= 79) || (badge >= 118 && badge <= 119)) return "grado-aiuto";
-      if ((badge >= 29 && badge <= 37) || (badge >= 61 && badge <= 64) || (badge >= 95 && badge <= 103) || (badge >= 137 && badge <=
-          147)) return "grado-motorista";
+      if ((badge >= 43 && badge <= 49) || (badge >= 74 && badge <= 77) || (badge >= 114 && badge <= 117)) return "grado-timoniere";
+      if ((badge >= 13 && badge <= 14) || (badge >= 78 && badge <= 80) || (badge >= 118 && badge <= 119)) return "grado-aiuto";
+      if ((badge >= 29 && badge <= 37) || (badge >= 61 && badge <= 64) || (badge >= 95 && badge <= 104) || (badge >= 137 && badge <=
+          148)) return "grado-motorista";
       return "grado-marinaio";
     }
 
