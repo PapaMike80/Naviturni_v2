@@ -64,13 +64,9 @@
     }
 
     .page-header {
-      padding: 22px 28px 14px;
+      padding: 18px 24px 12px;
       border-bottom: 1px solid var(--line);
-      position: sticky;
-      top: 0;
       background: rgba(11, 28, 38, 0.92);
-      backdrop-filter: blur(6px);
-      z-index: 50;
     }
 
     .title-row {
@@ -467,69 +463,64 @@
     }
 
     .scroll-wrap {
-      overflow-x: auto;
+      overflow: auto;
       border-radius: var(--radius);
       border: 1px solid var(--line);
       display: none;
       background: var(--bg-panel);
       width: 100%;
+      max-height: calc(100vh - 170px);
     }
 
     .scroll-wrap table {
-      border-collapse: collapse;
-      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      width: max-content;
       font-size: 12px;
-      table-layout: auto;
-      min-width: 1200px;
+      table-layout: fixed;
+      min-width: 0;
     }
 
+    /* Prime due colonne fisse: numero + nome */
     .scroll-wrap table td:nth-child(1),
     .scroll-wrap table th:nth-child(1) {
-      width: 50px;
-      min-width: 50px;
-      max-width: 50px;
+      width: 38px;
+      min-width: 38px;
+      max-width: 38px;
+      position: sticky;
+      left: 0;
+      z-index: 9;
+      box-shadow: 1px 0 0 rgba(255,255,255,0.10);
     }
+
     .scroll-wrap table td:nth-child(2),
     .scroll-wrap table th:nth-child(2) {
-      width: 160px;
-      min-width: 160px;
-      max-width: 160px;
+      width: 104px;
+      min-width: 104px;
+      max-width: 104px;
+      position: sticky;
+      left: 38px;
+      z-index: 9;
+      box-shadow: 2px 0 0 var(--line);
     }
-    .scroll-wrap table td:nth-child(3),
-    .scroll-wrap table th:nth-child(3) {
+
+    /* Colonne dei giorni più strette possibile */
+    .scroll-wrap table td:nth-child(n+3),
+    .scroll-wrap table th:nth-child(n+3) {
       width: 40px;
       min-width: 40px;
       max-width: 40px;
     }
 
-    .scroll-wrap table td:nth-child(n+4),
-    .scroll-wrap table th:nth-child(n+4) {
-      width: 48px;
-      min-width: 48px;
-      max-width: 80px;
-    }
+    /* Settimane alternate: lun-dom a blocchi */
+    .week-even { background-color: rgba(45, 212, 191, 0.035); }
+    .week-odd { background-color: rgba(255, 255, 255, 0.025); }
+    .week-start { border-left: 2px solid rgba(45, 212, 191, 0.55) !important; }
+    .week-end { border-right: 2px solid rgba(255, 255, 255, 0.12) !important; }
 
-    .scroll-wrap table td:nth-child(1),
-    .scroll-wrap table th:nth-child(1),
-    .scroll-wrap table td:nth-child(2),
-    .scroll-wrap table th:nth-child(2),
-    .scroll-wrap table td:nth-child(3),
-    .scroll-wrap table th:nth-child(3) {
-      position: sticky;
-      background: inherit;
-      z-index: 2;
-    }
-    .scroll-wrap table td:nth-child(1),
-    .scroll-wrap table th:nth-child(1) {
-      left: 0;
-    }
-    .scroll-wrap table td:nth-child(2),
-    .scroll-wrap table th:nth-child(2) {
-      left: 50px;
-    }
-    .scroll-wrap table td:nth-child(3),
-    .scroll-wrap table th:nth-child(3) {
-      left: 210px;
+    .today-col {
+      box-shadow: inset 2px 0 0 var(--accent), inset -2px 0 0 var(--accent);
+      background-color: rgba(45, 212, 191, 0.11) !important;
     }
 
     thead tr th {
@@ -577,7 +568,40 @@
       padding: 4px 2px;
     }
 
-    .date-header th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3)):hover {
+    /* Quando scorri in verticale resta visibile solo la riga con le date */
+    .date-header th {
+      position: sticky;
+      top: 0;
+      z-index: 6;
+      box-shadow: 0 2px 0 var(--line);
+    }
+
+    /* Celle Nr e Agente: ferme sia in alto sia a sinistra */
+    .date-header th:nth-child(1),
+    .date-header th:nth-child(2) {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: var(--bg-card) !important;
+      color: var(--ink);
+      box-shadow: 0 2px 0 var(--line), 2px 0 0 var(--line);
+    }
+
+    .date-head-day {
+      display: block;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--ink-dim);
+      line-height: 1;
+    }
+
+    .date-head-num {
+      display: block;
+      font-size: 13px;
+      line-height: 1.15;
+    }
+
+    .date-header th:not(:nth-child(1)):not(:nth-child(2)):hover {
       background: var(--accent-dim);
       color: var(--accent);
     }
@@ -595,6 +619,50 @@
       color: var(--bad);
     }
 
+    .date-header .d-sab,
+    .date-header .d-dom {
+      color: var(--ink);
+    }
+
+    /* Colori per grado - Variante equilibrata: più colore nelle righe, senza diventare pesante */
+    tr.grado-capitano { --grade-rgb: 250, 204, 21; --grade-text: var(--ink); }
+    tr.grado-capo { --grade-rgb: 251, 146, 60; --grade-text: var(--ink); }
+    tr.grado-timoniere { --grade-rgb: 34, 197, 94; --grade-text: var(--ink); }
+    tr.grado-aiuto { --grade-rgb: 59, 130, 246; --grade-text: var(--ink); }
+    tr.grado-motorista { --grade-rgb: 168, 85, 247; --grade-text: var(--ink); }
+    tr.grado-marinaio { --grade-rgb: 156, 163, 175; --grade-text: var(--ink); }
+
+    tr td.td-num,
+    tr td.td-name {
+      background: rgba(var(--grade-rgb), 0.22) !important;
+      color: var(--grade-text) !important;
+    }
+
+    tr td:not(.td-num):not(.td-name) {
+      background: rgba(var(--grade-rgb), 0.14) !important;
+    }
+
+    td.today-col, th.today-col {
+      box-shadow: inset 2px 0 0 var(--accent), inset -2px 0 0 var(--accent) !important;
+    }
+
+    td.col-selected {
+      outline: 2px solid rgba(45, 212, 191, 0.65);
+      outline-offset: -2px;
+    }
+
+    td.td-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    tr td.td-name {
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+
     tbody tr {
       transition: background 0.3s ease;
     }
@@ -605,8 +673,10 @@
     }
 
     tbody tr.pinned-row td.td-name {
-      color: var(--accent) !important;
-      font-weight: 700;
+      color: var(--grade-text) !important;
+      font-weight: 900;
+      outline: 2px solid rgba(45, 212, 191, 0.65);
+      outline-offset: -2px;
     }
 
     tbody tr.pinned-row td.td-name::before {
@@ -618,14 +688,42 @@
       cursor: pointer;
       color: var(--ink);
       font-weight: 600;
-      font-size: 13px;
+      font-size: 11px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      text-align: left;
+    }
+
+    .agent-cell {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .agent-badge {
+      flex: 0 0 auto;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: var(--accent);
+      background: rgba(45, 212, 191, 0.10);
+      border: 1px solid rgba(45, 212, 191, 0.22);
+      border-radius: 4px;
+      padding: 1px 3px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .agent-name-text {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     tbody tr td.td-name:hover {
-      color: var(--accent) !important;
+      filter: brightness(1.15);
     }
 
     tbody.has-selection tr:not(.pinned-row) {
@@ -658,15 +756,9 @@
       font-size: 11px;
     }
 
-    td.td-num {
-      color: var(--ink-dim);
-      font-size: 11px;
-      font-weight: 600;
-    }
-
     td.td-name {
       text-align: left;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--ink);
     }
@@ -938,17 +1030,24 @@
         width: 100%;
         justify-content: flex-start;
       }
+      .scroll-wrap table td:nth-child(1),
+      .scroll-wrap table th:nth-child(1) {
+        width: 34px;
+        min-width: 34px;
+        max-width: 34px;
+      }
       .scroll-wrap table td:nth-child(2),
       .scroll-wrap table th:nth-child(2) {
-        width: 120px;
-        min-width: 120px;
-        max-width: 120px;
+        width: 92px;
+        min-width: 92px;
+        max-width: 92px;
+        left: 34px;
       }
-      .scroll-wrap table td:nth-child(n+4),
-      .scroll-wrap table th:nth-child(n+4) {
-        width: 36px;
-        min-width: 36px;
-        max-width: 36px;
+      .scroll-wrap table td:nth-child(n+3),
+      .scroll-wrap table th:nth-child(n+3) {
+        width: 34px;
+        min-width: 34px;
+        max-width: 34px;
       }
       td {
         font-size: 9px;
@@ -962,14 +1061,7 @@
         font-size: 10px;
         padding: 2px 1px;
       }
-      .scroll-wrap table td:nth-child(2),
-      .scroll-wrap table th:nth-child(2) {
-        left: 40px;
-      }
-      .scroll-wrap table td:nth-child(3),
-      .scroll-wrap table th:nth-child(3) {
-        left: 160px;
-      }
+
     }
   </style>
 </head>
@@ -989,7 +1081,8 @@
     <div class="admin-panel" id="admin-panel" style="display:none;">
       <a href="desenzano.html" class="btn" target="_blank">👥 Turno 22/08 26/07</a>
       <a href="bozza_turni_copertura.html" class="btn" target="_blank">👥 Turni Copertura</a>
-      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
+      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica JSON</button>
+      <button class="btn" onclick="togglePastColumns()" id="togglePastBtn">👁 Mostra passato</button>
       <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
     </div>
   </div>
@@ -997,8 +1090,8 @@
   <main>
 
     <div id="welcome-notice">
-      <h3>📊 Impossibile raggiungere il Google Sheet</h3>
-      <p>Verifica la connessione, oppure incolla manualmente i dati JSON nella sezione in fondo alla pagina.</p>
+      <h3>📊 Nessun dato bozza caricato</h3>
+      <p>Metti <code>turni_bozza.json</code> nella stessa cartella della pagina, oppure incolla manualmente il JSON nella sezione in fondo.</p>
     </div>
 
     <div class="shifts-filter-block" id="shift-filter-container">
@@ -1040,7 +1133,7 @@
 
   </main>
 
-  <footer>Dati letti in tempo reale dal Google Sheet condiviso · nessun invio di dati a server esterni</footer>
+  <footer>Dati letti da file JSON locale o dalla memoria del browser · nessun invio a server esterni</footer>
 
   <script>
     let globalData = null;
@@ -1050,6 +1143,7 @@
     let trElements = [];
     let pinnedAgentIdx = null;
     let activeShiftFilter = null;
+    let showPastColumns = false;
     let isEditMode = false;
 
     const turniMappaResidenze = {
@@ -1240,20 +1334,25 @@
       return `<span class="cell-pill ${cls}">${v}</span>`;
     }
 
+    function isTodayDate(dateObj) {
+      const a = new Date(dateObj);
+      const b = new Date();
+      a.setHours(0, 0, 0, 0);
+      b.setHours(0, 0, 0, 0);
+      return a.getTime() === b.getTime();
+    }
+
     function buildTableHeader() {
       const container = document.getElementById("thead-container");
-      let html = `<tr class="week-header"><th class="stub" colspan="3"></th>`;
-      settimaneInfo.forEach((w, idx) => {
-        html += `<th class="${idx % 2 === 0 ? 'wk-even' : 'wk-odd'}" colspan="${w.count || 7}">${w.label}</th>`;
-      });
-      html += `</tr><tr class="day-header"><th></th><th>Cognome</th><th></th>`;
+      let html = `<tr class="date-header"><th>Nr</th><th>Agente</th>`;
       dateCalendario.forEach(d => {
-        html += `<th ${d.isDomenica ? 'class="dom"' : d.giornoSett === "Sab" ? 'class="sab"' : ''}>${d.giornoSett}</th>`;
-      });
-      html += `</tr><tr class="date-header"><th></th><th></th><th></th>`;
-      dateCalendario.forEach(d => {
-        let cls = d.isDomenica ? 'class="d-dom"' : d.giornoSett === "Sab" ? 'class="d-sab"' : '';
-        html += `<th ${cls} data-col="${d.col}" onclick="eseguiRicercaHeader(${d.col})">${d.dayNum}</th>`;
+        const clsArr = [];
+        clsArr.push(d.weekIdx % 2 === 0 ? "week-even" : "week-odd");
+        if (d.giornoSett === "Lun") clsArr.push("week-start");
+        if (d.giornoSett === "Dom") clsArr.push("week-end");
+        if (isTodayDate(d.realObj)) clsArr.push("today-col");
+        const cls = `class="${clsArr.join(" ")}"`;
+        html += `<th ${cls} data-col="${d.col}" onclick="eseguiRicercaHeader(${d.col})"><span class="date-head-day">${d.giornoSett}</span><span class="date-head-num">${d.dayNum}</span></th>`;
       });
       html += `</tr>`;
       container.innerHTML = html;
@@ -1343,9 +1442,8 @@
       tr.classList.add(getGradeClass(agenteObj.id));
       if (isPinned) tr.classList.add("pinned-row");
 
-      let html = `<td class="td-num">${agenteObj.id || "—"}</td>`;
-      html += `<td class="td-name" title="${agenteObj.agente}">${agenteObj.agente}</td>`;
-      html += `<td class="td-ini">—</td>`;
+      let html = `<td class="td-num" title="Numero agente">${agenteObj.id || "—"}</td>`;
+      html += `<td class="td-name" title="${agenteObj.id || ''} ${agenteObj.agente}"><span class="agent-name-text">${agenteObj.agente}</span></td>`;
       tr.innerHTML = html;
 
       tr.querySelector(".td-name").addEventListener("click", () => {
@@ -1356,6 +1454,7 @@
           pinnedAgentIdx = ri;
         }
         renderTable();
+        setTimeout(scrollToToday, 50);
         if (selectedCol) {
           let cal = dateCalendario.find(c => c.col === selectedCol);
           if (cal) selectDay(selectedCol, cal.labelEstesa, activeShiftFilter || "");
@@ -1363,14 +1462,17 @@
       });
 
       dateCalendario.forEach(cal => {
-        let arrayTurniSettimana = agenteObj.turni_settimanali[cal.weekKey] || ["rip", "rip", "rip", "rip", "rip", "rip",
-          "rip"
-        ];
+        let arrayTurniSettimana = agenteObj.turni_settimanali[cal.weekKey] || ["rip", "rip", "rip", "rip", "rip", "rip", "rip"];
         let giornoInternoIdx = cal.dayIdx;
         let turnoVal = arrayTurniSettimana[giornoInternoIdx] || "rip";
 
         const td = document.createElement("td");
-        td.className = cal.isDomenica ? " dom" : cal.giornoSett === "Sab" ? " sab" : "";
+        const tdClasses = [];
+        tdClasses.push(cal.weekIdx % 2 === 0 ? "week-even" : "week-odd");
+        if (cal.giornoSett === "Lun") tdClasses.push("week-start");
+        if (cal.giornoSett === "Dom") tdClasses.push("week-end");
+        if (isTodayDate(cal.realObj)) tdClasses.push("today-col");
+        td.className = tdClasses.join(" ");
         td.dataset.col = cal.col;
 
         if (isEditMode) {
@@ -1531,6 +1633,7 @@
         document.getElementById("matrix-scroll-wrap").style.display = "block";
         document.getElementById("hint").style.display = "block";
         renderTable();
+        setTimeout(scrollToToday, 80);
         if (selectedCol) {
           let cal = dateCalendario.find(c => c.col === selectedCol);
           if (cal) selectDay(selectedCol, cal.labelEstesa, activeShiftFilter || "");
@@ -1545,13 +1648,25 @@
       today.setHours(0, 0, 0, 0);
       dateCalendario.forEach(cal => {
         const isPast = cal.realObj < today;
+        const displayValue = (!showPastColumns && isPast) ? "none" : "table-cell";
         document.querySelectorAll(`th[data-col="${cal.col}"]`).forEach(el => {
-          el.style.opacity = isPast ? "0.4" : "1";
+          el.style.display = displayValue;
+          el.style.opacity = "1";
         });
         document.querySelectorAll(`td[data-col="${cal.col}"]`).forEach(td => {
-          td.style.opacity = isPast ? "0.3" : "1";
+          td.style.display = displayValue;
+          td.style.opacity = "1";
         });
       });
+
+      const btn = document.getElementById("togglePastBtn");
+      if (btn) btn.textContent = showPastColumns ? "🙈 Nascondi passato" : "👁 Mostra passato";
+    }
+
+    function togglePastColumns() {
+      showPastColumns = !showPastColumns;
+      hidePastColumns();
+      setTimeout(scrollToToday, 30);
     }
 
     function toggleEditMode() {
@@ -1677,31 +1792,56 @@
       }
     }
 
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw38IoMZJ50bun_AL-KjQ7jG4UbMPRKxjr22TXrzpZ_pIM2s9ZqOR0LYFXgC007Yc0PpQ/exec";
+    const LOCAL_JSON_FILE = "turni_bozza.json";
 
-    async function caricaDatiDaGoogleSheet() {
+    async function caricaDatiDaJSONLocale() {
       try {
-        const response = await fetch(GOOGLE_SCRIPT_URL + "?tipo=bozza&t=" + Date.now());
+        const response = await fetch(LOCAL_JSON_FILE + "?t=" + Date.now());
         if (!response.ok) {
           throw new Error(`Errore HTTP: ${response.status}`);
         }
         const datiJson = await response.json();
         processJSONData(datiJson);
         localStorage.setItem("turno_bozza_data", JSON.stringify(datiJson));
-        console.log("Dati caricati con successo dal Google Sheet!");
-        document.getElementById("upload-status").textContent = "✅ Caricato dal Google Sheet — " + new Date().toLocaleTimeString("it-IT");
+        document.getElementById("upload-status").textContent = "✅ Caricato da turni_bozza.json — " + new Date().toLocaleTimeString("it-IT");
       } catch (errore) {
-        console.warn("Caricamento dal Google Sheet fallito, provo con la memoria locale.", errore);
+        console.warn("Caricamento JSON locale fallito, provo con la memoria locale.", errore);
         const saved = localStorage.getItem("turno_bozza_data");
         if (saved) {
           try {
             processJSONData(JSON.parse(saved));
-            document.getElementById("upload-status").textContent = "⚠️ Google Sheet non raggiungibile — dati da memoria locale (potrebbero non essere aggiornati)";
-          } catch (e) {}
+            document.getElementById("upload-status").textContent = "⚠️ File JSON non trovato — dati da memoria locale";
+          } catch (e) {
+            document.getElementById("welcome-notice").style.display = "block";
+          }
         } else {
           document.getElementById("welcome-notice").style.display = "block";
         }
       }
+    }
+
+    function scrollToToday() {
+      const wrap = document.getElementById("matrix-scroll-wrap");
+      if (!wrap || wrap.style.display === "none") return;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let target = dateCalendario.find(cal => {
+        const d = new Date(cal.realObj);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime() === today.getTime();
+      });
+
+      if (!target) {
+        target = dateCalendario.find(cal => cal.realObj > today) || dateCalendario[dateCalendario.length - 1];
+      }
+
+      const th = document.querySelector(`.date-header th[data-col="${target.col}"]`);
+      if (!th) return;
+      const fixedWidth = 38 + 104;
+      const targetLeft = th.offsetLeft - fixedWidth - 12;
+      wrap.scrollLeft = Math.max(0, targetLeft);
     }
 
     function ricaricaDati() {
@@ -1709,14 +1849,15 @@
       const testoOriginale = btn.textContent;
       btn.textContent = "🔄 Aggiorno...";
       btn.disabled = true;
-      caricaDatiDaGoogleSheet().finally(() => {
+      localStorage.removeItem("turno_bozza_data");
+      caricaDatiDaJSONLocale().finally(() => {
         btn.textContent = testoOriginale;
         btn.disabled = false;
       });
     }
 
     window.addEventListener("DOMContentLoaded", () => {
-      caricaDatiDaGoogleSheet();
+      caricaDatiDaJSONLocale();
     });
   </script>
 
