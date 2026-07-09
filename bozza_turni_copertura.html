@@ -46,10 +46,18 @@
       z-index: 50;
     }
 
+    .company-name {
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
     .header-top {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: baseline;
       flex-wrap: wrap;
       gap: 14px;
     }
@@ -59,6 +67,7 @@
       gap: 8px;
       flex-wrap: wrap;
       align-items: center;
+      margin-top: 14px;
     }
 
     .title-row {
@@ -73,6 +82,7 @@
       margin: 0;
       letter-spacing: 0.3px;
       font-weight: 700;
+      color: var(--ink);
     }
 
     h1 .wave {
@@ -87,9 +97,10 @@
 
     .tabs {
       display: flex;
-      gap: 8px;
-      margin-top: 14px;
+      gap: 6px;
+      margin-top: 12px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     .tab {
@@ -103,6 +114,7 @@
       font-weight: 600;
       letter-spacing: 0.3px;
       transition: .15s;
+      text-transform: uppercase;
     }
 
     .tab:hover {
@@ -117,8 +129,8 @@
     }
 
     main {
-      max-width: 1280px;
-      margin: 0 auto;
+      max-width: 100%;
+      margin: 0;
       padding: 20px 28px 60px;
     }
 
@@ -393,11 +405,12 @@
       background: var(--bg-card);
       border: 1px solid var(--line);
       color: var(--ink-dim);
-      padding: 8px 14px;
-      border-radius: 8px;
+      padding: 7px 16px;
+      border-radius: 999px;
       cursor: pointer;
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 600;
+      letter-spacing: 0.3px;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
@@ -566,16 +579,20 @@
   <header>
     <div class="header-top">
       <div class="title-row">
-        <h1><span class="wave">⚓</span> BOZZA Turno del Personale</h1>
+        <div class="company-name">Navigazione sul Lago di Garda</div>
+        <h1><span class="wave">⚓</span> Pannello Operativo Turni — BOZZA</h1>
         <span class="period" id="periodLabel">CARICAMENTO...</span>
       </div>
-      <div class="page-nav" id="pageNav">
-        <a href="bozza_desenzano.html" class="btn">📋 Bozza Turni Agenti</a>
-        <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
-        <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
-      </div>
     </div>
+
     <div class="tabs" id="residenceTabs"></div>
+
+    <div class="page-nav" id="pageNav">
+      <a href="bozza_desenzano.html" class="btn">👥 Turno Agenti</a>
+      <a href="bozza_turni_copertura.html" class="btn">👥 Turni Copertura</a>
+      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
+      <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
+    </div>
   </header>
 
   <main>
@@ -1224,7 +1241,7 @@
         document.querySelector('.period').textContent = RAW.periodo;
         // Aggiorna anche il titolo della pagina
         document.title = RAW.titolo + ' — copertura equipaggi';
-        document.querySelector('h1').innerHTML = '<span class="wave">⚓</span> ' + RAW.titolo;
+        document.querySelector('h1').innerHTML = '<span class="wave">⚓</span> Pannello Operativo Turni — BOZZA';
         // Aggiorna il link al PDF con il periodo corretto
         const pdfLink = document.querySelector('.btn-pdf');
         if (pdfLink) {
