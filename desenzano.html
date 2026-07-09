@@ -988,7 +988,8 @@
 
     <div class="admin-panel" id="admin-panel" style="display:none;">
       <a href="turni_copertura.html" class="btn" target="_blank">👥 Turni Copertura</a>
-      <a href="editor_turni.html" class="btn" target="_blank">✍ Editor Turni</a>
+      <a href="https://docs.google.com/spreadsheets/d/1MnAdg52IRaRYoxHv5nHMNqZ7dsC70J1-g8qXDhJrdCg/edit?usp=sharing" class="btn" id="sheetLink" target="_blank">📝 Foglio Google</a>
+      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
       <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
     </div>
   </div>
@@ -996,8 +997,8 @@
   <main>
 
     <div id="welcome-notice">
-      <h3>📊 Nessun dato presente in memoria</h3>
-      <p>Carica il file <code>turni_finali.json</code> dalla sezione in fondo alla pagina per avviare il pannello.</p>
+      <h3>📊 Impossibile raggiungere il Google Sheet</h3>
+      <p>Verifica la connessione, oppure incolla manualmente i dati JSON nella sezione in fondo alla pagina.</p>
     </div>
 
     <div class="shifts-filter-block" id="shift-filter-container">
@@ -1039,7 +1040,7 @@
 
   </main>
 
-  <footer>Pagina generata localmente — dati letti da turni_finali.json · nessun invio a server esterni</footer>
+  <footer>Dati letti in tempo reale dal Google Sheet condiviso · nessun invio di dati a server esterni</footer>
 
   <script>
     let globalData = null;
@@ -1607,23 +1608,26 @@
       }
     }
 
-    async function caricaJsonDaCartella() {
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw38IoMZJ50bun_AL-KjQ7jG4UbMPRKxjr22TXrzpZ_pIM2s9ZqOR0LYFXgC007Yc0PpQ/exec";
+
+    async function caricaDatiDaGoogleSheet() {
       try {
-        const response = await fetch('turni_finali.json');
+        const response = await fetch(GOOGLE_SCRIPT_URL + "?t=" + Date.now());
         if (!response.ok) {
           throw new Error(`Errore HTTP: ${response.status}`);
         }
         const datiJson = await response.json();
         processJSONData(datiJson);
-        console.log("Dati caricati con successo dalla cartella locale!");
-        document.getElementById("upload-status").textContent = "✅ Caricato da turni_finali.json";
+        localStorage.setItem("turno_finali_data", JSON.stringify(datiJson));
+        console.log("Dati caricati con successo dal Google Sheet!");
+        document.getElementById("upload-status").textContent = "✅ Caricato dal Google Sheet — " + new Date().toLocaleTimeString("it-IT");
       } catch (errore) {
-        console.warn("Caricamento da file locale fallito.", errore);
+        console.warn("Caricamento dal Google Sheet fallito, provo con la memoria locale.", errore);
         const saved = localStorage.getItem("turno_finali_data");
         if (saved) {
           try {
             processJSONData(JSON.parse(saved));
-            document.getElementById("upload-status").textContent = "✅ Caricato da memoria locale";
+            document.getElementById("upload-status").textContent = "⚠️ Google Sheet non raggiungibile — dati da memoria locale (potrebbero non essere aggiornati)";
           } catch (e) {}
         } else {
           document.getElementById("welcome-notice").style.display = "block";
@@ -1631,10 +1635,21 @@
       }
     }
 
+    function ricaricaDati() {
+      const btn = document.getElementById("refreshBtn");
+      const testoOriginale = btn.textContent;
+      btn.textContent = "🔄 Aggiorno...";
+      btn.disabled = true;
+      caricaDatiDaGoogleSheet().finally(() => {
+        btn.textContent = testoOriginale;
+        btn.disabled = false;
+      });
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       inizializzaCalendario();
       buildTableHeader();
-      caricaJsonDaCartella();
+      caricaDatiDaGoogleSheet();
     });
   </script>
 
