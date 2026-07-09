@@ -64,13 +64,9 @@
     }
 
     .page-header {
-      padding: 22px 28px 14px;
+      padding: 18px 24px 12px;
       border-bottom: 1px solid var(--line);
-      position: sticky;
-      top: 0;
       background: rgba(11, 28, 38, 0.92);
-      backdrop-filter: blur(6px);
-      z-index: 50;
     }
 
     .title-row {
@@ -476,60 +472,33 @@
     }
 
     .scroll-wrap table {
-      border-collapse: collapse;
-      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      width: max-content;
       font-size: 12px;
-      table-layout: auto;
-      min-width: 1200px;
+      table-layout: fixed;
+      min-width: 0;
     }
 
+    /* Una sola colonna fissa: numero + nome agente */
     .scroll-wrap table td:nth-child(1),
     .scroll-wrap table th:nth-child(1) {
-      width: 50px;
-      min-width: 50px;
-      max-width: 50px;
-    }
-    .scroll-wrap table td:nth-child(2),
-    .scroll-wrap table th:nth-child(2) {
-      width: 160px;
-      min-width: 160px;
-      max-width: 160px;
-    }
-    .scroll-wrap table td:nth-child(3),
-    .scroll-wrap table th:nth-child(3) {
-      width: 40px;
-      min-width: 40px;
-      max-width: 40px;
-    }
-
-    .scroll-wrap table td:nth-child(n+4),
-    .scroll-wrap table th:nth-child(n+4) {
-      width: 48px;
-      min-width: 48px;
-      max-width: 80px;
-    }
-
-    .scroll-wrap table td:nth-child(1),
-    .scroll-wrap table th:nth-child(1),
-    .scroll-wrap table td:nth-child(2),
-    .scroll-wrap table th:nth-child(2),
-    .scroll-wrap table td:nth-child(3),
-    .scroll-wrap table th:nth-child(3) {
+      width: 124px;
+      min-width: 124px;
+      max-width: 124px;
       position: sticky;
-      background: inherit;
-      z-index: 2;
-    }
-    .scroll-wrap table td:nth-child(1),
-    .scroll-wrap table th:nth-child(1) {
       left: 0;
+      z-index: 4;
+      background: var(--bg-panel);
+      box-shadow: 2px 0 0 var(--line);
     }
-    .scroll-wrap table td:nth-child(2),
-    .scroll-wrap table th:nth-child(2) {
-      left: 50px;
-    }
-    .scroll-wrap table td:nth-child(3),
-    .scroll-wrap table th:nth-child(3) {
-      left: 210px;
+
+    /* Colonne dei giorni più strette possibile */
+    .scroll-wrap table td:nth-child(n+2),
+    .scroll-wrap table th:nth-child(n+2) {
+      width: 42px;
+      min-width: 42px;
+      max-width: 42px;
     }
 
     thead tr th {
@@ -577,7 +546,34 @@
       padding: 4px 2px;
     }
 
-    .date-header th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3)):hover {
+    /* Quando scorri in verticale resta visibile solo la riga con le date */
+    .date-header th {
+      position: sticky;
+      top: 0;
+      z-index: 6;
+      box-shadow: 0 2px 0 var(--line);
+    }
+
+    .date-header th:first-child {
+      z-index: 8;
+      background: var(--bg-card);
+    }
+
+    .date-head-day {
+      display: block;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--ink-dim);
+      line-height: 1;
+    }
+
+    .date-head-num {
+      display: block;
+      font-size: 13px;
+      line-height: 1.15;
+    }
+
+    .date-header th:not(:nth-child(1)):hover {
       background: var(--accent-dim);
       color: var(--accent);
     }
@@ -618,10 +614,38 @@
       cursor: pointer;
       color: var(--ink);
       font-weight: 600;
-      font-size: 13px;
+      font-size: 11px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      text-align: left;
+    }
+
+    .agent-cell {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .agent-badge {
+      flex: 0 0 auto;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: var(--accent);
+      background: rgba(45, 212, 191, 0.10);
+      border: 1px solid rgba(45, 212, 191, 0.22);
+      border-radius: 4px;
+      padding: 1px 3px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .agent-name-text {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     tbody tr td.td-name:hover {
@@ -658,15 +682,9 @@
       font-size: 11px;
     }
 
-    td.td-num {
-      color: var(--ink-dim);
-      font-size: 11px;
-      font-weight: 600;
-    }
-
     td.td-name {
       text-align: left;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--ink);
     }
@@ -938,17 +956,17 @@
         width: 100%;
         justify-content: flex-start;
       }
-      .scroll-wrap table td:nth-child(2),
-      .scroll-wrap table th:nth-child(2) {
-        width: 120px;
-        min-width: 120px;
-        max-width: 120px;
+      .scroll-wrap table td:nth-child(1),
+      .scroll-wrap table th:nth-child(1) {
+        width: 108px;
+        min-width: 108px;
+        max-width: 108px;
       }
-      .scroll-wrap table td:nth-child(n+4),
-      .scroll-wrap table th:nth-child(n+4) {
-        width: 36px;
-        min-width: 36px;
-        max-width: 36px;
+      .scroll-wrap table td:nth-child(n+2),
+      .scroll-wrap table th:nth-child(n+2) {
+        width: 34px;
+        min-width: 34px;
+        max-width: 34px;
       }
       td {
         font-size: 9px;
@@ -962,14 +980,7 @@
         font-size: 10px;
         padding: 2px 1px;
       }
-      .scroll-wrap table td:nth-child(2),
-      .scroll-wrap table th:nth-child(2) {
-        left: 40px;
-      }
-      .scroll-wrap table td:nth-child(3),
-      .scroll-wrap table th:nth-child(3) {
-        left: 160px;
-      }
+
     }
   </style>
 </head>
@@ -989,8 +1000,8 @@
     <div class="admin-panel" id="admin-panel" style="display:none;">
       <a href="bozza_desenzano.html" class="btn" target="_blank">👥 BOZZA</a>
       <a href="turni_copertura.html" class="btn" target="_blank">👥 Turni Copertura</a>
-      <a href="https://docs.google.com/spreadsheets/d/1MnAdg52IRaRYoxHv5nHMNqZ7dsC70J1-g8qXDhJrdCg/edit?usp=sharing" class="btn" id="sheetLink" target="_blank">📝 Foglio Google</a>
-      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
+      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica JSON</button>
+      <button class="btn" onclick="togglePastColumns()" id="togglePastBtn">👁 Mostra passato</button>
       <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
     </div>
   </div>
@@ -998,8 +1009,8 @@
   <main>
 
     <div id="welcome-notice">
-      <h3>📊 Impossibile raggiungere il Google Sheet</h3>
-      <p>Verifica la connessione, oppure incolla manualmente i dati JSON nella sezione in fondo alla pagina.</p>
+      <h3>📊 Nessun dato turno caricato</h3>
+      <p>Metti <code>turni_finali.json</code> nella stessa cartella della pagina, oppure incolla manualmente il JSON nella sezione in fondo.</p>
     </div>
 
     <div class="shifts-filter-block" id="shift-filter-container">
@@ -1041,7 +1052,7 @@
 
   </main>
 
-  <footer>Dati letti in tempo reale dal Google Sheet condiviso · nessun invio di dati a server esterni</footer>
+  <footer>Dati letti da file JSON locale o dalla memoria del browser · nessun collegamento a Google Sheet</footer>
 
   <script>
     let globalData = null;
@@ -1051,6 +1062,7 @@
     let trElements = [];
     let pinnedAgentIdx = null;
     let activeShiftFilter = null;
+    let showPastColumns = false;
     let isEditMode = false;
 
     const turniMappaResidenze = {
@@ -1176,18 +1188,10 @@
 
     function buildTableHeader() {
       const container = document.getElementById("thead-container");
-      let html = `<tr class="week-header"><th class="stub" colspan="3"></th>`;
-      settimaneInfo.forEach((w, idx) => {
-        html += `<th class="${idx % 2 === 0 ? 'wk-even' : 'wk-odd'}" colspan="7">${w.label}</th>`;
-      });
-      html += `</tr><tr class="day-header"><th></th><th>Cognome</th><th></th>`;
-      dateCalendario.forEach(d => {
-        html += `<th ${d.isDomenica ? 'class="dom"' : d.giornoSett === "Sab" ? 'class="sab"' : ''}>${d.giornoSett}</th>`;
-      });
-      html += `</tr><tr class="date-header"><th></th><th></th><th></th>`;
+      let html = `<tr class="date-header"><th>Agente</th>`;
       dateCalendario.forEach(d => {
         let cls = d.isDomenica ? 'class="d-dom"' : d.giornoSett === "Sab" ? 'class="d-sab"' : '';
-        html += `<th ${cls} data-col="${d.col}" onclick="eseguiRicercaHeader(${d.col})">${d.dayNum}</th>`;
+        html += `<th ${cls} data-col="${d.col}" onclick="eseguiRicercaHeader(${d.col})"><span class="date-head-day">${d.giornoSett}</span><span class="date-head-num">${d.dayNum}</span></th>`;
       });
       html += `</tr>`;
       container.innerHTML = html;
@@ -1277,9 +1281,7 @@
       tr.classList.add(getGradeClass(agenteObj.id));
       if (isPinned) tr.classList.add("pinned-row");
 
-      let html = `<td class="td-num">${agenteObj.id || "—"}</td>`;
-      html += `<td class="td-name" title="${agenteObj.agente}">${agenteObj.agente}</td>`;
-      html += `<td class="td-ini">—</td>`;
+      let html = `<td class="td-name" title="${agenteObj.id || ''} ${agenteObj.agente}"><span class="agent-cell"><span class="agent-badge">${agenteObj.id || '—'}</span><span class="agent-name-text">${agenteObj.agente}</span></span></td>`;
       tr.innerHTML = html;
 
       tr.querySelector(".td-name").addEventListener("click", () => {
@@ -1290,6 +1292,7 @@
           pinnedAgentIdx = ri;
         }
         renderTable();
+        setTimeout(scrollToToday, 50);
         if (selectedCol) {
           let cal = dateCalendario.find(c => c.col === selectedCol);
           if (cal) selectDay(selectedCol, cal.labelEstesa, activeShiftFilter || "");
@@ -1479,13 +1482,25 @@
       today.setHours(0, 0, 0, 0);
       dateCalendario.forEach(cal => {
         const isPast = cal.realObj < today;
+        const displayValue = (!showPastColumns && isPast) ? "none" : "table-cell";
         document.querySelectorAll(`th[data-col="${cal.col}"]`).forEach(el => {
-          el.style.opacity = isPast ? "0.4" : "1";
+          el.style.display = displayValue;
+          el.style.opacity = "1";
         });
         document.querySelectorAll(`td[data-col="${cal.col}"]`).forEach(td => {
-          td.style.opacity = isPast ? "0.3" : "1";
+          td.style.display = displayValue;
+          td.style.opacity = "1";
         });
       });
+
+      const btn = document.getElementById("togglePastBtn");
+      if (btn) btn.textContent = showPastColumns ? "🙈 Nascondi passato" : "👁 Mostra passato";
+    }
+
+    function togglePastColumns() {
+      showPastColumns = !showPastColumns;
+      hidePastColumns();
+      setTimeout(scrollToToday, 30);
     }
 
     function toggleEditMode() {
@@ -1582,6 +1597,7 @@
         const parsed = JSON.parse(txt);
         localStorage.setItem("turno_finali_data", txt);
         processJSONData(parsed);
+        setTimeout(scrollToToday, 80);
         toggleUpload();
         document.getElementById("upload-status").textContent = "✅ Dati caricati con successo!";
       } catch (e) {
@@ -1609,30 +1625,57 @@
       }
     }
 
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw38IoMZJ50bun_AL-KjQ7jG4UbMPRKxjr22TXrzpZ_pIM2s9ZqOR0LYFXgC007Yc0PpQ/exec";
+    function scrollToToday() {
+      const wrap = document.getElementById("matrix-scroll-wrap");
+      if (!wrap || wrap.style.display === "none") return;
 
-    async function caricaDatiDaGoogleSheet() {
-      try {
-        const response = await fetch(GOOGLE_SCRIPT_URL + "?t=" + Date.now());
-        if (!response.ok) {
-          throw new Error(`Errore HTTP: ${response.status}`);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let target = dateCalendario.find(cal => {
+        const d = new Date(cal.realObj);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime() === today.getTime();
+      });
+
+      if (!target) {
+        target = dateCalendario.find(cal => cal.realObj > today) || dateCalendario[dateCalendario.length - 1];
+      }
+
+      const th = document.querySelector(`.date-header th[data-col="${target.col}"]`);
+      const nameCol = document.querySelector(".date-header th:first-child");
+      if (!th || !nameCol) return;
+
+      const offset = Math.max(0, th.offsetLeft - nameCol.offsetWidth - 8);
+      wrap.scrollTo({ left: offset, behavior: "auto" });
+      document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
+      th.classList.add("selected-day");
+    }
+
+    async function caricaDatiDaJSONLocale() {
+      const saved = localStorage.getItem("turno_finali_data");
+      if (saved) {
+        try {
+          processJSONData(JSON.parse(saved));
+          document.getElementById("upload-status").textContent = "✅ Dati caricati dalla memoria locale";
+          setTimeout(scrollToToday, 80);
+          return;
+        } catch (e) {
+          localStorage.removeItem("turno_finali_data");
         }
+      }
+
+      try {
+        const response = await fetch("turni_finali.json?t=" + Date.now());
+        if (!response.ok) throw new Error(`Errore HTTP: ${response.status}`);
         const datiJson = await response.json();
         processJSONData(datiJson);
         localStorage.setItem("turno_finali_data", JSON.stringify(datiJson));
-        console.log("Dati caricati con successo dal Google Sheet!");
-        document.getElementById("upload-status").textContent = "✅ Caricato dal Google Sheet — " + new Date().toLocaleTimeString("it-IT");
+        document.getElementById("upload-status").textContent = "✅ Caricato da turni_finali.json";
+        setTimeout(scrollToToday, 80);
       } catch (errore) {
-        console.warn("Caricamento dal Google Sheet fallito, provo con la memoria locale.", errore);
-        const saved = localStorage.getItem("turno_finali_data");
-        if (saved) {
-          try {
-            processJSONData(JSON.parse(saved));
-            document.getElementById("upload-status").textContent = "⚠️ Google Sheet non raggiungibile — dati da memoria locale (potrebbero non essere aggiornati)";
-          } catch (e) {}
-        } else {
-          document.getElementById("welcome-notice").style.display = "block";
-        }
+        console.warn("Nessun JSON locale trovato.", errore);
+        document.getElementById("welcome-notice").style.display = "block";
       }
     }
 
@@ -1641,7 +1684,8 @@
       const testoOriginale = btn.textContent;
       btn.textContent = "🔄 Aggiorno...";
       btn.disabled = true;
-      caricaDatiDaGoogleSheet().finally(() => {
+      localStorage.removeItem("turno_finali_data");
+      caricaDatiDaJSONLocale().finally(() => {
         btn.textContent = testoOriginale;
         btn.disabled = false;
       });
@@ -1650,7 +1694,7 @@
     window.addEventListener("DOMContentLoaded", () => {
       inizializzaCalendario();
       buildTableHeader();
-      caricaDatiDaGoogleSheet();
+      caricaDatiDaJSONLocale();
     });
   </script>
 
