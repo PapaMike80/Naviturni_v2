@@ -1,61 +1,61 @@
 {
-  "updated": "10-07-2026 20:55",
+  "updated": "10-07-2026 22:08",
   "stations": [
     {
       "name": "Desenzano",
-      "wind": 5.6,
-      "dir": "NNW",
-      "max": 13.2,
-      "maxTime": "20:55",
-      "last": "10-07-2026 20:55"
+      "wind": 2.7,
+      "dir": "NW",
+      "max": 6.2,
+      "maxTime": "22:08",
+      "last": "10-07-2026 22:08"
     },
     {
       "name": "Peschiera",
-      "wind": 12.7,
+      "wind": 20.9,
       "dir": "SW",
-      "max": 20.1,
-      "maxTime": "20:55",
-      "last": "10-07-2026 20:55"
+      "max": 28.2,
+      "maxTime": "22:08",
+      "last": "10-07-2026 22:08"
     },
     {
       "name": "Salò",
-      "wind": 12.6,
-      "dir": "ENE",
-      "max": 19.0,
-      "maxTime": "20:55",
-      "last": "10-07-2026 20:55"
+      "wind": 9.6,
+      "dir": "SE",
+      "max": 17.5,
+      "maxTime": "22:08",
+      "last": "10-07-2026 22:08"
     },
     {
       "name": "Toscolano",
-      "wind": 4.3,
-      "dir": "SSW",
-      "max": 16.3,
-      "maxTime": "20:55",
-      "last": "10-07-2026 20:55"
+      "wind": 14.8,
+      "dir": "W",
+      "max": 16.9,
+      "maxTime": "22:08",
+      "last": "10-07-2026 22:08"
     },
     {
       "name": "Gargnano",
-      "wind": 2.8,
+      "wind": 9.1,
       "dir": "SE",
-      "max": 14.5,
-      "maxTime": "20:55",
-      "last": "10-07-2026 20:55"
+      "max": 13.6,
+      "maxTime": "22:08",
+      "last": "10-07-2026 22:08"
     },
     {
       "name": "Campione del Garda",
-      "wind": 18.5,
-      "dir": "SSE",
-      "max": 23.6,
-      "maxTime": "20:55",
-      "last": "10-07-2026 20:55"
+      "wind": 11.0,
+      "dir": "SW",
+      "max": 19.3,
+      "maxTime": "22:08",
+      "last": "10-07-2026 22:08"
     },
     {
       "name": "Malcesine",
-      "wind": 9.5,
-      "dir": "N",
-      "max": 17.9,
-      "maxTime": "20:55",
-      "last": "10-07-2026 20:55"
+      "wind": 5.4,
+      "dir": "NNE",
+      "max": 13.7,
+      "maxTime": "22:08",
+      "last": "10-07-2026 22:08"
     }
   ]
 }
