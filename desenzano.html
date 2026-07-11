@@ -1510,8 +1510,11 @@
         return;
       }
       if (!activeShiftFilter) {
-        alert("Scegli prima un turno dalla barra in alto per avviare la ricerca dell'equipaggio.");
-        return;
+        const residenceKey = currentResidence.toLowerCase().trim();
+        const availableShifts = turniMappaResidenze[residenceKey] || [];
+        activeShiftFilter = availableShifts[0] || null;
+        if (!activeShiftFilter) return;
+        generaFiltriTurnoRiferimento();
       }
       selectDay(cal.col, cal.labelEstesa, activeShiftFilter);
     }
