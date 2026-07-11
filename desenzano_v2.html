@@ -422,6 +422,58 @@
       cursor: default;
     }
 
+    .shift-duration {
+      margin-left: 5px;
+      color: var(--ink);
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .service-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 4px 2px;
+    }
+
+    .service-code {
+      font-size: 27px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: .03em;
+      color: var(--accent);
+    }
+
+    .colleague-card.instructor-card {
+      background: rgba(245, 158, 11, .09);
+      box-shadow: inset 0 0 0 1px rgba(245, 158, 11, .28);
+    }
+
+    .colleague-card.transfer-card {
+      background: rgba(96, 165, 250, .10);
+      box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .30);
+    }
+
+    .colleague-card.instructor-card.transfer-card {
+      background: linear-gradient(90deg, rgba(245,158,11,.12), rgba(96,165,250,.10));
+      box-shadow: inset 0 0 0 1px rgba(245,158,11,.34);
+    }
+
+    .instructor-mark {
+      color: var(--warn);
+      background: transparent;
+      border: 0;
+      padding-left: 0;
+      padding-right: 0;
+      margin-left: 6px;
+    }
+
     .panel-groups {
       padding: 12px 16px;
       display: flex;
@@ -1202,11 +1254,13 @@
     <div class="resistence-block" id="res-selector-container"></div>
 
     <div class="admin-panel" id="admin-panel" style="display:none;">
-      <a href="bozza_desenzano.html" class="btn" target="_blank">👥 BOZZA</a>
       <a href="turni_copertura.html" class="btn" target="_blank">👥 Turni Copertura</a>
-      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
+      <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Aggiorna</button>
       <button class="btn" onclick="togglePastColumns()" id="togglePastBtn">👁 Mostra passato</button>
-      <button class="compact-toggle" type="button" onclick="toggleCompact()" id="compactBtn">Vista compatta</button>
+      <button class="btn" onclick="toggleCompact()" id="compactBtn">▤ Vista compatta</button>
+      <button class="btn-mode" onclick="toggleEditMode()" id="toggle-edit-btn">✍ Abilita Modifiche</button>
+      <button class="btn-save-action" onclick="saveChanges()" id="save-edit-btn">💾 Salva Modifiche</button>
+      <button class="btn-download-action" onclick="downloadUpdatedJSON()" id="download-json-btn">⬇️ Scarica JSON</button>
       <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
     </div>
   </div>
@@ -1245,8 +1299,6 @@
       </div>
       <div class="panel-groups" id="panel-groups"></div>
     </div>
-
-    <div class="hint" id="hint">💡 <b>1. Seleziona un Turno</b> in alto · <b>2. Clicca sul Giorno</b> (numero nella tabella) per calcolare l'equipaggio completo</div>
 
     <div class="scroll-wrap" id="matrix-scroll-wrap">
       <table>
@@ -1290,17 +1342,79 @@
       "desenzano": ["D1", "D2", "D3", "D4", "BIS"],
       "maderno": ["T1", "T2", "M1"],
       "riva": ["R1", "R2", "R3", "R4", "CAR"],
-      "peschiera": ["P1", "P2", "P3", "P4", "CAP", "SR1"]
+      "peschiera": ["P1", "P2", "P3", "CAP", "SR1"]
     };
 
     const dateCalendario = [];
-    const settimaneInfo = [
-      { label: "Settimana 22-06 al 28-06", key: "settimana_22-06_al_28-06", startDay: 22, month: 5 },
-      { label: "Settimana 29-06 al 05-07", key: "settimana_29-06_al_05-07", startDay: 29, month: 5 },
-      { label: "Settimana 06-07 al 12-07", key: "settimana_06-07_al_12-07", startDay: 6, month: 6 },
-      { label: "Settimana 13-07 al 19-07", key: "settimana_13-07_al_19-07", startDay: 13, month: 6 },
-      { label: "Settimana 20-07 al 26-07", key: "settimana_20-07_al_26-07", startDay: 20, month: 6 }
-    ];
+    const settimaneInfo = [];
+
+    function pad2(n) {
+      return String(n).padStart(2, "0");
+    }
+
+    function parseWeekKey(key) {
+      const m = String(key || "").match(/settimana_(\d{2})-(\d{2})_al_(\d{2})-(\d{2})/);
+      if (!m) return null;
+      return {
+        key,
+        startDay: parseInt(m[1], 10),
+        startMonth: parseInt(m[2], 10),
+        endDay: parseInt(m[3], 10),
+        endMonth: parseInt(m[4], 10)
+      };
+    }
+
+    function annoDaDati(data) {
+      if (data && data.data_inizio) {
+        const d = new Date(data.data_inizio + "T00:00:00");
+        if (!isNaN(d)) return d.getFullYear();
+      }
+      const m = String((data && data.periodo) || "").match(/(\d{4})/);
+      return m ? parseInt(m[1], 10) : 2026;
+    }
+
+    function configuraSettimaneDaJSON(data) {
+      settimaneInfo.length = 0;
+      const anno = annoDaDati(data);
+      const keys = [];
+
+      Object.values(data.residenze || {}).forEach(lista => {
+        (lista || []).forEach(ag => {
+          Object.keys(ag.turni_settimanali || {}).forEach(k => {
+            if (!keys.includes(k)) keys.push(k);
+          });
+        });
+      });
+
+      keys.sort((a, b) => {
+        const pa = parseWeekKey(a);
+        const pb = parseWeekKey(b);
+        if (!pa || !pb) return a.localeCompare(b);
+        return new Date(anno, pa.startMonth - 1, pa.startDay) - new Date(anno, pb.startMonth - 1, pb.startDay);
+      });
+
+      keys.forEach(key => {
+        const p = parseWeekKey(key);
+        if (!p) return;
+        let count = 7;
+        Object.values(data.residenze || {}).some(lista => (lista || []).some(ag => {
+          const arr = ag.turni_settimanali && ag.turni_settimanali[key];
+          if (Array.isArray(arr) && arr.length) {
+            count = arr.length;
+            return true;
+          }
+          return false;
+        }));
+        settimaneInfo.push({
+          label: `Settimana ${pad2(p.startDay)}-${pad2(p.startMonth)} al ${pad2(p.endDay)}-${pad2(p.endMonth)}`,
+          key,
+          startDay: p.startDay,
+          month: p.startMonth - 1,
+          count,
+          year: anno
+        });
+      });
+    }
 
     const nomiGiorni = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
     const nomiGiorniCompleti = ["lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica"];
@@ -1332,22 +1446,45 @@
       "c-other": "#94a3b8"
     };
 
+    const shiftDurations = {
+      D1: "13 ore", D2: "11 ore 25 min", D3: "13 ore 20 min", D4: "13 ore 15 min",
+      T1: "13 ore 35 min", T2: "12 ore 29 min", M1: "13 ore 30 min",
+      R1: "13 ore 15 min", R2: "13 ore 15 min", R3: "12 ore 20 min", R4: "12 ore 40 min",
+      CAR: "12 ore 10 min", CAR1: "12 ore 10 min",
+      P1: "12 ore 45 min", P2: "13 ore 5 min", P3: "12 ore 55 min",
+      CAP: "12 ore 55 min", CAP1: "12 ore 55 min", SR1: "12 ore 15 min",
+      BIS: "12 ore 15 min", AGB: "10 ore 25 min", POND: "9 ore 25 min",
+      DT: "9 ore 25 min", PT: "9 ore 30 min", AGM: "9 ore 45 min",
+      AGT: "11 ore 10 min", PONM: "10 ore 25 min"
+    };
+
+    function getShiftDuration(shiftCode, calInfo) {
+      const code = (shiftCode || "").toUpperCase().trim();
+      if (code === "DT" && calInfo && calInfo.giornoSett === "Sab") return "9 ore 55 min";
+      return shiftDurations[code] || "";
+    }
+
     function inizializzaCalendario() {
       dateCalendario.length = 0;
       let colCounter = 3;
       settimaneInfo.forEach((sett, sIdx) => {
-        let baseDate = new Date(2026, sett.month, sett.startDay);
-        for (let g = 0; g < 7; g++) {
+        let baseDate = new Date(sett.year || 2026, sett.month, sett.startDay);
+        const giorni = sett.count || 7;
+        for (let g = 0; g < giorni; g++) {
           let d = new Date(baseDate);
           d.setDate(baseDate.getDate() + g);
+          const jsDay = d.getDay();
+          const dayIdx = (jsDay + 6) % 7;
+          const nomeGiorno = nomiGiorni[dayIdx];
           dateCalendario.push({
             col: colCounter,
             weekKey: sett.key,
             weekIdx: sIdx,
+            dayIdx: g,
             dayNum: d.getDate(),
-            giornoSett: nomiGiorni[g],
-            isDomenica: (g === 6),
-            labelEstesa: `${nomiGiorniCompleti[g]} ${d.getDate()} ${mesiNomi[d.getMonth()]}`,
+            giornoSett: nomeGiorno,
+            isDomenica: (jsDay === 0),
+            labelEstesa: `${nomiGiorniCompleti[dayIdx]} ${d.getDate()} ${mesiNomi[d.getMonth()]}`,
             realObj: d
           });
           colCounter++;
@@ -1355,7 +1492,8 @@
       });
     }
 
-    function getGradeClass(badge) {
+    function getGradeClass(badge, agentName = "") {
+      if (/cenzon/i.test(String(agentName))) return "grado-capo";
       badge = Number(badge);
       if (!badge) return "grado-marinaio";
       if ((badge >= 1 && badge <= 5) || (badge >= 38 && badge <= 41) || (badge >= 65 && badge <= 68) || (badge >= 104 && badge <=
@@ -1434,13 +1572,59 @@
 
     function eseguiRicercaHeader(colonnaCliccata) {
       if (isEditMode) return;
-      if (!activeShiftFilter) {
-        alert("Scegli prima un turno dalla barra in alto per avviare la ricerca dell'equipaggio.");
+      let cal = dateCalendario.find(c => c.col === colonnaCliccata);
+      if (!cal) return;
+      if (pinnedAgentIdx !== null) {
+        selectDayForPinnedAgent(cal);
         return;
       }
-      let cal = dateCalendario.find(c => c.col === colonnaCliccata);
-      if (cal) {
-        selectDay(cal.col, cal.labelEstesa, activeShiftFilter);
+      if (!activeShiftFilter) {
+        const residenceKey = currentResidence.toLowerCase().trim();
+        const availableShifts = turniMappaResidenze[residenceKey] || [];
+        activeShiftFilter = availableShifts[0] || null;
+        if (!activeShiftFilter) return;
+        generaFiltriTurnoRiferimento();
+      }
+      selectDay(cal.col, cal.labelEstesa, activeShiftFilter);
+    }
+
+    function selectDayForPinnedAgent(cal) {
+      const agent = pinnedAgentIdx !== null ? currentAgentsList[pinnedAgentIdx] : null;
+      if (!agent || !cal) return;
+      const dayIndex = (cal.col - 3) % 7;
+      const weeklyShifts = agent.turni_settimanali[cal.weekKey] || [];
+      const rawShift = weeklyShifts[dayIndex] || "rip";
+      const cleanShift = ottieniTurnoPulito(rawShift);
+
+      activeShiftFilter = cleanShift || null;
+      generaFiltriTurnoRiferimento();
+
+      if (cleanShift) {
+        selectDay(cal.col, cal.labelEstesa, rawShift);
+      } else {
+        clearSelection();
+        selectedCol = cal.col;
+        selectedShiftValue = "rip";
+        const targetTh = document.querySelector(`.date-header th[data-col="${cal.col}"]`);
+        if (targetTh) targetTh.classList.add("selected-day");
+
+        document.getElementById("panel-date-label").innerHTML = `<span>⬡</span>${cal.labelEstesa}`;
+        document.getElementById("panel-groups").innerHTML = `
+          <div class="shift-group">
+            <div class="shift-group-label">Stato dell'agente selezionato</div>
+            <div class="colleague-cards">
+              <div class="colleague-card" style="border-left-color:var(--ink-dim);">
+                <span class="c-num">${agent.id || "—"}</span>
+                <span class="c-name">${agent.agente}</span>
+                <span class="c-grade" style="color:var(--ink-dim);background:var(--rip-bg);border:1px solid var(--line);">RIPOSO</span>
+              </div>
+            </div>
+          </div>`;
+
+        const currentIndex = dateCalendario.findIndex(c => c.col === cal.col);
+        document.getElementById("previous-day-btn").disabled = currentIndex <= 0;
+        document.getElementById("next-day-btn").disabled = currentIndex < 0 || currentIndex >= dateCalendario.length - 1;
+        document.getElementById("day-panel").classList.add("open");
       }
     }
 
@@ -1511,7 +1695,7 @@
     function createRowDOM(agenteObj, ri, isPinned = false) {
       const tr = document.createElement("tr");
       tr.dataset.rowIndex = ri;
-      tr.classList.add(getGradeClass(agenteObj.id));
+      tr.classList.add(getGradeClass(agenteObj.id, agenteObj.agente));
       if (isPinned) tr.classList.add("pinned-row");
 
       let html = `<td class="td-num" title="Numero agente">${agenteObj.id || "—"}</td>`;
@@ -1522,15 +1706,17 @@
         if (isEditMode) return;
         if (pinnedAgentIdx === ri) {
           pinnedAgentIdx = null;
-        } else {
-          pinnedAgentIdx = ri;
+          renderTable();
+          return;
         }
+
+        pinnedAgentIdx = ri;
+        const todayCal = dateCalendario.find(cal => isTodayDate(cal.realObj));
         renderTable();
-        setTimeout(scrollToToday, 50);
-        if (selectedCol) {
-          let cal = dateCalendario.find(c => c.col === selectedCol);
-          if (cal) selectDay(selectedCol, cal.labelEstesa, activeShiftFilter || "");
-        }
+        if (todayCal) selectDayForPinnedAgent(todayCal);
+        setTimeout(() => {
+          document.getElementById("shift-filter-container").scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 80);
       });
 
       dateCalendario.forEach(cal => {
@@ -1561,8 +1747,12 @@
         } else {
           td.innerHTML = pill(turnoVal);
           td.addEventListener("click", () => {
-            let turnoDaCercare = activeShiftFilter ? activeShiftFilter : turnoVal;
-            selectDay(cal.col, cal.labelEstesa, turnoDaCercare);
+            if (pinnedAgentIdx !== null) {
+              selectDayForPinnedAgent(cal);
+            } else {
+              let turnoDaCercare = activeShiftFilter ? activeShiftFilter : turnoVal;
+              selectDay(cal.col, cal.labelEstesa, turnoDaCercare);
+            }
           });
         }
         tr.appendChild(td);
@@ -1612,15 +1802,18 @@
 
       const myShiftCls = classify(cellShiftValue);
       const myColor = shiftBorderColor[myShiftCls] || "#6b7280";
+      const myDuration = getShiftDuration(myShiftPuro, calInfo);
 
       const myDiv = document.createElement("div");
       myDiv.className = "shift-group";
-      myDiv.innerHTML = `<div class="shift-group-label">Servizio Selezionato</div>
-        <div class="colleague-cards">
-          <div class="colleague-card" style="border-left-color:${myColor}; background:var(--accent-dim);">
-            <span class="c-name" style="margin-left:0; font-weight:600;">SERVIZIO DETTAGLIATO: <span class="cell-pill ${myShiftCls}">${myShiftPuro}</span></span>
+      myDiv.innerHTML = `<div class="colleague-cards">
+        <div class="colleague-card" style="border-left-color:${myColor}; background:var(--accent-dim); padding:12px 14px;">
+          <div class="service-summary">
+            <span class="service-code">${myShiftPuro}</span>
+            ${myDuration ? `<span class="shift-duration">${myDuration}</span>` : ""}
           </div>
-        </div>`;
+        </div>
+      </div>`;
       panelGroups.appendChild(myDiv);
 
       let allColleagues = [];
@@ -1640,7 +1833,8 @@
               agente: ag.agente,
               residenzaOrigine: resKey,
               isTrasferta: isTrasfertaFlag,
-              rawShift: hisShiftRaw
+              rawShift: hisShiftRaw,
+              isInstructor: /\*/.test(String(hisShiftRaw))
             });
           }
         });
@@ -1653,24 +1847,36 @@
       panelGroups.appendChild(div);
 
       const list = div.querySelector("#colleague-list");
+      const gradeOrder = {
+        "grado-capitano": 1,
+        "grado-capo": 2,
+        "grado-timoniere": 3,
+        "grado-motorista": 4,
+        "grado-aiuto": 5,
+        "grado-marinaio": 6
+      };
+      allColleagues.sort((a, b) => {
+        const gradeA = gradeOrder[getGradeClass(a.id, a.agente)] || 99;
+        const gradeB = gradeOrder[getGradeClass(b.id, b.agente)] || 99;
+        return gradeA - gradeB || String(a.agente).localeCompare(String(b.agente), "it");
+      });
+
       allColleagues.forEach(r => {
-        const gradeClass = getGradeClass(r.id);
+        const gradeClass = getGradeClass(r.id, r.agente);
         const grade = gradeInfo[gradeClass] || { label: "Marinaio", color: "#9ca3af" };
         const card = document.createElement("div");
-        card.className = "colleague-card";
+        card.className = `colleague-card${r.isInstructor ? " instructor-card" : ""}${r.isTrasferta ? " transfer-card" : ""}`;
         card.style.cssText = `border-left-color:${grade.color};`;
+        if (r.isTrasferta) card.title = `In trasferta da ${r.residenzaOrigine}`;
 
         let infoResidenza = "";
-        if (r.residenzaOrigine !== currentResidence) {
-          infoResidenza = `<span class="c-res">📍 APPARTIENE A: ${r.residenzaOrigine.toUpperCase()} (TRASFERTA)</span>`;
-        } else if (r.isTrasferta) {
-          infoResidenza = `<span class="c-res" style="color:#60a5fa;">✈ DISTACCATO (Codice: ${r.rawShift})</span>`;
-        } else {
-          infoResidenza = `<span class="c-res" style="color:var(--good); opacity:0.6;">✓ Locale</span>`;
+        if (r.isTrasferta) {
+          infoResidenza = `<span class="c-res" style="color:#93c5fd;border-color:rgba(96,165,250,.45);">TRASFERTA DA ${String(r.residenzaOrigine).toUpperCase()}</span>`;
         }
 
+        const instructorMark = r.isInstructor ? `<span class="c-res instructor-mark">SOVRANNUMERO</span>` : "";
         card.innerHTML = `<span class="c-num">${r.id || "—"}</span>
-          <span class="c-name">${r.agente} ${infoResidenza}</span>
+          <span class="c-name">${r.agente}${instructorMark} ${infoResidenza}</span>
           <span class="c-grade" style="color:${grade.color}; background:${grade.color}22; border:1px solid ${grade.color}44;">${grade.label}</span>`;
         list.appendChild(card);
       });
@@ -1686,8 +1892,12 @@
       const currentIndex = dateCalendario.findIndex(c => c.col === selectedCol);
       const target = dateCalendario[currentIndex + direction];
       if (!target) return;
-      const shift = activeShiftFilter || selectedShiftValue;
-      selectDay(target.col, target.labelEstesa, shift);
+      if (pinnedAgentIdx !== null) {
+        selectDayForPinnedAgent(target);
+      } else {
+        const shift = activeShiftFilter || selectedShiftValue;
+        selectDay(target.col, target.labelEstesa, shift);
+      }
       const wrap = document.getElementById("matrix-scroll-wrap");
       const th = document.querySelector(`.date-header th[data-col="${target.col}"]`);
       if (wrap && th) wrap.scrollTo({ left: Math.max(0, th.offsetLeft - 150), behavior: "smooth" });
@@ -1702,8 +1912,12 @@
         return date.getTime() === now.getTime();
       });
       if (!target) return;
-      const shift = activeShiftFilter || selectedShiftValue;
-      selectDay(target.col, target.labelEstesa, shift);
+      if (pinnedAgentIdx !== null) {
+        selectDayForPinnedAgent(target);
+      } else {
+        const shift = activeShiftFilter || selectedShiftValue;
+        selectDay(target.col, target.labelEstesa, shift);
+      }
       const wrap = document.getElementById("matrix-scroll-wrap");
       const th = document.querySelector(`.date-header th[data-col="${target.col}"]`);
       if (wrap && th) wrap.scrollTo({ left: Math.max(0, th.offsetLeft - 150), behavior: "smooth" });
@@ -1759,7 +1973,6 @@
 
       if (currentAgentsList.length > 0) {
         document.getElementById("matrix-scroll-wrap").style.display = "block";
-        document.getElementById("hint").style.display = "block";
         renderTable();
         if (selectedCol) {
           let cal = dateCalendario.find(c => c.col === selectedCol);
@@ -1867,14 +2080,15 @@
 
     function processJSONData(data) {
       globalData = data;
-      document.getElementById("stat-status").textContent = "Aggiornati";
+      configuraSettimaneDaJSON(data);
+      inizializzaCalendario();
+      buildTableHeader();
+
       document.getElementById("welcome-notice").style.display = "none";
       document.getElementById("admin-panel").style.display = "flex";
       
-      // Aggiorna il periodo nel titolo
       if (data.periodo) {
         document.getElementById("periodLabel").textContent = data.periodo;
-        // Aggiorna anche il link PDF
         const pdfLink = document.getElementById("pdfLink");
         const periodoClean = data.periodo.replace(/[^a-zA-Z0-9\-]/g, '_');
         pdfLink.href = `TURNO_${periodoClean}.pdf`;
@@ -1882,7 +2096,7 @@
       
       renderResidenceButtons();
       let keys = Object.keys(data.residenze || {});
-      if (keys.length > 0) selectResidence(keys[0]);
+      if (keys.length > 0) selectResidence(keys.find(key => key.trim().toLowerCase() === "desenzano") || keys[0]);
     }
 
     function loadPastedJSON() {
@@ -1959,7 +2173,6 @@
         processJSONData(datiJson);
         localStorage.setItem("turno_finali_data", JSON.stringify(datiJson));
         document.getElementById("upload-status").textContent = "✅ Dati caricati dal Foglio Google — " + new Date().toLocaleTimeString("it-IT");
-        setTimeout(scrollToToday, 80);
       } catch (errore) {
         console.warn("Caricamento dal Google Sheet fallito, provo con la memoria locale.", errore);
         const saved = localStorage.getItem("turno_finali_data");
@@ -1967,14 +2180,14 @@
           try {
             processJSONData(JSON.parse(saved));
             document.getElementById("upload-status").textContent = "⚠️ Google Sheet non raggiungibile — dati da memoria locale";
-            setTimeout(scrollToToday, 80);
-            return;
           } catch (e) {
             localStorage.removeItem("turno_finali_data");
+            document.getElementById("welcome-notice").style.display = "block";
           }
+        } else {
+          document.getElementById("welcome-notice").style.display = "block";
+          document.getElementById("upload-status").textContent = "❌ Impossibile caricare i dati: " + errore.message;
         }
-        document.getElementById("welcome-notice").style.display = "block";
-        document.getElementById("upload-status").textContent = "❌ Impossibile caricare i dati: " + errore.message;
       }
     }
 
@@ -1992,8 +2205,6 @@
 
     window.addEventListener("DOMContentLoaded", () => {
       if (localStorage.getItem("turni_compact_view") === "1") toggleCompact();
-      inizializzaCalendario();
-      buildTableHeader();
       caricaDatiDaGoogleSheet();
     });
   </script>
