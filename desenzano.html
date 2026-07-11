@@ -386,6 +386,94 @@
       border-color: var(--ink);
     }
 
+    .panel-navigation {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-left: auto;
+      margin-right: 9px;
+    }
+
+    .panel-arrow {
+      min-width: 34px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--bg-card);
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 17px;
+    }
+
+    .panel-today {
+      width: auto;
+      padding: 0 11px;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .panel-arrow:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .panel-arrow:disabled {
+      opacity: .3;
+      cursor: default;
+    }
+
+    .shift-duration {
+      margin-left: 5px;
+      color: var(--ink);
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .service-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 4px 2px;
+    }
+
+    .service-code {
+      font-size: 27px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: .03em;
+      color: var(--accent);
+    }
+
+    .colleague-card.instructor-card {
+      background: rgba(245, 158, 11, .09);
+      box-shadow: inset 0 0 0 1px rgba(245, 158, 11, .28);
+    }
+
+    .colleague-card.transfer-card {
+      background: rgba(96, 165, 250, .10);
+      box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .30);
+    }
+
+    .colleague-card.instructor-card.transfer-card {
+      background: linear-gradient(90deg, rgba(245,158,11,.12), rgba(96,165,250,.10));
+      box-shadow: inset 0 0 0 1px rgba(245,158,11,.34);
+    }
+
+    .instructor-mark {
+      color: var(--warn);
+      background: transparent;
+      border: 0;
+      padding-left: 0;
+      padding-right: 0;
+      margin-left: 6px;
+    }
+
     .panel-groups {
       padding: 12px 16px;
       display: flex;
@@ -1063,7 +1151,94 @@
       }
 
     }
-  </style>
+    /* Variante alternativa: plancia chiara, più leggibile e operativa */
+    :root {
+      --bg: #f3f6f5; --bg-panel: #ffffff; --bg-card: #f7faf9;
+      --line: #d9e3e0; --ink: #17312e; --ink-dim: #657b77;
+      --accent: #087f72; --accent-dim: #dff3ef; --radius: 14px;
+    }
+    body { background: linear-gradient(180deg,#e6f2ef 0,#f5f7f6 260px); color:var(--ink); }
+    .page-header { background:#073b36; border:0; padding:22px 30px 20px; color:white; }
+    .company-name { color:#8ee5d8; }
+    .doc-title { color:white; font-size:25px; }
+    .doc-subtitle { color:#c5ded9; }
+    .toolbar-container { background:white; padding:12px 28px; position:sticky; top:0; z-index:50; box-shadow:0 8px 28px rgba(7,59,54,.08); }
+    .res-btn,.btn,.shift-filter-btn { border-radius:9px; background:#fff; color:var(--ink-dim); }
+    .res-btn.active,.shift-filter-btn.active { color:white; background:var(--accent); }
+    main { padding:20px 24px 48px; max-width:1800px; margin:auto; }
+    .ops-bar { display:grid; grid-template-columns:minmax(240px,1.5fr) repeat(3,minmax(110px,.5fr)); gap:12px; margin-bottom:16px; }
+    .search-box,.stat-card { background:white; border:1px solid var(--line); border-radius:12px; box-shadow:0 5px 18px rgba(17,55,49,.05); }
+    .search-box { display:flex; align-items:center; gap:10px; padding:8px 12px; }
+    .search-box input { width:100%; border:0; outline:0; background:transparent; color:var(--ink); font-size:14px; }
+    .stat-card { padding:9px 12px; }
+    .stat-card span { display:block; color:var(--ink-dim); font-size:10px; text-transform:uppercase; letter-spacing:.08em; }
+    .stat-card strong { font-size:17px; }
+    .view-actions { display:flex; gap:8px; margin-left:auto; }
+    .compact-toggle { border:1px solid var(--line); background:white; color:var(--ink); border-radius:8px; padding:7px 12px; cursor:pointer; }
+    .scroll-wrap { border-radius:14px; box-shadow:0 12px 35px rgba(17,55,49,.08); background:white; max-height:calc(100vh - 245px); }
+    thead tr th,.date-header th,.date-header th:nth-child(1),.date-header th:nth-child(2) { background:#eef5f3 !important; color:var(--ink); }
+    tr td.td-num,tr td.td-name { color:var(--ink)!important; }
+    .cell-pill { border-radius:999px; }
+    #day-panel.open { box-shadow:0 10px 30px rgba(17,55,49,.08); }
+    .compact .scroll-wrap table td { padding-top:2px; padding-bottom:2px; }
+    .compact .cell-pill { padding:1px 5px; font-size:9px; }
+    .compact .scroll-wrap { max-height:calc(100vh - 205px); }
+    tr.agent-hidden { display:none; }
+    footer { color:var(--ink-dim); }
+    @media(max-width:800px){
+      .page-header{padding:16px}.doc-subtitle{width:100%;margin:4px 0 0}.toolbar-container{padding:10px 12px;position:static}
+      main{padding:12px}.ops-bar{grid-template-columns:1fr 1fr}.search-box{grid-column:1/-1}.admin-panel{overflow:auto;flex-wrap:nowrap;width:100%}.admin-panel .btn{white-space:nowrap}
+      .stat-card:last-child{display:none}.scroll-wrap{max-height:68vh}.doc-title{font-size:20px}
+    }
+    /* Revisione scura e semplificata */
+    :root { --bg:#07131b; --bg-panel:#0d202b; --bg-card:#122b37; --line:#234452; --ink:#edf6f7; --ink-dim:#9bb4bc; --accent:#38d6bf; --accent-dim:#103c3a; }
+    body { background:radial-gradient(1000px 500px at 15% -10%,#123846 0,transparent 62%),var(--bg); color:var(--ink); }
+    .page-header { background:#091c25; }
+    .toolbar-container {
+      background:#0b1c25;
+      box-shadow:0 8px 28px rgba(0,0,0,.25);
+      position:static;
+    }
+    .res-btn,.btn,.shift-filter-btn,.compact-toggle { background:var(--bg-card); color:var(--ink-dim); border-color:var(--line); }
+    .res-btn.active,.shift-filter-btn.active { background:var(--accent); color:#05221e; }
+    .ops-bar,.upload-container { display:none !important; }
+    .scroll-wrap {
+      background:var(--bg-panel);
+      box-shadow:0 12px 35px rgba(0,0,0,.25);
+      max-height:none;
+      overflow:visible;
+      width:max-content;
+      min-width:100%;
+    }
+    .compact .scroll-wrap { max-height:none; }
+    thead tr th,.date-header th,.date-header th:nth-child(1),.date-header th:nth-child(2) { background:#15313d !important; color:var(--ink); }
+    tr td.td-num,tr td.td-name { color:var(--ink)!important; }
+    main { padding-top:14px; }
+    .scroll-wrap table { font-size:15px; }
+    td, td.td-name, tbody tr td.td-name { font-size:14px; padding-top:6px; padding-bottom:6px; }
+    td.td-num { font-size:12px; }
+    .cell-pill { font-size:12.5px; padding:4px 8px; }
+    .date-head-num { font-size:15px; }
+    .compact .scroll-wrap table { font-size:13px; }
+    .compact td,
+    .compact td.td-name,
+    .compact tbody tr td.td-name { font-size:12.5px; padding-top:4px; padding-bottom:4px; }
+    .compact td.td-num { font-size:11px; }
+    .compact .cell-pill { font-size:11px; padding:3px 7px; }
+    .compact .date-head-num { font-size:14px; }
+    .date-header th {
+      position:sticky;
+      top:0;
+      z-index:40;
+      box-shadow:0 2px 0 var(--line),0 7px 16px rgba(0,0,0,.22);
+    }
+    .date-header th:nth-child(1),
+    .date-header th:nth-child(2) {
+      position:sticky;
+      top:0;
+      z-index:45;
+    }
+</style>
 </head>
 <body>
 
@@ -1079,16 +1254,26 @@
     <div class="resistence-block" id="res-selector-container"></div>
 
     <div class="admin-panel" id="admin-panel" style="display:none;">
-      <a href="desenzano_v2.html" class="btn" style="border-color:var(--accent);color:var(--accent);">✨ Versione 2.0</a>
       <a href="bozza_desenzano.html" class="btn" target="_blank">👥 BOZZA</a>
       <a href="turni_copertura.html" class="btn" target="_blank">👥 Turni Copertura</a>
       <button class="btn" onclick="ricaricaDati()" id="refreshBtn">🔄 Ricarica dati</button>
       <button class="btn" onclick="togglePastColumns()" id="togglePastBtn">👁 Mostra passato</button>
+      <button class="compact-toggle" type="button" onclick="toggleCompact()" id="compactBtn">Vista compatta</button>
       <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank">📄 PDF Turni</a>
     </div>
   </div>
 
   <main>
+
+    <section class="ops-bar" aria-label="Riepilogo operativo">
+      <label class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <input id="agent-search" type="search" placeholder="Cerca agente per nome o numero…" oninput="filterAgents(this.value)">
+      </label>
+      <div class="stat-card"><span>Residenza</span><strong id="stat-residence">—</strong></div>
+      <div class="stat-card"><span>Personale visibile</span><strong id="stat-agents">0</strong></div>
+      <div class="stat-card"><span>Stato dati</span><strong id="stat-status">In attesa</strong></div>
+    </section>
 
     <div id="welcome-notice">
       <h3>📊 Nessun dato turno caricato</h3>
@@ -1103,12 +1288,15 @@
     <div id="day-panel">
       <div class="panel-header">
         <div class="panel-date" id="panel-date-label"></div>
+        <div class="panel-navigation" aria-label="Cambia giorno">
+          <button class="panel-arrow" id="previous-day-btn" type="button" onclick="changeSelectedDay(-1)" aria-label="Giorno precedente">←</button>
+          <button class="panel-arrow panel-today" id="today-day-btn" type="button" onclick="goToToday()">Oggi</button>
+          <button class="panel-arrow" id="next-day-btn" type="button" onclick="changeSelectedDay(1)" aria-label="Giorno successivo">→</button>
+        </div>
         <button class="panel-close" onclick="clearSelection()">✕ Chiudi Equipaggio</button>
       </div>
       <div class="panel-groups" id="panel-groups"></div>
     </div>
-
-    <div class="hint" id="hint">💡 <b>1. Seleziona un Turno</b> in alto · <b>2. Clicca sul Giorno</b> (numero nella tabella) per calcolare l'equipaggio completo</div>
 
     <div class="scroll-wrap" id="matrix-scroll-wrap">
       <table>
@@ -1141,6 +1329,7 @@
     let currentResidence = "";
     let currentAgentsList = [];
     let selectedCol = null;
+    let selectedShiftValue = "";
     let trElements = [];
     let pinnedAgentIdx = null;
     let activeShiftFilter = null;
@@ -1151,7 +1340,7 @@
       "desenzano": ["D1", "D2", "D3", "D4", "BIS"],
       "maderno": ["T1", "T2", "M1"],
       "riva": ["R1", "R2", "R3", "R4", "CAR"],
-      "peschiera": ["P1", "P2", "P3", "P4", "CAP", "SR1"]
+      "peschiera": ["P1", "P2", "P3", "CAP", "SR1"]
     };
 
     const dateCalendario = [];
@@ -1164,6 +1353,7 @@
     ];
 
     const nomiGiorni = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
+    const nomiGiorniCompleti = ["lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica"];
     const mesiNomi = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre",
       "novembre", "dicembre"
     ];
@@ -1192,6 +1382,24 @@
       "c-other": "#94a3b8"
     };
 
+    const shiftDurations = {
+      D1: "13 ore", D2: "11 ore 25 min", D3: "13 ore 20 min", D4: "13 ore 15 min",
+      T1: "13 ore 35 min", T2: "12 ore 29 min", M1: "13 ore 30 min",
+      R1: "13 ore 15 min", R2: "13 ore 15 min", R3: "12 ore 20 min", R4: "12 ore 40 min",
+      CAR: "12 ore 10 min", CAR1: "12 ore 10 min",
+      P1: "12 ore 45 min", P2: "13 ore 5 min", P3: "12 ore 55 min",
+      CAP: "12 ore 55 min", CAP1: "12 ore 55 min", SR1: "12 ore 15 min",
+      BIS: "12 ore 15 min", AGB: "10 ore 25 min", POND: "9 ore 25 min",
+      DT: "9 ore 25 min", PT: "9 ore 30 min", AGM: "9 ore 45 min",
+      AGT: "11 ore 10 min", PONM: "10 ore 25 min"
+    };
+
+    function getShiftDuration(shiftCode, calInfo) {
+      const code = (shiftCode || "").toUpperCase().trim();
+      if (code === "DT" && calInfo && calInfo.giornoSett === "Sab") return "9 ore 55 min";
+      return shiftDurations[code] || "";
+    }
+
     function inizializzaCalendario() {
       dateCalendario.length = 0;
       let colCounter = 3;
@@ -1207,7 +1415,7 @@
             dayNum: d.getDate(),
             giornoSett: nomiGiorni[g],
             isDomenica: (g === 6),
-            labelEstesa: `${nomiGiorni[g]}dì ${d.getDate()} ${mesiNomi[d.getMonth()]}`,
+            labelEstesa: `${nomiGiorniCompleti[g]} ${d.getDate()} ${mesiNomi[d.getMonth()]}`,
             realObj: d
           });
           colCounter++;
@@ -1215,7 +1423,8 @@
       });
     }
 
-    function getGradeClass(badge) {
+    function getGradeClass(badge, agentName = "") {
+      if (/cenzon/i.test(String(agentName))) return "grado-capo";
       badge = Number(badge);
       if (!badge) return "grado-marinaio";
       if ((badge >= 1 && badge <= 5) || (badge >= 38 && badge <= 41) || (badge >= 65 && badge <= 68) || (badge >= 104 && badge <=
@@ -1294,13 +1503,56 @@
 
     function eseguiRicercaHeader(colonnaCliccata) {
       if (isEditMode) return;
+      let cal = dateCalendario.find(c => c.col === colonnaCliccata);
+      if (!cal) return;
+      if (pinnedAgentIdx !== null) {
+        selectDayForPinnedAgent(cal);
+        return;
+      }
       if (!activeShiftFilter) {
         alert("Scegli prima un turno dalla barra in alto per avviare la ricerca dell'equipaggio.");
         return;
       }
-      let cal = dateCalendario.find(c => c.col === colonnaCliccata);
-      if (cal) {
-        selectDay(cal.col, cal.labelEstesa, activeShiftFilter);
+      selectDay(cal.col, cal.labelEstesa, activeShiftFilter);
+    }
+
+    function selectDayForPinnedAgent(cal) {
+      const agent = pinnedAgentIdx !== null ? currentAgentsList[pinnedAgentIdx] : null;
+      if (!agent || !cal) return;
+      const dayIndex = (cal.col - 3) % 7;
+      const weeklyShifts = agent.turni_settimanali[cal.weekKey] || [];
+      const rawShift = weeklyShifts[dayIndex] || "rip";
+      const cleanShift = ottieniTurnoPulito(rawShift);
+
+      activeShiftFilter = cleanShift || null;
+      generaFiltriTurnoRiferimento();
+
+      if (cleanShift) {
+        selectDay(cal.col, cal.labelEstesa, rawShift);
+      } else {
+        clearSelection();
+        selectedCol = cal.col;
+        selectedShiftValue = "rip";
+        const targetTh = document.querySelector(`.date-header th[data-col="${cal.col}"]`);
+        if (targetTh) targetTh.classList.add("selected-day");
+
+        document.getElementById("panel-date-label").innerHTML = `<span>⬡</span>${cal.labelEstesa}`;
+        document.getElementById("panel-groups").innerHTML = `
+          <div class="shift-group">
+            <div class="shift-group-label">Stato dell'agente selezionato</div>
+            <div class="colleague-cards">
+              <div class="colleague-card" style="border-left-color:var(--ink-dim);">
+                <span class="c-num">${agent.id || "—"}</span>
+                <span class="c-name">${agent.agente}</span>
+                <span class="c-grade" style="color:var(--ink-dim);background:var(--rip-bg);border:1px solid var(--line);">RIPOSO</span>
+              </div>
+            </div>
+          </div>`;
+
+        const currentIndex = dateCalendario.findIndex(c => c.col === cal.col);
+        document.getElementById("previous-day-btn").disabled = currentIndex <= 0;
+        document.getElementById("next-day-btn").disabled = currentIndex < 0 || currentIndex >= dateCalendario.length - 1;
+        document.getElementById("day-panel").classList.add("open");
       }
     }
 
@@ -1336,13 +1588,11 @@
           }
           generaFiltriTurnoRiferimento();
           renderTable();
-          if (selectedCol) {
-            if (activeShiftFilter) {
-              let cal = dateCalendario.find(c => c.col === selectedCol);
-              if (cal) selectDay(selectedCol, cal.labelEstesa, activeShiftFilter);
-            } else {
-              clearSelection();
-            }
+          if (activeShiftFilter) {
+            goToToday();
+            document.getElementById("shift-filter-container").scrollIntoView({ behavior: "smooth", block: "start" });
+          } else {
+            clearSelection();
           }
         });
         wrapper.appendChild(btn);
@@ -1373,7 +1623,7 @@
     function createRowDOM(agenteObj, ri, isPinned = false) {
       const tr = document.createElement("tr");
       tr.dataset.rowIndex = ri;
-      tr.classList.add(getGradeClass(agenteObj.id));
+      tr.classList.add(getGradeClass(agenteObj.id, agenteObj.agente));
       if (isPinned) tr.classList.add("pinned-row");
 
       let html = `<td class="td-num" title="Numero agente">${agenteObj.id || "—"}</td>`;
@@ -1384,15 +1634,17 @@
         if (isEditMode) return;
         if (pinnedAgentIdx === ri) {
           pinnedAgentIdx = null;
-        } else {
-          pinnedAgentIdx = ri;
+          renderTable();
+          return;
         }
+
+        pinnedAgentIdx = ri;
+        const todayCal = dateCalendario.find(cal => isTodayDate(cal.realObj));
         renderTable();
-        setTimeout(scrollToToday, 50);
-        if (selectedCol) {
-          let cal = dateCalendario.find(c => c.col === selectedCol);
-          if (cal) selectDay(selectedCol, cal.labelEstesa, activeShiftFilter || "");
-        }
+        if (todayCal) selectDayForPinnedAgent(todayCal);
+        setTimeout(() => {
+          document.getElementById("shift-filter-container").scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 80);
       });
 
       dateCalendario.forEach(cal => {
@@ -1423,8 +1675,12 @@
         } else {
           td.innerHTML = pill(turnoVal);
           td.addEventListener("click", () => {
-            let turnoDaCercare = activeShiftFilter ? activeShiftFilter : turnoVal;
-            selectDay(cal.col, cal.labelEstesa, turnoDaCercare);
+            if (pinnedAgentIdx !== null) {
+              selectDayForPinnedAgent(cal);
+            } else {
+              let turnoDaCercare = activeShiftFilter ? activeShiftFilter : turnoVal;
+              selectDay(cal.col, cal.labelEstesa, turnoDaCercare);
+            }
           });
         }
         tr.appendChild(td);
@@ -1436,6 +1692,7 @@
     function selectDay(col, label, cellShiftValue) {
       if (isEditMode) return;
       selectedCol = col;
+      selectedShiftValue = cellShiftValue || selectedShiftValue;
       document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
       let targetTh = document.querySelector(`.date-header th[data-col="${col}"]`);
       if (targetTh) targetTh.classList.add("selected-day");
@@ -1473,15 +1730,18 @@
 
       const myShiftCls = classify(cellShiftValue);
       const myColor = shiftBorderColor[myShiftCls] || "#6b7280";
+      const myDuration = getShiftDuration(myShiftPuro, calInfo);
 
       const myDiv = document.createElement("div");
       myDiv.className = "shift-group";
-      myDiv.innerHTML = `<div class="shift-group-label">Servizio Selezionato</div>
-        <div class="colleague-cards">
-          <div class="colleague-card" style="border-left-color:${myColor}; background:var(--accent-dim);">
-            <span class="c-name" style="margin-left:0; font-weight:600;">SERVIZIO DETTAGLIATO: <span class="cell-pill ${myShiftCls}">${myShiftPuro}</span></span>
+      myDiv.innerHTML = `<div class="colleague-cards">
+        <div class="colleague-card" style="border-left-color:${myColor}; background:var(--accent-dim); padding:12px 14px;">
+          <div class="service-summary">
+            <span class="service-code">${myShiftPuro}</span>
+            ${myDuration ? `<span class="shift-duration">${myDuration}</span>` : ""}
           </div>
-        </div>`;
+        </div>
+      </div>`;
       panelGroups.appendChild(myDiv);
 
       let allColleagues = [];
@@ -1501,7 +1761,8 @@
               agente: ag.agente,
               residenzaOrigine: resKey,
               isTrasferta: isTrasfertaFlag,
-              rawShift: hisShiftRaw
+              rawShift: hisShiftRaw,
+              isInstructor: /\*/.test(String(hisShiftRaw))
             });
           }
         });
@@ -1514,34 +1775,85 @@
       panelGroups.appendChild(div);
 
       const list = div.querySelector("#colleague-list");
+      const gradeOrder = {
+        "grado-capitano": 1,
+        "grado-capo": 2,
+        "grado-timoniere": 3,
+        "grado-motorista": 4,
+        "grado-aiuto": 5,
+        "grado-marinaio": 6
+      };
+      allColleagues.sort((a, b) => {
+        const gradeA = gradeOrder[getGradeClass(a.id, a.agente)] || 99;
+        const gradeB = gradeOrder[getGradeClass(b.id, b.agente)] || 99;
+        return gradeA - gradeB || String(a.agente).localeCompare(String(b.agente), "it");
+      });
+
       allColleagues.forEach(r => {
-        const gradeClass = getGradeClass(r.id);
+        const gradeClass = getGradeClass(r.id, r.agente);
         const grade = gradeInfo[gradeClass] || { label: "Marinaio", color: "#9ca3af" };
         const card = document.createElement("div");
-        card.className = "colleague-card";
+        card.className = `colleague-card${r.isInstructor ? " instructor-card" : ""}${r.isTrasferta ? " transfer-card" : ""}`;
         card.style.cssText = `border-left-color:${grade.color};`;
+        if (r.isTrasferta) card.title = `In trasferta da ${r.residenzaOrigine}`;
 
         let infoResidenza = "";
-        if (r.residenzaOrigine !== currentResidence) {
-          infoResidenza = `<span class="c-res">📍 APPARTIENE A: ${r.residenzaOrigine.toUpperCase()} (TRASFERTA)</span>`;
-        } else if (r.isTrasferta) {
-          infoResidenza = `<span class="c-res" style="color:#60a5fa;">✈ DISTACCATO (Codice: ${r.rawShift})</span>`;
-        } else {
-          infoResidenza = `<span class="c-res" style="color:var(--good); opacity:0.6;">✓ Locale</span>`;
+        if (r.isTrasferta) {
+          infoResidenza = `<span class="c-res" style="color:#93c5fd;border-color:rgba(96,165,250,.45);">TRASFERTA DA ${String(r.residenzaOrigine).toUpperCase()}</span>`;
         }
 
+        const instructorMark = r.isInstructor ? `<span class="c-res instructor-mark">SOVRANNUMERO</span>` : "";
         card.innerHTML = `<span class="c-num">${r.id || "—"}</span>
-          <span class="c-name">${r.agente} ${infoResidenza}</span>
+          <span class="c-name">${r.agente}${instructorMark} ${infoResidenza}</span>
           <span class="c-grade" style="color:${grade.color}; background:${grade.color}22; border:1px solid ${grade.color}44;">${grade.label}</span>`;
         list.appendChild(card);
       });
 
       document.getElementById("panel-date-label").innerHTML = `<span>⬡</span>${label}`;
+      const currentIndex = dateCalendario.findIndex(c => c.col === col);
+      document.getElementById("previous-day-btn").disabled = currentIndex <= 0;
+      document.getElementById("next-day-btn").disabled = currentIndex < 0 || currentIndex >= dateCalendario.length - 1;
       document.getElementById("day-panel").classList.add("open");
+    }
+
+    function changeSelectedDay(direction) {
+      const currentIndex = dateCalendario.findIndex(c => c.col === selectedCol);
+      const target = dateCalendario[currentIndex + direction];
+      if (!target) return;
+      if (pinnedAgentIdx !== null) {
+        selectDayForPinnedAgent(target);
+      } else {
+        const shift = activeShiftFilter || selectedShiftValue;
+        selectDay(target.col, target.labelEstesa, shift);
+      }
+      const wrap = document.getElementById("matrix-scroll-wrap");
+      const th = document.querySelector(`.date-header th[data-col="${target.col}"]`);
+      if (wrap && th) wrap.scrollTo({ left: Math.max(0, th.offsetLeft - 150), behavior: "smooth" });
+    }
+
+    function goToToday() {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const target = dateCalendario.find(cal => {
+        const date = new Date(cal.realObj);
+        date.setHours(0, 0, 0, 0);
+        return date.getTime() === now.getTime();
+      });
+      if (!target) return;
+      if (pinnedAgentIdx !== null) {
+        selectDayForPinnedAgent(target);
+      } else {
+        const shift = activeShiftFilter || selectedShiftValue;
+        selectDay(target.col, target.labelEstesa, shift);
+      }
+      const wrap = document.getElementById("matrix-scroll-wrap");
+      const th = document.querySelector(`.date-header th[data-col="${target.col}"]`);
+      if (wrap && th) wrap.scrollTo({ left: Math.max(0, th.offsetLeft - 150), behavior: "smooth" });
     }
 
     function clearSelection() {
       selectedCol = null;
+      selectedShiftValue = "";
       document.getElementById("day-panel").classList.remove("open");
       document.getElementById("tbody").classList.remove("has-selection");
       document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
@@ -1549,6 +1861,24 @@
         tr.classList.remove("row-match");
         tr.querySelectorAll("td").forEach(td => td.classList.remove("col-selected"));
       });
+    }
+
+    function filterAgents(query) {
+      const q = (query || "").trim().toLocaleLowerCase("it");
+      let visible = 0;
+      document.querySelectorAll("#tbody tr").forEach(tr => {
+        const match = !q || tr.textContent.toLocaleLowerCase("it").includes(q);
+        tr.classList.toggle("agent-hidden", !match);
+        if (match) visible++;
+      });
+      document.getElementById("stat-agents").textContent = visible;
+    }
+
+    function toggleCompact() {
+      document.body.classList.toggle("compact");
+      const compact = document.body.classList.contains("compact");
+      document.getElementById("compactBtn").textContent = compact ? "Vista completa" : "Vista compatta";
+      localStorage.setItem("turni_compact_view", compact ? "1" : "0");
     }
 
     function selectResidence(resName) {
@@ -1561,13 +1891,16 @@
       activeShiftFilter = null;
 
       currentAgentsList = globalData.residenze[resName] || [];
+      document.getElementById("stat-residence").textContent = resName;
+      document.getElementById("stat-agents").textContent = currentAgentsList.length;
+      const search = document.getElementById("agent-search");
+      if (search) search.value = "";
       document.querySelectorAll(".res-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.res === resName));
 
       generaFiltriTurnoRiferimento();
 
       if (currentAgentsList.length > 0) {
         document.getElementById("matrix-scroll-wrap").style.display = "block";
-        document.getElementById("hint").style.display = "block";
         renderTable();
         if (selectedCol) {
           let cal = dateCalendario.find(c => c.col === selectedCol);
@@ -1675,6 +2008,7 @@
 
     function processJSONData(data) {
       globalData = data;
+      document.getElementById("stat-status").textContent = "Aggiornati";
       document.getElementById("welcome-notice").style.display = "none";
       document.getElementById("admin-panel").style.display = "flex";
       
@@ -1798,6 +2132,7 @@
     }
 
     window.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("turni_compact_view") === "1") toggleCompact();
       inizializzaCalendario();
       buildTableHeader();
       caricaDatiDaGoogleSheet();
