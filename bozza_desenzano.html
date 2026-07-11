@@ -2093,7 +2093,7 @@
       
       renderResidenceButtons();
       let keys = Object.keys(data.residenze || {});
-      if (keys.length > 0) selectResidence(keys.includes("DESENZANO") ? "DESENZANO" : keys[0]);
+      if (keys.length > 0) selectResidence(keys.find(key => key.trim().toLowerCase() === "desenzano") || keys[0]);
     }
 
     function loadPastedJSON() {
