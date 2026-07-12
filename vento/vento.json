@@ -1,61 +1,61 @@
 {
-  "updated": "11-07-2026 23:24",
+  "updated": "12-07-2026 01:04",
   "stations": [
     {
       "name": "Desenzano",
-      "wind": 13.6,
-      "dir": "WNW",
-      "max": 22.2,
-      "maxTime": "23:24",
-      "last": "11-07-2026 23:24"
+      "wind": 2.9,
+      "dir": "ENE",
+      "max": 8.4,
+      "maxTime": "01:04",
+      "last": "12-07-2026 01:04"
     },
     {
       "name": "Peschiera",
-      "wind": 1.9,
-      "dir": "E",
-      "max": 12.8,
-      "maxTime": "23:24",
-      "last": "11-07-2026 23:24"
+      "wind": 14.9,
+      "dir": "S",
+      "max": 23.0,
+      "maxTime": "01:04",
+      "last": "12-07-2026 01:04"
     },
     {
       "name": "Salò",
-      "wind": 8.6,
-      "dir": "S",
-      "max": 19.3,
-      "maxTime": "23:24",
-      "last": "11-07-2026 23:24"
+      "wind": 5.8,
+      "dir": "NE",
+      "max": 12.4,
+      "maxTime": "01:04",
+      "last": "12-07-2026 01:04"
     },
     {
       "name": "Toscolano",
-      "wind": 20.2,
+      "wind": 2.5,
       "dir": "W",
-      "max": 30.3,
-      "maxTime": "23:24",
-      "last": "11-07-2026 23:24"
+      "max": 8.6,
+      "maxTime": "01:04",
+      "last": "12-07-2026 01:04"
     },
     {
       "name": "Gargnano",
-      "wind": 9.3,
-      "dir": "N",
-      "max": 15.8,
-      "maxTime": "23:24",
-      "last": "11-07-2026 23:24"
+      "wind": 8.3,
+      "dir": "W",
+      "max": 11.1,
+      "maxTime": "01:04",
+      "last": "12-07-2026 01:04"
     },
     {
       "name": "Campione del Garda",
-      "wind": 3.0,
-      "dir": "SW",
-      "max": 7.8,
-      "maxTime": "23:24",
-      "last": "11-07-2026 23:24"
+      "wind": 6.2,
+      "dir": "S",
+      "max": 17.7,
+      "maxTime": "01:04",
+      "last": "12-07-2026 01:04"
     },
     {
       "name": "Malcesine",
-      "wind": 8.8,
+      "wind": 16.6,
       "dir": "WSW",
-      "max": 13.0,
-      "maxTime": "23:24",
-      "last": "11-07-2026 23:24"
+      "max": 26.2,
+      "maxTime": "01:04",
+      "last": "12-07-2026 01:04"
     }
   ]
 }
