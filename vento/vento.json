@@ -1,61 +1,61 @@
 {
-  "updated": "13-07-2026 04:46",
+  "updated": "13-07-2026 07:57",
   "stations": [
     {
       "name": "Desenzano",
-      "wind": 1.9,
-      "dir": "ENE",
-      "max": 10.8,
-      "maxTime": "04:46",
-      "last": "13-07-2026 04:46"
+      "wind": 7.3,
+      "dir": "NE",
+      "max": 10.3,
+      "maxTime": "07:57",
+      "last": "13-07-2026 07:57"
     },
     {
       "name": "Peschiera",
-      "wind": 16.3,
+      "wind": 6.9,
       "dir": "ESE",
-      "max": 24.1,
-      "maxTime": "04:46",
-      "last": "13-07-2026 04:46"
+      "max": 15.0,
+      "maxTime": "07:57",
+      "last": "13-07-2026 07:57"
     },
     {
       "name": "Salò",
-      "wind": 15.7,
-      "dir": "WNW",
-      "max": 26.4,
-      "maxTime": "04:46",
-      "last": "13-07-2026 04:46"
+      "wind": 21.1,
+      "dir": "SSE",
+      "max": 27.1,
+      "maxTime": "07:57",
+      "last": "13-07-2026 07:57"
     },
     {
       "name": "Toscolano",
-      "wind": 1.0,
-      "dir": "E",
-      "max": 11.8,
-      "maxTime": "04:46",
-      "last": "13-07-2026 04:46"
+      "wind": 20.3,
+      "dir": "WNW",
+      "max": 28.5,
+      "maxTime": "07:57",
+      "last": "13-07-2026 07:57"
     },
     {
       "name": "Gargnano",
-      "wind": 20.9,
-      "dir": "ESE",
-      "max": 30.8,
-      "maxTime": "04:46",
-      "last": "13-07-2026 04:46"
+      "wind": 18.1,
+      "dir": "NNE",
+      "max": 21.9,
+      "maxTime": "07:57",
+      "last": "13-07-2026 07:57"
     },
     {
       "name": "Campione del Garda",
-      "wind": 20.2,
+      "wind": 4.3,
       "dir": "S",
-      "max": 25.5,
-      "maxTime": "04:46",
-      "last": "13-07-2026 04:46"
+      "max": 14.1,
+      "maxTime": "07:57",
+      "last": "13-07-2026 07:57"
     },
     {
       "name": "Malcesine",
-      "wind": 11.6,
-      "dir": "WNW",
-      "max": 15.2,
-      "maxTime": "04:46",
-      "last": "13-07-2026 04:46"
+      "wind": 9.5,
+      "dir": "NNE",
+      "max": 15.7,
+      "maxTime": "07:57",
+      "last": "13-07-2026 07:57"
     }
   ]
 }
