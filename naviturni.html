@@ -467,8 +467,8 @@
 
     .service-summary {
       display:grid;
-      grid-template-columns:minmax(128px, 1fr) auto;
-      align-items: center;
+      grid-template-columns:1fr;
+      align-items:start;
       gap: 10px;
       width: 100%;
       padding: 4px 2px;
@@ -521,7 +521,8 @@
       border-radius:10px;
       background:var(--accent);
       color:#05221e;
-      font-size:11px;
+      font-family:inherit;
+      font-size:13px;
       font-weight:900;
       text-transform:none;
     }
@@ -1560,10 +1561,6 @@
     .coverage-cell:active { transform:scale(.96); }
 
     @media (max-width:640px) {
-      .service-summary {
-        grid-template-columns:1fr;
-        align-items:start;
-      }
       .service-identity,
       .panel-navigation {
         justify-self:start;
