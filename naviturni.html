@@ -1394,6 +1394,7 @@
     .coverage-legend .complete::before { background:#22c55e; }
     .coverage-legend .incomplete::before { background:#ef4444; }
     .coverage-legend .overstaffed::before { background:#f59e0b; }
+    .coverage-legend .transfer::before { background:#60a5fa; }
     .coverage-wrap {
       width:100%;
       overflow:auto;
@@ -1464,6 +1465,20 @@
       color:var(--ink-dim);
       background:var(--bg-card);
       border:1px solid var(--line);
+    }
+    .coverage-cell.has-transfer { position:relative; }
+    .coverage-cell.has-transfer .coverage-count {
+      box-shadow:0 0 0 2px #60a5fa, 0 0 8px rgba(96,165,250,.45);
+    }
+    .coverage-cell.has-transfer::after {
+      content:"";
+      position:absolute;
+      top:4px;
+      right:4px;
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#60a5fa;
     }
     .coverage-cell { cursor:pointer; transition:filter .15s, transform .15s; }
     .coverage-cell:hover { filter:brightness(1.18); }
@@ -1585,6 +1600,7 @@
         <span class="complete">Completo</span>
         <span class="incomplete">Incompleto</span>
         <span class="overstaffed">Sovrannumero</span>
+        <span class="transfer">Trasferta</span>
       </div>
       <div class="coverage-wrap">
         <table class="coverage-table">
@@ -1969,10 +1985,16 @@
         const cells = dateCalendario.map(cal => {
           const dayIndex = (cal.col - 3) % 7;
           const crew = [];
-          Object.values(globalData.residenze || {}).forEach(agents => {
+          let hasTransfer = false;
+          Object.entries(globalData.residenze || {}).forEach(([residence, agents]) => {
             (agents || []).forEach(agent => {
               const rawShift = (agent.turni_settimanali?.[cal.weekKey] || [])[dayIndex] || "rip";
-              if (ottieniTurnoPulito(rawShift).toUpperCase() === shift.toUpperCase()) crew.push(agent.agente);
+              if (ottieniTurnoPulito(rawShift).toUpperCase() === shift.toUpperCase()) {
+                const rawUpper = String(rawShift).trim().toUpperCase();
+                const isTransfer = residence !== currentResidence || rawUpper.startsWith("C") || rawUpper.endsWith("C");
+                hasTransfer ||= isTransfer;
+                crew.push(isTransfer ? `${agent.agente} (trasferta da ${residence})` : agent.agente);
+              }
             });
           });
 
@@ -1981,7 +2003,7 @@
             count < required ? "incomplete" : count > required ? "overstaffed" : "complete";
           const label = required == null || Number.isNaN(required) ? String(count) : `${count}/${required}`;
           const title = escapeAttribute(crew.length ? crew.join(", ") : "Nessun agente assegnato");
-          return `<td data-col="${cal.col}" class="coverage-cell ${status} ${cal.isBozza ? "bozza-col" : ""}" title="${title}" onclick="openCoverageCrew(${cal.col}, '${shift}')"><span class="coverage-count">${label}</span></td>`;
+          return `<td data-col="${cal.col}" class="coverage-cell ${status} ${hasTransfer ? "has-transfer" : ""} ${cal.isBozza ? "bozza-col" : ""}" title="${title}" onclick="openCoverageCrew(${cal.col}, '${shift}')"><span class="coverage-count">${label}</span></td>`;
         }).join("");
 
         return `<tr><td>${shift}</td>${cells}</tr>`;
