@@ -774,6 +774,10 @@
       border-bottom: 2px solid var(--accent);
     }
 
+    tbody tr.pinned-row td {
+      border-bottom: 10px solid var(--bg-panel) !important;
+    }
+
     tbody tr.pinned-row td.td-name {
       color: var(--grade-text) !important;
       font-weight: 900;
@@ -1825,6 +1829,10 @@
       if (!tbody) return;
 
       trElements.sort((a, b) => {
+        const pinnedA = a.classList.contains("pinned-row") ? 0 : 1;
+        const pinnedB = b.classList.contains("pinned-row") ? 0 : 1;
+        if (pinnedA !== pinnedB) return pinnedA - pinnedB;
+
         const matchA = a.classList.contains("row-match") ? 0 : 1;
         const matchB = b.classList.contains("row-match") ? 0 : 1;
         if (matchA !== matchB) return matchA - matchB;
