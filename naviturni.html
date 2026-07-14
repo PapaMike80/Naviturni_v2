@@ -1776,6 +1776,17 @@
       min-width:100%;
     }
 
+    /* Evita il doppio tocco interpretato come zoom, mantenendo lo zoom a due dita. */
+    button,
+    a,
+    input,
+    .coverage-cell,
+    #tbody td[data-col],
+    .date-header th[data-col] {
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:rgba(56,214,191,.18);
+    }
+
 </style>
 </head>
 <body>
@@ -2483,6 +2494,8 @@
 
     function selectDay(col, label, cellShiftValue) {
       if (isEditMode) return;
+      // Ogni nuova selezione usa il giorno scelto come prima colonna visibile.
+      showPastColumns = false;
       selectedCol = col;
       selectedShiftValue = cellShiftValue || selectedShiftValue;
       document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
