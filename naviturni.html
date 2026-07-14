@@ -280,6 +280,32 @@
       border-radius: 4px;
     }
 
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      margin: 0 auto 12px;
+      border: 3px solid var(--line);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: loading-spin .8s linear infinite;
+    }
+
+    #welcome-notice.is-error {
+      border-color: var(--bad);
+    }
+
+    #welcome-notice.is-error h3 {
+      color: var(--bad);
+    }
+
+    @keyframes loading-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .loading-spinner { animation-duration: 1.8s; }
+    }
+
     .shifts-filter-block {
       display: flex;
       flex-direction: column;
@@ -1391,8 +1417,9 @@
     </section>
 
     <div id="welcome-notice">
-      <h3>📊 Nessun dato turno caricato</h3>
-      <p>I dati vengono caricati automaticamente dal Foglio Google. Se serve, puoi ancora incollare manualmente un JSON nella sezione in fondo.</p>
+      <div class="loading-spinner" aria-hidden="true"></div>
+      <h3>Caricamento turni…</h3>
+      <p>Attendi qualche istante mentre recuperiamo i dati aggiornati.</p>
     </div>
 
     <div class="shifts-filter-block" id="shift-filter-container">
@@ -2406,7 +2433,10 @@
             localStorage.removeItem("turno_finali_data");
           }
         }
-        document.getElementById("welcome-notice").style.display = "block";
+        const welcomeNotice = document.getElementById("welcome-notice");
+        welcomeNotice.classList.add("is-error");
+        welcomeNotice.innerHTML = `<h3>⚠️ Dati non disponibili</h3><p>Non è stato possibile caricare i turni. Riprova con il pulsante Aggiorna.</p>`;
+        welcomeNotice.style.display = "block";
         document.getElementById("upload-status").textContent = "❌ Impossibile caricare i dati: " + errore.message;
       }
     }
