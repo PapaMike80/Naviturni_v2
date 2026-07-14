@@ -1502,9 +1502,6 @@
       border:1px solid var(--line);
     }
     .coverage-cell.has-transfer { position:relative; }
-    .coverage-cell.has-transfer .coverage-count {
-      box-shadow:0 0 0 2px #60a5fa, 0 0 8px rgba(96,165,250,.45);
-    }
     .coverage-cell.has-transfer::after {
       content:"";
       position:absolute;
@@ -1514,6 +1511,11 @@
       height:7px;
       border-radius:50%;
       background:#60a5fa;
+    }
+    .coverage-cell.coverage-selected {
+      outline:3px solid var(--accent);
+      outline-offset:-3px;
+      filter:brightness(1.25);
     }
     .coverage-cell { cursor:pointer; transition:filter .15s, transform .15s; }
     .coverage-cell:hover { filter:brightness(1.18); }
@@ -1680,6 +1682,7 @@
     let trElements = [];
     let pinnedAgentIdx = null;
     let activeShiftFilter = null;
+    let dayPanelPlacement = "main";
     let showPastColumns = false;
     let isEditMode = false;
 
@@ -2025,7 +2028,7 @@
           return `<td data-col="${cal.col}" class="coverage-cell ${status} ${hasTransfer ? "has-transfer" : ""} ${cal.isBozza ? "bozza-col" : ""}" title="${title}" onclick="openCoverageCrew(${cal.col}, '${shift}')"><span class="coverage-count">${label}</span></td>`;
         }).join("");
 
-        return `<tr><td>${shift}</td>${cells}</tr>`;
+        return `<tr data-shift="${shift}"><td>${shift}</td>${cells}</tr>`;
       }).join("");
 
       section.style.display = shifts.length ? "block" : "none";
@@ -2205,6 +2208,7 @@
       const isRest = cleanShift === "";
       const myShiftPuro = isRest ? "RIPOSO" : cleanShift;
       updateCoverageShiftButtons(cleanShift);
+      updateCoverageCellSelection(col, cleanShift);
 
       if (!calInfo) {
         document.getElementById("tbody").classList.remove("has-selection");
@@ -2340,8 +2344,10 @@
       const matrix = document.getElementById("matrix-scroll-wrap");
       const coverage = document.getElementById("coverage-section");
       if (!panel || !matrix || !coverage) return;
+      dayPanelPlacement = placement;
       const target = placement === "coverage" ? coverage : matrix;
       if (panel.nextElementSibling !== target) target.parentNode.insertBefore(panel, target);
+      if (placement !== "coverage") updateCoverageCellSelection(null, "");
     }
 
     function openCoverageCrew(col, shift) {
@@ -2359,6 +2365,17 @@
       document.querySelectorAll(".coverage-shift-btn").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.shift.toUpperCase() === selectedShift);
       });
+    }
+
+    function updateCoverageCellSelection(col, shift) {
+      document.querySelectorAll(".coverage-cell.coverage-selected").forEach(cell => {
+        cell.classList.remove("coverage-selected");
+      });
+      if (dayPanelPlacement !== "coverage" || col == null || !shift) return;
+      const selectedRow = Array.from(document.querySelectorAll("#coverage-tbody tr"))
+        .find(row => row.dataset.shift.toUpperCase() === String(shift).toUpperCase());
+      const selectedCell = selectedRow?.querySelector(`.coverage-cell[data-col="${col}"]`);
+      selectedCell?.classList.add("coverage-selected");
     }
 
     function switchCoverageShift(shift) {
