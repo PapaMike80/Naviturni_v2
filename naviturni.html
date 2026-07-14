@@ -2161,12 +2161,9 @@
           td.innerHTML = pill(turnoVal);
           td.addEventListener("click", () => {
             placeDayPanel("main");
-            if (pinnedAgentIdx !== null) {
-              selectDayForPinnedAgent(cal);
-            } else {
-              let turnoDaCercare = activeShiftFilter ? activeShiftFilter : turnoVal;
-              selectDay(cal.col, cal.labelEstesa, turnoDaCercare);
-            }
+            // Il clic su una cella deve sempre aprire la corsa scritta nella cella,
+            // indipendentemente dal filtro o dall'agente selezionato in precedenza.
+            selectDay(cal.col, cal.labelEstesa, turnoVal);
           });
         }
         tr.appendChild(td);
