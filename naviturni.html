@@ -1893,15 +1893,79 @@
       -webkit-tap-highlight-color:rgba(56,214,191,.18);
     }
 
+    .login-overlay {
+      position:fixed;
+      inset:0;
+      z-index:5000;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(3,14,20,.88);
+      backdrop-filter:blur(7px);
+    }
+    .login-overlay.open { display:flex; }
+    .login-card {
+      width:min(420px,100%);
+      padding:24px;
+      border:1px solid #285365;
+      border-radius:18px;
+      background:#0d2531;
+      box-shadow:0 24px 70px rgba(0,0,0,.45);
+    }
+    .login-card h2 { margin:0 0 7px;color:#2dd4bf;font-size:24px; }
+    .login-card p { margin:0 0 18px;color:#a9c0c9;line-height:1.45; }
+    .login-field { display:block;margin:12px 0; }
+    .login-field span { display:block;margin-bottom:6px;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#a9c0c9; }
+    .login-field input,.login-field select {
+      width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid #315b6a;border-radius:10px;
+      background:#071b24;color:#edf7f8;font:inherit;
+    }
+    .login-field select { display:none; }
+    .login-field select.visible { display:block; }
+    .login-message { min-height:20px;margin:8px 0;color:#fca5a5;font-size:13px;font-weight:700; }
+    .login-actions { display:flex;flex-wrap:wrap;gap:9px; }
+    .login-actions button { flex:1 1 120px;padding:11px;border-radius:10px;border:1px solid #315b6a;background:#123442;color:#eaf5f7;font-weight:900;cursor:pointer; }
+    .login-actions .login-submit { border-color:#2dd4bf;background:#2dd4bf;color:#062027; }
+    .login-user-panel { display:none;align-items:center;gap:7px;margin-left:auto; }
+    .login-user-panel.visible { display:flex; }
+    .login-user-name { padding:7px 10px;border:1px solid #397080;border-radius:999px;background:#123b45;color:#dffaf5;font-size:12px;font-weight:900;cursor:pointer; }
+    .login-user-panel button:not(.login-user-name) { padding:7px 9px;border:1px solid #397080;border-radius:8px;background:#0d2c37;color:#dbeef1;font-size:11px;font-weight:800;cursor:pointer; }
+    @media (max-width:700px) {
+      .login-user-panel { width:100%;margin:7px 0 0; }
+      .login-user-name { margin-right:auto; }
+      .login-card { padding:20px; }
+    }
+
 </style>
 </head>
 <body>
+
+  <div class="login-overlay" id="login-overlay" role="dialog" aria-modal="true" aria-labelledby="login-title">
+    <form class="login-card" id="agent-login-form" onsubmit="handleAgentLogin(event)">
+      <h2 id="login-title">Accesso Naviturni</h2>
+      <p>Inserisci il cognome per trovare subito il tuo turno e restare in cima alla tabella.</p>
+      <label class="login-field"><span>Cognome</span><input id="login-surname" type="text" list="login-surname-options" autocomplete="off" placeholder="Inizia a digitare il cognome…" required></label>
+      <datalist id="login-surname-options"></datalist>
+      <label class="login-field"><span id="login-choice-label" style="display:none;">Scegli agente</span><select id="login-agent-choice"></select></label>
+      <div class="login-message" id="login-message" aria-live="polite"></div>
+      <div class="login-actions">
+        <button class="login-submit" type="submit">Accedi</button>
+        <button type="button" onclick="continueWithoutLogin()">Continua senza accesso</button>
+      </div>
+    </form>
+  </div>
 
   <header class="page-header">
     <div class="title-row">
       <div class="company-name">Navigazione sul Lago di Garda</div>
       <h1 class="doc-title"><span class="wave">⚓</span> Naviturni — Pannello Operativo Turni</h1>
       <span class="doc-subtitle" id="periodLabel">STAGIONE 2026</span>
+      <div class="login-user-panel" id="login-user-panel">
+        <button class="login-user-name" id="login-user-name" type="button" onclick="repinLoggedAgent()" title="Rimetti l'agente in cima"></button>
+        <button id="login-change-button" type="button" onclick="showLoginModal()">Cambia</button>
+        <button id="login-exit-button" type="button" onclick="logoutAgent()">Esci</button>
+      </div>
     </div>
   </header>
 
@@ -2028,6 +2092,172 @@
     let crewCompletenessCache = new Map();
     let showPastColumns = false;
     let isEditMode = false;
+    let loggedAgentProfile = null;
+
+    const AGENT_LOGIN_STORAGE_KEY = "naviturni_logged_agent";
+
+    function readLoggedAgentProfile() {
+      try {
+        return JSON.parse(localStorage.getItem(AGENT_LOGIN_STORAGE_KEY) || "null");
+      } catch (e) {
+        localStorage.removeItem(AGENT_LOGIN_STORAGE_KEY);
+        return null;
+      }
+    }
+
+    function updateLoginUserPanel() {
+      const panel = document.getElementById("login-user-panel");
+      const label = document.getElementById("login-user-name");
+      const changeButton = document.getElementById("login-change-button");
+      if (!panel || !label) return;
+      panel.classList.add("visible");
+      label.textContent = loggedAgentProfile ? `👤 ${loggedAgentProfile.name}` : "👤 Senza accesso";
+      label.disabled = !loggedAgentProfile;
+      label.title = loggedAgentProfile ? "Rimetti l'agente in cima" : "Accesso non effettuato";
+      if (changeButton) changeButton.style.display = loggedAgentProfile ? "inline-flex" : "none";
+    }
+
+    function showLoginModal() {
+      const overlay = document.getElementById("login-overlay");
+      const surname = document.getElementById("login-surname");
+      const choice = document.getElementById("login-agent-choice");
+      const choiceLabel = document.getElementById("login-choice-label");
+      document.getElementById("login-message").textContent = "";
+      surname.value = "";
+      choice.innerHTML = "";
+      choice.classList.remove("visible");
+      choiceLabel.style.display = "none";
+      overlay.classList.add("open");
+      setTimeout(() => surname.focus(), 30);
+    }
+
+    function populateLoginSurnameOptions() {
+      const datalist = document.getElementById("login-surname-options");
+      if (!datalist || !globalData?.residenze) return;
+      const surnames = new Map();
+      Object.values(globalData.residenze).flat().forEach(agent => {
+        const surname = String(agent.agente || "").trim().split(/\s+/)[0].replace(/[.,]+$/g, "");
+        const key = normalizeOdsAgentName(surname);
+        if (key && !surnames.has(key)) surnames.set(key, surname.toUpperCase());
+      });
+      datalist.innerHTML = [...surnames.values()]
+        .sort((a, b) => a.localeCompare(b, "it"))
+        .map(surname => `<option value="${escapeAttribute(surname)}"></option>`)
+        .join("");
+    }
+
+    function continueWithoutLogin() {
+      localStorage.removeItem(AGENT_LOGIN_STORAGE_KEY);
+      loggedAgentProfile = null;
+      pinnedAgentIdx = null;
+      updateLoginUserPanel();
+      if (globalData) renderTable();
+      document.getElementById("login-overlay").classList.remove("open");
+    }
+
+    function getLoginMatches(surname) {
+      const query = normalizeOdsAgentName(surname);
+      if (!query || !globalData?.residenze) return [];
+      const matches = [];
+      Object.entries(globalData.residenze).forEach(([residence, agents]) => {
+        (agents || []).forEach(agent => {
+          const normalizedName = normalizeOdsAgentName(agent.agente);
+          const firstNamePart = normalizedName.split(" ")[0];
+          if (normalizedName === query || normalizedName.startsWith(query + " ") || firstNamePart === query) {
+            matches.push({
+              id: String(agent.id || ""),
+              name: agent.agente,
+              residence
+            });
+          }
+        });
+      });
+      return matches;
+    }
+
+    function handleAgentLogin(event) {
+      event.preventDefault();
+      const message = document.getElementById("login-message");
+      const choice = document.getElementById("login-agent-choice");
+      const choiceLabel = document.getElementById("login-choice-label");
+
+      const matches = getLoginMatches(document.getElementById("login-surname").value);
+      if (!matches.length) {
+        message.textContent = "Agente non trovato. Controlla il cognome.";
+        return;
+      }
+
+      if (matches.length > 1 && !choice.classList.contains("visible")) {
+        choice.innerHTML = matches.map((item, index) =>
+          `<option value="${index}">${escapeAttribute(item.name)} — ${escapeAttribute(item.residence)}</option>`
+        ).join("");
+        choice.dataset.matches = JSON.stringify(matches);
+        choice.classList.add("visible");
+        choiceLabel.style.display = "block";
+        message.textContent = "Sono presenti più corrispondenze: scegli il nominativo corretto.";
+        return;
+      }
+
+      let selected = matches[0];
+      if (choice.classList.contains("visible")) {
+        try {
+          const storedMatches = JSON.parse(choice.dataset.matches || "[]");
+          selected = storedMatches[Number(choice.value)] || selected;
+        } catch (e) {
+          selected = matches[0];
+        }
+      }
+
+      loggedAgentProfile = selected;
+      localStorage.setItem(AGENT_LOGIN_STORAGE_KEY, JSON.stringify(selected));
+      document.getElementById("login-overlay").classList.remove("open");
+      updateLoginUserPanel();
+      applyLoggedAgentProfile();
+    }
+
+    function findLoggedAgentIndex(residence = currentResidence) {
+      if (!loggedAgentProfile || residence !== loggedAgentProfile.residence) return -1;
+      return currentAgentsList.findIndex(agent => {
+        const sameId = loggedAgentProfile.id && String(agent.id || "") === loggedAgentProfile.id;
+        return sameId || normalizeOdsAgentName(agent.agente) === normalizeOdsAgentName(loggedAgentProfile.name);
+      });
+    }
+
+    function applyLoggedAgentProfile() {
+      if (!loggedAgentProfile || !globalData?.residenze?.[loggedAgentProfile.residence]) return false;
+      selectResidence(loggedAgentProfile.residence);
+      const index = findLoggedAgentIndex();
+      if (index < 0) return false;
+      pinnedAgentIdx = index;
+      renderTable();
+      const todayCal = dateCalendario.find(cal => isTodayDate(cal.realObj));
+      if (todayCal) {
+        selectDayForPinnedAgent(todayCal);
+        setTimeout(scrollCrewPanelIntoView, 80);
+      }
+      return true;
+    }
+
+    function repinLoggedAgent() {
+      if (!loggedAgentProfile || !globalData) return;
+      if (currentResidence !== loggedAgentProfile.residence) {
+        selectResidence(loggedAgentProfile.residence);
+        return;
+      }
+      const index = findLoggedAgentIndex();
+      if (index < 0) return;
+      pinnedAgentIdx = index;
+      renderTable();
+    }
+
+    function logoutAgent() {
+      localStorage.removeItem(AGENT_LOGIN_STORAGE_KEY);
+      loggedAgentProfile = null;
+      pinnedAgentIdx = null;
+      updateLoginUserPanel();
+      renderTable();
+      showLoginModal();
+    }
 
     const turniMappaResidenze = {
       "desenzano": ["D1", "D2", "D3", "D4", "BIS"],
@@ -3158,6 +3388,8 @@
       activeShiftFilter = null;
 
       currentAgentsList = globalData.residenze[resName] || [];
+      const loggedIndex = findLoggedAgentIndex(resName);
+      if (loggedIndex >= 0) pinnedAgentIdx = loggedIndex;
       document.getElementById("stat-residence").textContent = resName;
       document.getElementById("stat-agents").textContent = currentAgentsList.length;
       const search = document.getElementById("agent-search");
@@ -3429,9 +3661,19 @@
       }
       
       renderResidenceButtons();
+      populateLoginSurnameOptions();
+      loggedAgentProfile = readLoggedAgentProfile();
+      updateLoginUserPanel();
+      if (loggedAgentProfile && applyLoggedAgentProfile()) return;
+      if (loggedAgentProfile) {
+        localStorage.removeItem(AGENT_LOGIN_STORAGE_KEY);
+        loggedAgentProfile = null;
+        updateLoginUserPanel();
+      }
       const keys = Object.keys(data.residenze || {});
       const defaultResidence = keys.find(key => key.trim().toLowerCase() === "desenzano") || keys[0];
       if (defaultResidence) selectResidence(defaultResidence);
+      showLoginModal();
     }
 
     function loadPastedJSON() {
