@@ -1887,34 +1887,7 @@
 
       activeShiftFilter = cleanShift || null;
       generaFiltriTurnoRiferimento();
-
-      if (cleanShift) {
-        selectDay(cal.col, cal.labelEstesa, rawShift);
-      } else {
-        clearSelection();
-        selectedCol = cal.col;
-        selectedShiftValue = "rip";
-        const targetTh = document.querySelector(`.date-header th[data-col="${cal.col}"]`);
-        if (targetTh) targetTh.classList.add("selected-day");
-
-        document.getElementById("panel-date-label").innerHTML = `<span>⬡</span>${cal.labelEstesa}`;
-        document.getElementById("panel-groups").innerHTML = `
-          <div class="shift-group">
-            <div class="shift-group-label">Stato dell'agente selezionato</div>
-            <div class="colleague-cards">
-              <div class="colleague-card" style="border-left-color:var(--ink-dim);">
-                <span class="c-num">${agent.id || "—"}</span>
-                <span class="c-name">${agent.agente}</span>
-                <span class="c-grade" style="color:var(--ink-dim);background:var(--rip-bg);border:1px solid var(--line);">RIPOSO</span>
-              </div>
-            </div>
-          </div>`;
-
-        const currentIndex = dateCalendario.findIndex(c => c.col === cal.col);
-        document.getElementById("previous-day-btn").disabled = currentIndex <= 0;
-        document.getElementById("next-day-btn").disabled = currentIndex < 0 || currentIndex >= dateCalendario.length - 1;
-        document.getElementById("day-panel").classList.add("open");
-      }
+      selectDay(cal.col, cal.labelEstesa, rawShift);
     }
 
     function generaFiltriTurnoRiferimento() {
@@ -2228,10 +2201,12 @@
 
       let calInfo = dateCalendario.find(c => c.col === col);
       let giornoInternoIdx = (col - 3) % 7;
-      let myShiftPuro = ottieniTurnoPulito(cellShiftValue);
-      updateCoverageShiftButtons(myShiftPuro);
+      const cleanShift = ottieniTurnoPulito(cellShiftValue);
+      const isRest = cleanShift === "";
+      const myShiftPuro = isRest ? "RIPOSO" : cleanShift;
+      updateCoverageShiftButtons(cleanShift);
 
-      if (myShiftPuro === "" || !calInfo) {
+      if (!calInfo) {
         document.getElementById("tbody").classList.remove("has-selection");
         trElements.forEach(tr => tr.classList.remove("row-match"));
         restoreDefaultTableOrder();
@@ -2241,7 +2216,7 @@
 
       document.getElementById("tbody").classList.add("has-selection");
 
-      importTemporaryTransferRows(calInfo, giornoInternoIdx, myShiftPuro);
+      if (!isRest) importTemporaryTransferRows(calInfo, giornoInternoIdx, cleanShift);
           hidePastColumns();
 
       trElements.forEach(tr => {
@@ -2251,7 +2226,7 @@
         let hisShiftRaw = turniSett[giornoInternoIdx] || "rip";
         let hisShiftPuro = ottieniTurnoPulito(hisShiftRaw);
 
-        let match = (hisShiftPuro === myShiftPuro);
+        let match = (hisShiftPuro === cleanShift);
         tr.classList.toggle("row-match", match);
 
         tr.querySelectorAll("td[data-col]").forEach(td => {
@@ -2266,7 +2241,7 @@
 
       const myShiftCls = classify(cellShiftValue);
       const myColor = shiftBorderColor[myShiftCls] || "#6b7280";
-      const myDuration = getShiftDuration(myShiftPuro, calInfo);
+      const myDuration = isRest ? "" : getShiftDuration(cleanShift, calInfo);
 
       const myDiv = document.createElement("div");
       myDiv.className = "shift-group";
@@ -2293,7 +2268,7 @@
           let hisShiftRaw = turniSett[giornoInternoIdx] || "rip";
           let hisShiftPuro = ottieniTurnoPulito(hisShiftRaw);
 
-          if (hisShiftPuro === myShiftPuro) {
+          if (hisShiftPuro === cleanShift) {
             let rawUpper = hisShiftRaw.toUpperCase();
             let isTrasfertaFlag = rawUpper.startsWith("C") || rawUpper.endsWith("C") || resKey !==
               currentResidence;
