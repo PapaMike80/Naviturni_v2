@@ -1374,7 +1374,7 @@
       <button class="btn" onclick="ricaricaDati()" id="refreshBtn"><span class="btn-icon">↻</span> Aggiorna</button>
       <button class="btn" onclick="togglePastColumns()" id="togglePastBtn"><span class="btn-icon">◷</span> Passato</button>
       <a href="BOZZA_TURNO_DAL_27-07_AL_09-08-2026.pdf" class="btn btn-pdf" target="_blank"><span class="btn-icon">PDF</span> Bozza</a>
-      <a href="#" class="btn btn-pdf" id="pdfLink" target="_blank"><span class="btn-icon">PDF</span> Turno</a>
+      <a href="TURNO_DAL_22-06_AL_26-07-2026.pdf" class="btn btn-pdf" id="pdfLink" target="_blank"><span class="btn-icon">PDF</span> Turno</a>
     </div>
   </div>
 
@@ -2310,10 +2310,6 @@
       // Aggiorna il periodo nel titolo
       if (data.periodo) {
         document.getElementById("periodLabel").textContent = data.periodo;
-        // Aggiorna anche il link PDF
-        const pdfLink = document.getElementById("pdfLink");
-        const periodoClean = data.periodo.replace(/[^a-zA-Z0-9\-]/g, '_');
-        pdfLink.href = `TURNO_${periodoClean}.pdf`;
       }
       
       renderResidenceButtons();
