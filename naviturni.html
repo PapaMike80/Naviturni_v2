@@ -775,7 +775,15 @@
     }
 
     tbody tr.pinned-row td {
-      border-bottom: 10px solid var(--bg-panel) !important;
+      border-bottom: 20px solid var(--bg-panel) !important;
+      font-size: 16px !important;
+      padding-top: 9px;
+      padding-bottom: 9px;
+    }
+
+    tbody tr.pinned-row .cell-pill {
+      font-size: 14px !important;
+      padding: 5px 9px;
     }
 
     tbody tr.pinned-row td.td-name {
@@ -2019,10 +2027,7 @@
               residenzaOrigine: resKey,
               isTrasferta: isTrasfertaFlag,
               rawShift: hisShiftRaw,
-              isInstructor: /\*/.test(String(hisShiftRaw)),
-              isPinned: pinnedAgentIdx !== null &&
-                resKey === currentResidence &&
-                ag === currentAgentsList[pinnedAgentIdx]
+              isInstructor: /\*/.test(String(hisShiftRaw))
             });
           }
         });
@@ -2045,7 +2050,6 @@
         "grado-operaio": 7
       };
       allColleagues.sort((a, b) => {
-        if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
         const gradeA = gradeOrder[getGradeClass(a.id, a.agente, a.qualifica)] || 99;
         const gradeB = gradeOrder[getGradeClass(b.id, b.agente, b.qualifica)] || 99;
         return gradeA - gradeB || String(a.agente).localeCompare(String(b.agente), "it");
