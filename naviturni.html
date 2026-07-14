@@ -1410,12 +1410,12 @@
     }
     .date-head-draft {
       display:block;
-      margin-top:2px;
-      color:#f59e0b;
-      font-size:7px;
-      font-weight:900;
-      line-height:1;
-      letter-spacing:.08em;
+      width:7px;
+      height:7px;
+      margin:3px auto 0;
+      border-radius:50%;
+      background:#f59e0b;
+      box-shadow:0 0 0 2px rgba(245,158,11,.16);
     }
 
     .coverage-section {
@@ -1657,6 +1657,43 @@
       background:var(--coverage-shift-bg, var(--bg-card));
       border:1px solid var(--coverage-shift-color, var(--line));
     }
+    /* Stesso linguaggio visivo della tabella principale: fondo neutro e bolla della corsa. */
+    .coverage-table .coverage-cell {
+      background-color:#10222c !important;
+    }
+    .coverage-table .coverage-cell.week-odd {
+      background-color:#10222c !important;
+    }
+    .coverage-table .coverage-cell.today-col {
+      background-color:rgba(45,212,191,.11) !important;
+    }
+    .coverage-table .coverage-cell .coverage-count {
+      color:var(--coverage-shift-color, var(--ink));
+      background:var(--coverage-shift-bg, var(--bg-card));
+      border:0;
+    }
+    .coverage-table .coverage-cell.incomplete .coverage-count {
+      color:#fca5a5;
+      background:rgba(239,68,68,.20);
+    }
+    td.has-crew-indicators { position:relative; }
+    .upper-cell-indicators {
+      position:absolute;
+      top:4px;
+      left:4px;
+      display:flex;
+      gap:3px;
+      pointer-events:none;
+    }
+    .upper-cell-indicator {
+      display:block;
+      width:7px;
+      height:7px;
+      border-radius:50%;
+    }
+    .upper-cell-indicator.incomplete { background:#ef4444; }
+    .upper-cell-indicator.overstaffed { background:#facc15; }
+    .upper-cell-indicator.transfer { background:#60a5fa; }
     .coverage-table tbody tr td:first-child {
       color:var(--coverage-shift-color, var(--ink));
       background:var(--coverage-shift-bg, #15313d);
@@ -1774,6 +1811,17 @@
     #coverage-matrix-wrap table {
       width:max-content;
       min-width:100%;
+    }
+
+    /* Evita il doppio tocco interpretato come zoom, mantenendo lo zoom a due dita. */
+    button,
+    a,
+    input,
+    .coverage-cell,
+    #tbody td[data-col],
+    .date-header th[data-col] {
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:rgba(56,214,191,.18);
     }
 
 </style>
@@ -1906,6 +1954,7 @@
     let activeShiftFilter = null;
     let dayPanelPlacement = "main";
     let syncingHorizontalScroll = false;
+    let crewCompletenessCache = new Map();
     let showPastColumns = false;
     let isEditMode = false;
 
@@ -2081,7 +2130,7 @@
           clsArr.push("bozza-start");
         }
         const cls = `class="${clsArr.join(" ")}"`;
-        html += `<th ${cls} data-col="${d.col}" onclick="eseguiRicercaHeader(${d.col})"><span class="date-head-day">${d.giornoSett}</span><span class="date-head-num">${d.dayNum}</span>${d.isBozza ? '<span class="date-head-draft">B</span>' : ''}</th>`;
+        html += `<th ${cls} data-col="${d.col}" onclick="eseguiRicercaHeader(${d.col})"><span class="date-head-day">${d.giornoSett}</span><span class="date-head-num">${d.dayNum}</span>${d.isBozza ? '<span class="date-head-draft" aria-label="Bozza" title="Bozza"></span>' : ''}</th>`;
       });
       html += `</tr>`;
       container.innerHTML = html;
@@ -2167,6 +2216,7 @@
       const tbody = document.getElementById("tbody");
       tbody.innerHTML = "";
       trElements = [];
+      crewCompletenessCache.clear();
 
       if (pinnedAgentIdx !== null && currentAgentsList[pinnedAgentIdx]) {
         let trPinned = createRowDOM(currentAgentsList[pinnedAgentIdx], pinnedAgentIdx, true);
@@ -2206,6 +2256,46 @@
       return { required, incomplete:crew.length < required };
     }
 
+    function getCrewStatusForDate(cal, shiftValue) {
+      const emptyStatus = { incomplete:false, overstaffed:false, hasTransfer:false };
+      if (!cal || !currentResidence) return emptyStatus;
+      const cleanShift = ottieniTurnoPulito(shiftValue).toUpperCase();
+      const residenceKey = currentResidence.trim().toLowerCase();
+      const validShifts = turniMappaResidenze[residenceKey] || [];
+      if (!validShifts.some(shift => shift.toUpperCase() === cleanShift)) return emptyStatus;
+
+      const requirements = getCrewRequirements(currentResidence);
+      const requiredValue = requirements[cleanShift];
+      const required = requiredValue == null || requiredValue === "" ? null : parseInt(requiredValue, 10);
+      if (required == null || Number.isNaN(required)) return emptyStatus;
+
+      const cacheKey = `${currentResidence}|${cal.col}|${cleanShift}|${required}`;
+      if (crewCompletenessCache.has(cacheKey)) return crewCompletenessCache.get(cacheKey);
+
+      const dayIndex = (cal.col - 3) % 7;
+      let count = 0;
+      let hasTransfer = false;
+      Object.entries(globalData.residenze || {}).forEach(([residence, agents]) => {
+        (agents || []).forEach(agent => {
+          const rawShift = (agent.turni_settimanali?.[cal.weekKey] || [])[dayIndex] || "rip";
+          if (ottieniTurnoPulito(rawShift).toUpperCase() === cleanShift) {
+            count++;
+            const rawUpper = String(rawShift).trim().toUpperCase();
+            if (residence !== currentResidence || rawUpper.startsWith("C") || rawUpper.endsWith("C")) {
+              hasTransfer = true;
+            }
+          }
+        });
+      });
+      const status = {
+        incomplete:count < required,
+        overstaffed:count > required,
+        hasTransfer
+      };
+      crewCompletenessCache.set(cacheKey, status);
+      return status;
+    }
+
     function toggleCrewMinimumPanel() {
       const panel = document.getElementById("crew-minimum-panel");
       const button = document.getElementById("crew-minimum-toggle");
@@ -2239,7 +2329,9 @@
         saved[shift] = Math.max(1, Math.min(20, parseInt(value, 10) || 1));
       }
       localStorage.setItem(storageKey, JSON.stringify(saved));
-      renderCoverageTable();
+      renderTable();
+      const selectedCal = dateCalendario.find(cal => cal.col === selectedCol);
+      if (selectedCal) selectDay(selectedCal.col, selectedCal.labelEstesa, selectedShiftValue);
     }
 
     function escapeAttribute(value) {
@@ -2248,6 +2340,16 @@
         .replace(/"/g, "&quot;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
+    }
+
+    function getCalendarVisualClasses(cal, index) {
+      const classes = [cal.weekIdx % 2 === 0 ? "week-even" : "week-odd"];
+      if (cal.giornoSett === "Lun") classes.push("week-start");
+      if (cal.giornoSett === "Dom") classes.push("week-end");
+      if (isTodayDate(cal.realObj)) classes.push("today-col");
+      if (cal.isBozza) classes.push("bozza-col");
+      if (cal.isBozza && dateCalendario[index - 1]?.isBozza !== true) classes.push("bozza-start");
+      return classes.join(" ");
     }
 
     function renderCoverageTable() {
@@ -2277,8 +2379,8 @@
         renderCrewMinimumControls();
       }
 
-      thead.innerHTML = `<tr><th>Corsa</th>${dateCalendario.map(cal =>
-        `<th data-col="${cal.col}" class="${cal.isBozza ? "bozza-col" : ""}"><span class="date-head-day">${cal.giornoSett}</span><span class="date-head-num">${cal.dayNum}</span></th>`
+      thead.innerHTML = `<tr><th>Corsa</th>${dateCalendario.map((cal, index) =>
+        `<th data-col="${cal.col}" class="${getCalendarVisualClasses(cal, index)}"><span class="date-head-day">${cal.giornoSett}</span><span class="date-head-num">${cal.dayNum}</span>${cal.isBozza ? '<span class="date-head-draft" aria-label="Bozza" title="Bozza"></span>' : ''}</th>`
       ).join("")}</tr>`;
 
       tbody.innerHTML = shifts.map(shift => {
@@ -2286,7 +2388,7 @@
         const requiredValue = requirements[shift] ?? requirements[shift.toUpperCase()];
         const required = requiredValue === "" || requiredValue == null ? null : parseInt(requiredValue, 10);
 
-        const cells = dateCalendario.map(cal => {
+        const cells = dateCalendario.map((cal, calIndex) => {
           const dayIndex = (cal.col - 3) % 7;
           const crew = [];
           let hasTransfer = false;
@@ -2312,7 +2414,7 @@
             (hasRequirement ? `<span class="coverage-indicator ${count < required ? "incomplete" : "complete"}"></span>` : "") +
             (hasRequirement && count > required ? `<span class="coverage-indicator overstaffed"></span>` : "") +
             (hasTransfer ? `<span class="coverage-indicator transfer"></span>` : "");
-          return `<td data-col="${cal.col}" class="coverage-cell ${status} ${hasTransfer ? "has-transfer" : ""} ${cal.isBozza ? "bozza-col" : ""}" title="${title}" onclick="openCoverageCrew(${cal.col}, '${shift}')"><span class="coverage-indicators">${indicators}</span><span class="coverage-count">${label}</span></td>`;
+          return `<td data-col="${cal.col}" class="coverage-cell ${status} ${hasTransfer ? "has-transfer" : ""} ${getCalendarVisualClasses(cal, calIndex)}" title="${title}" onclick="openCoverageCrew(${cal.col}, '${shift}')"><span class="coverage-indicators">${indicators}</span><span class="coverage-count">${label}</span></td>`;
         }).join("");
 
         return `<tr data-shift="${shift}" style="--coverage-shift-color:${shiftColor};--coverage-shift-bg:${shiftColor}24"><td>${shift}</td>${cells}</tr>`;
@@ -2454,6 +2556,9 @@
         if (cal.isBozza) tdClasses.push("bozza-col");
         const prevCal = dateCalendario[dateCalendario.indexOf(cal) - 1];
         if (cal.isBozza && (!prevCal || !prevCal.isBozza)) tdClasses.push("bozza-start");
+        const crewStatus = getCrewStatusForDate(cal, turnoVal);
+        const hasCrewIndicators = crewStatus.incomplete || crewStatus.overstaffed || crewStatus.hasTransfer;
+        if (hasCrewIndicators) tdClasses.push("has-crew-indicators");
         td.className = tdClasses.join(" ");
         td.dataset.col = cal.col;
 
@@ -2467,7 +2572,10 @@
           input.dataset.agentIdx = ri;
           td.appendChild(input);
         } else {
-          td.innerHTML = pill(turnoVal);
+          const crewIndicators = hasCrewIndicators
+            ? `<span class="upper-cell-indicators">${crewStatus.incomplete ? '<span class="upper-cell-indicator incomplete"></span>' : ''}${crewStatus.overstaffed ? '<span class="upper-cell-indicator overstaffed"></span>' : ''}${crewStatus.hasTransfer ? '<span class="upper-cell-indicator transfer"></span>' : ''}</span>`
+            : "";
+          td.innerHTML = `${crewIndicators}${pill(turnoVal)}`;
           td.addEventListener("click", () => {
             placeDayPanel("main");
             // Il clic su una cella deve sempre aprire la corsa scritta nella cella,
@@ -2483,6 +2591,8 @@
 
     function selectDay(col, label, cellShiftValue) {
       if (isEditMode) return;
+      // Ogni nuova selezione usa il giorno scelto come prima colonna visibile.
+      showPastColumns = false;
       selectedCol = col;
       selectedShiftValue = cellShiftValue || selectedShiftValue;
       document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
