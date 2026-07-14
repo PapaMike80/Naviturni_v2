@@ -1375,6 +1375,41 @@
       letter-spacing:.06em;
       text-transform:uppercase;
     }
+    .coverage-shift-controls {
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:0 0 10px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:var(--bg-panel);
+    }
+    .coverage-shift-label {
+      color:var(--ink-dim);
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+    }
+    .coverage-shift-buttons { display:flex; flex-wrap:wrap; gap:6px; }
+    .coverage-shift-btn {
+      min-width:48px;
+      padding:7px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--bg-card);
+      color:var(--ink);
+      font-size:13px;
+      font-weight:850;
+      cursor:pointer;
+    }
+    .coverage-shift-btn.active {
+      border-color:var(--accent);
+      background:var(--accent);
+      color:#06201c;
+      box-shadow:0 0 0 2px rgba(45,212,191,.18);
+    }
     .coverage-legend {
       display:flex;
       flex-wrap:wrap;
@@ -1596,6 +1631,10 @@
 
     <section class="coverage-section" id="coverage-section" aria-labelledby="coverage-title">
       <h2 class="coverage-title" id="coverage-title">Completezza equipaggi</h2>
+      <div class="coverage-shift-controls" aria-label="Seleziona corsa per la scheda equipaggio">
+        <span class="coverage-shift-label">Corsa:</span>
+        <div class="coverage-shift-buttons" id="coverage-shift-buttons"></div>
+      </div>
       <div class="coverage-legend" aria-label="Legenda completezza equipaggi">
         <span class="complete">Completo</span>
         <span class="incomplete">Incompleto</span>
@@ -1973,6 +2012,13 @@
       const shifts = turniMappaResidenze[residenceKey] || [];
       const requirements = getCrewRequirements(currentResidence);
       document.getElementById("coverage-title").textContent = `Completezza equipaggi — ${currentResidence}`;
+      const shiftButtons = document.getElementById("coverage-shift-buttons");
+      if (shiftButtons) {
+        shiftButtons.innerHTML = shifts.map(shift =>
+          `<button class="coverage-shift-btn" type="button" data-shift="${shift}" onclick="switchCoverageShift('${shift}')">${shift}</button>`
+        ).join("");
+        updateCoverageShiftButtons(ottieniTurnoPulito(selectedShiftValue));
+      }
 
       thead.innerHTML = `<tr><th>Corsa</th>${dateCalendario.map(cal =>
         `<th data-col="${cal.col}" class="${cal.isBozza ? "bozza-col" : ""}"><span class="date-head-day">${cal.giornoSett}</span><span class="date-head-num">${cal.dayNum}</span></th>`
@@ -2183,6 +2229,7 @@
       let calInfo = dateCalendario.find(c => c.col === col);
       let giornoInternoIdx = (col - 3) % 7;
       let myShiftPuro = ottieniTurnoPulito(cellShiftValue);
+      updateCoverageShiftButtons(myShiftPuro);
 
       if (myShiftPuro === "" || !calInfo) {
         document.getElementById("tbody").classList.remove("has-selection");
@@ -2330,6 +2377,27 @@
       setTimeout(() => {
         document.getElementById("day-panel")?.scrollIntoView({ behavior:"smooth", block:"start" });
       }, 50);
+    }
+
+    function updateCoverageShiftButtons(shift) {
+      const selectedShift = String(shift || "").toUpperCase();
+      document.querySelectorAll(".coverage-shift-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.shift.toUpperCase() === selectedShift);
+      });
+    }
+
+    function switchCoverageShift(shift) {
+      let cal = dateCalendario.find(item => item.col === selectedCol);
+      if (!cal) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        cal = dateCalendario.find(item => {
+          const date = new Date(item.realObj);
+          date.setHours(0, 0, 0, 0);
+          return date.getTime() === today.getTime();
+        }) || dateCalendario.find(item => item.realObj >= today) || dateCalendario[0];
+      }
+      if (cal) openCoverageCrew(cal.col, shift);
     }
 
     function changeSelectedDay(direction) {
