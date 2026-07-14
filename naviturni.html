@@ -1813,6 +1813,40 @@
       min-width:0;
     }
 
+    /* Mantiene testi e bolle centrati senza farli sconfinare nelle celle vicine. */
+    #matrix-scroll-wrap th,
+    #matrix-scroll-wrap td,
+    #coverage-matrix-wrap th,
+    #coverage-matrix-wrap td {
+      box-sizing:border-box;
+      text-align:center;
+      vertical-align:middle;
+    }
+    #matrix-scroll-wrap .cell-pill {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      box-sizing:border-box;
+      max-width:calc(100% - 2px);
+      margin-inline:auto;
+      overflow:hidden;
+    }
+    #matrix-scroll-wrap .cell-pill.c-pond {
+      padding-inline:3px;
+      font-size:11px;
+      letter-spacing:0;
+    }
+    #coverage-matrix-wrap td:first-child,
+    #coverage-matrix-wrap th:first-child {
+      text-align:center;
+      overflow:hidden;
+    }
+    #coverage-matrix-wrap .coverage-count {
+      box-sizing:border-box;
+      max-width:100%;
+      margin-inline:auto;
+    }
+
     /* Evita il doppio tocco interpretato come zoom, mantenendo lo zoom a due dita. */
     button,
     a,
