@@ -1410,8 +1410,8 @@
     }
     .coverage-table th,
     .coverage-table td {
-      width:48px;
-      min-width:48px;
+      width:40px;
+      min-width:40px;
       height:44px;
       padding:5px 3px;
       border-right:1px solid var(--line);
@@ -1424,8 +1424,8 @@
       position:sticky;
       left:0;
       z-index:3;
-      width:94px;
-      min-width:94px;
+      width:104px;
+      min-width:104px;
       background:#15313d;
       color:var(--ink);
       font-weight:900;
@@ -1464,6 +1464,16 @@
       color:var(--ink-dim);
       background:var(--bg-card);
       border:1px solid var(--line);
+    }
+    .coverage-cell { cursor:pointer; transition:filter .15s, transform .15s; }
+    .coverage-cell:hover { filter:brightness(1.18); }
+    .coverage-cell:active { transform:scale(.96); }
+
+    @media (max-width:640px) {
+      .coverage-table th,
+      .coverage-table td { width:34px; min-width:34px; }
+      .coverage-table th:first-child,
+      .coverage-table td:first-child { width:92px; min-width:92px; }
     }
 
     /* Mobile: residenze e azioni su due righe indipendenti, senza sovrapposizioni. */
@@ -1795,6 +1805,7 @@
 
     function eseguiRicercaHeader(colonnaCliccata) {
       if (isEditMode) return;
+      placeDayPanel("main");
       let cal = dateCalendario.find(c => c.col === colonnaCliccata);
       if (!cal) return;
       if (pinnedAgentIdx !== null) {
@@ -1970,7 +1981,7 @@
             count < required ? "incomplete" : count > required ? "overstaffed" : "complete";
           const label = required == null || Number.isNaN(required) ? String(count) : `${count}/${required}`;
           const title = escapeAttribute(crew.length ? crew.join(", ") : "Nessun agente assegnato");
-          return `<td data-col="${cal.col}" class="coverage-cell ${status} ${cal.isBozza ? "bozza-col" : ""}" title="${title}"><span class="coverage-count">${label}</span></td>`;
+          return `<td data-col="${cal.col}" class="coverage-cell ${status} ${cal.isBozza ? "bozza-col" : ""}" title="${title}" onclick="openCoverageCrew(${cal.col}, '${shift}')"><span class="coverage-count">${label}</span></td>`;
         }).join("");
 
         return `<tr><td>${shift}</td>${cells}</tr>`;
@@ -2086,6 +2097,7 @@
           return;
         }
 
+        placeDayPanel("main");
         pinnedAgentIdx = ri;
         const todayCal = dateCalendario.find(cal => isTodayDate(cal.realObj));
         renderTable();
@@ -2126,6 +2138,7 @@
         } else {
           td.innerHTML = pill(turnoVal);
           td.addEventListener("click", () => {
+            placeDayPanel("main");
             if (pinnedAgentIdx !== null) {
               selectDayForPinnedAgent(cal);
             } else {
@@ -2279,6 +2292,25 @@
       document.getElementById("previous-day-btn").disabled = currentIndex <= 0;
       document.getElementById("next-day-btn").disabled = currentIndex < 0 || currentIndex >= dateCalendario.length - 1;
       document.getElementById("day-panel").classList.add("open");
+    }
+
+    function placeDayPanel(placement) {
+      const panel = document.getElementById("day-panel");
+      const matrix = document.getElementById("matrix-scroll-wrap");
+      const coverage = document.getElementById("coverage-section");
+      if (!panel || !matrix || !coverage) return;
+      const target = placement === "coverage" ? coverage : matrix;
+      if (panel.nextElementSibling !== target) target.parentNode.insertBefore(panel, target);
+    }
+
+    function openCoverageCrew(col, shift) {
+      const cal = dateCalendario.find(item => item.col === col);
+      if (!cal) return;
+      placeDayPanel("coverage");
+      selectDay(cal.col, cal.labelEstesa, shift);
+      setTimeout(() => {
+        document.getElementById("day-panel")?.scrollIntoView({ behavior:"smooth", block:"start" });
+      }, 50);
     }
 
     function changeSelectedDay(direction) {
