@@ -416,8 +416,8 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      margin-left: 8px;
-      margin-right: 0;
+      margin:0;
+      flex:0 0 auto;
     }
 
     .panel-arrow {
@@ -434,7 +434,8 @@
     }
 
     .panel-today {
-      width: auto;
+      width:58px;
+      min-width:58px;
       padding: 0 14px;
       font-size: 13px;
       font-weight: 900;
@@ -465,12 +466,12 @@
     }
 
     .service-summary {
-      display: flex;
+      display:grid;
+      grid-template-columns:minmax(128px, 1fr) auto;
       align-items: center;
       gap: 10px;
       width: 100%;
       padding: 4px 2px;
-      flex-wrap:wrap;
     }
 
     .service-code {
@@ -497,22 +498,32 @@
       gap:6px;
     }
     .shift-arrow {
-      width:38px;
-      height:30px;
-      border:1px solid var(--accent);
-      border-radius:8px;
+      width:42px;
+      min-width:42px;
+      height:38px;
+      border:2px solid var(--accent);
+      border-radius:10px;
       background:rgba(45,212,191,.12);
-      color:var(--accent);
-      font-size:18px;
+      color:var(--ink);
+      font-size:22px;
       font-weight:900;
       cursor:pointer;
+      box-shadow:0 4px 12px rgba(0,0,0,.18);
     }
-    .shift-arrow:hover { background:var(--accent); color:#06201c; }
+    .shift-arrow:hover { color:var(--accent); }
     .shift-nav-label {
-      color:var(--ink-dim);
-      font-size:10px;
-      font-weight:800;
-      text-transform:uppercase;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:58px;
+      min-width:58px;
+      height:38px;
+      border-radius:10px;
+      background:var(--accent);
+      color:#05221e;
+      font-size:11px;
+      font-weight:900;
+      text-transform:none;
     }
 
     .colleague-card.instructor-card {
@@ -1549,6 +1560,14 @@
     .coverage-cell:active { transform:scale(.96); }
 
     @media (max-width:640px) {
+      .service-summary {
+        grid-template-columns:1fr;
+        align-items:start;
+      }
+      .service-identity,
+      .panel-navigation {
+        justify-self:start;
+      }
       .coverage-table th,
       .coverage-table td { width:34px; min-width:34px; }
       .coverage-table th:first-child,
