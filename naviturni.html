@@ -415,27 +415,38 @@
     .panel-navigation {
       display: flex;
       align-items: center;
-      gap: 7px;
-      margin-left: auto;
-      margin-right: 9px;
+      gap: 6px;
+      margin-left: 8px;
+      margin-right: 0;
     }
 
     .panel-arrow {
-      min-width: 34px;
-      height: 30px;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      background: var(--bg-card);
+      min-width: 42px;
+      height: 38px;
+      border-radius: 10px;
+      border: 2px solid var(--accent);
+      background: rgba(45,212,191,.12);
       color: var(--ink);
       cursor: pointer;
-      font-size: 17px;
+      font-size: 22px;
+      font-weight: 900;
+      box-shadow:0 4px 12px rgba(0,0,0,.18);
     }
 
     .panel-today {
       width: auto;
-      padding: 0 11px;
-      font-size: 12px;
-      font-weight: 750;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 900;
+      background:var(--accent);
+      color:#05221e;
+    }
+
+    .day-nav-hint {
+      color:var(--accent);
+      font-size:18px;
+      line-height:1;
+      cursor:help;
     }
 
     .panel-arrow:hover:not(:disabled) {
@@ -466,6 +477,7 @@
       gap: 10px;
       width: 100%;
       padding: 4px 2px;
+      flex-wrap:wrap;
     }
 
     .service-code {
@@ -1545,11 +1557,6 @@
     <div id="day-panel">
       <div class="panel-header">
         <div class="panel-date" id="panel-date-label"></div>
-        <div class="panel-navigation" aria-label="Cambia giorno">
-          <button class="panel-arrow" id="previous-day-btn" type="button" onclick="changeSelectedDay(-1)" aria-label="Giorno precedente">←</button>
-          <button class="panel-arrow panel-today" id="today-day-btn" type="button" onclick="goToToday()">Oggi</button>
-          <button class="panel-arrow" id="next-day-btn" type="button" onclick="changeSelectedDay(1)" aria-label="Giorno successivo">→</button>
-        </div>
         <button class="panel-close" onclick="clearSelection()">✕ Chiudi Equipaggio</button>
       </div>
       <div class="panel-groups" id="panel-groups"></div>
@@ -2189,6 +2196,12 @@
           <div class="service-summary">
             <span class="service-code">${myShiftPuro}</span>
             ${myDuration ? `<span class="shift-duration">${myDuration}</span>` : ""}
+            <div class="panel-navigation" aria-label="Cambia giorno">
+              <span class="day-nav-hint" title="Usa le frecce per cambiare giorno">📅↔</span>
+              <button class="panel-arrow" id="previous-day-btn" type="button" onclick="changeSelectedDay(-1)" aria-label="Giorno precedente">←</button>
+              <button class="panel-arrow panel-today" id="today-day-btn" type="button" onclick="goToToday()">Oggi</button>
+              <button class="panel-arrow" id="next-day-btn" type="button" onclick="changeSelectedDay(1)" aria-label="Giorno successivo">→</button>
+            </div>
           </div>
         </div>
       </div>`;
