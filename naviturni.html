@@ -1313,6 +1313,45 @@
       letter-spacing:.08em;
     }
 
+    /* Mobile: residenze e azioni su due righe indipendenti, senza sovrapposizioni. */
+    @media (max-width:800px) {
+      .toolbar-container {
+        display:block;
+        padding:7px 0;
+        overflow:visible;
+      }
+      .toolbar-group,
+      .admin-panel {
+        width:100%;
+        max-width:100%;
+        margin:0;
+        padding:0 10px;
+        border:0;
+        overflow-x:auto;
+        overflow-y:hidden;
+        flex-wrap:nowrap;
+        scrollbar-width:none;
+        -webkit-overflow-scrolling:touch;
+      }
+      .toolbar-group::-webkit-scrollbar,
+      .admin-panel::-webkit-scrollbar {
+        display:none;
+      }
+      .resistence-block {
+        flex-wrap:nowrap;
+        width:max-content;
+      }
+      .admin-panel {
+        margin-top:7px;
+        padding-top:7px;
+        border-top:1px solid var(--line);
+      }
+      .res-btn,
+      .admin-panel .btn {
+        flex:0 0 auto;
+      }
+    }
+
 </style>
 </head>
 <body>
