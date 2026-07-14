@@ -471,7 +471,8 @@
 
     .service-summary {
       display:grid;
-      grid-template-columns:1fr;
+      grid-template-columns:minmax(170px,1fr) minmax(145px,auto);
+      grid-template-rows:auto auto;
       align-items:start;
       gap: 10px;
       width: 100%;
@@ -486,6 +487,8 @@
       color: var(--accent);
     }
     .service-identity {
+      grid-column:1;
+      grid-row:1;
       display:flex;
       flex-direction:column;
       align-items:flex-start;
@@ -496,6 +499,12 @@
       align-items:center;
       gap:8px;
     }
+    .ship-day-info { grid-column:2; grid-row:1 / 3; display:flex; flex-direction:column; align-items:stretch; gap:6px; min-width:0; }
+    .service-summary > .panel-navigation { grid-column:1; grid-row:2; justify-self:start; }
+    .ship-day-badge { display:flex; align-items:center; gap:5px; min-height:28px; padding:4px 8px; border-radius:8px; background:rgba(255,255,255,.07); border:1px solid var(--line); color:var(--ink); font-size:11px; font-weight:800; }
+    .ship-day-badge strong { color:var(--ink-dim); font-size:9px; letter-spacing:.06em; text-transform:uppercase; }
+    .ship-day-badge.refuel { color:#fbbf24; border-color:rgba(245,158,11,.45); background:rgba(245,158,11,.10); }
+    .ship-day-badge.mooring { color:#93c5fd; border-color:rgba(96,165,250,.36); background:rgba(96,165,250,.09); }
     .shift-navigation {
       display:flex;
       align-items:center;
@@ -573,6 +582,17 @@
       flex-wrap: wrap;
       gap: 16px;
     }
+
+    .ods-crew-variations { margin-top:8px; padding:8px 10px; border-left:3px solid #a855f7; border-radius:8px; background:rgba(168,85,247,.09); }
+    .ods-crew-title { margin-bottom:5px; color:#d8b4fe; font-size:10px; font-weight:900; letter-spacing:.07em; text-transform:uppercase; }
+    .ods-crew-list { display:flex; flex-direction:column; gap:5px; }
+    .ods-crew-item { display:flex; align-items:center; flex-wrap:wrap; gap:5px; color:var(--ink); font-size:11px; }
+    .ods-crew-agent { font-weight:800; }
+    .ods-crew-change { color:var(--ink-dim); }
+    .ods-crew-link { margin-left:auto; padding:2px 6px; border:1px solid rgba(168,85,247,.48); border-radius:7px; color:#e9d5ff; text-decoration:none; font-weight:800; white-space:nowrap; }
+    .ods-crew-link:hover { background:rgba(168,85,247,.18); }
+    .agent-ods-badge { display:inline-flex; align-items:center; margin-left:7px; padding:2px 6px; border:1px solid rgba(168,85,247,.48); border-radius:7px; background:rgba(168,85,247,.12); color:#e9d5ff; font-size:9px; font-weight:900; text-decoration:none; white-space:nowrap; vertical-align:middle; }
+    .agent-ods-badge:hover { background:rgba(168,85,247,.24); }
 
     .shift-group {
       min-width: 140px;
@@ -1585,6 +1605,7 @@
     .coverage-legend .incomplete::before { background:#ef4444; }
     .coverage-legend .overstaffed::before { background:#f59e0b; }
     .coverage-legend .transfer::before { background:#60a5fa; }
+    .coverage-legend .ods::before { background:#a855f7; }
     .coverage-wrap {
       width:100vw;
       margin-left:calc(50% - 50vw);
@@ -1694,6 +1715,9 @@
     .upper-cell-indicator.incomplete { background:#ef4444; }
     .upper-cell-indicator.overstaffed { background:#facc15; }
     .upper-cell-indicator.transfer { background:#60a5fa; }
+    .upper-cell-indicator.ods { background:#a855f7; }
+    td.has-refuel-indicator { position:relative; }
+    .upper-cell-refuel { position:absolute; left:4px; bottom:4px; width:7px; height:7px; border-radius:50%; background:#f59e0b; box-shadow:0 0 0 1px rgba(245,158,11,.25); pointer-events:none; }
     .coverage-table tbody tr td:first-child {
       color:var(--coverage-shift-color, var(--ink));
       background:var(--coverage-shift-bg, #15313d);
@@ -1718,6 +1742,7 @@
     .coverage-indicator.incomplete { background:#ef4444; }
     .coverage-indicator.overstaffed { background:#facc15; }
     .coverage-indicator.transfer { background:#60a5fa; }
+    .coverage-indicator.ods { background:#a855f7; }
     .coverage-cell.coverage-selected {
       outline:3px solid var(--accent);
       outline-offset:-3px;
@@ -1728,6 +1753,8 @@
     .coverage-cell:active { transform:scale(.96); }
 
     @media (max-width:640px) {
+      .service-summary { grid-template-columns:minmax(160px,1fr) minmax(125px,.9fr); }
+      .ship-day-badge { padding:4px 6px; }
       .service-identity,
       .panel-navigation {
         justify-self:start;
@@ -1952,6 +1979,7 @@
         <span class="incomplete">Incompleto</span>
         <span class="overstaffed">Sovrannumero</span>
         <span class="transfer">Trasferta</span>
+        <span class="ods">Variazione ODS</span>
       </div>
     </section>
 
@@ -1983,6 +2011,7 @@
     let currentAgentsList = [];
     let selectedCol = null;
     let selectedShiftValue = "";
+    let selectedCrewAgent = null;
     let trElements = [];
     let pinnedAgentIdx = null;
     let activeShiftFilter = null;
@@ -2202,7 +2231,7 @@
 
       activeShiftFilter = cleanShift || null;
       generaFiltriTurnoRiferimento();
-      selectDay(cal.col, cal.labelEstesa, rawShift);
+      selectDay(cal.col, cal.labelEstesa, rawShift, agent);
     }
 
     function generaFiltriTurnoRiferimento() {
@@ -2379,6 +2408,97 @@
         .replace(/>/g, "&gt;");
     }
 
+    const odsPdfFiles = {
+      "16/2026": "O.d.S. n. 16-2026 ESTATE.pdf",
+      "18/2026": "O.d.S. n. 18-2026.pdf",
+      "19/2026": "O.d.S. n. 19-2026.pdf",
+      "20/2026": "O.d.S. n. 20-2026.pdf",
+      "21/2026": "O.d.S. n. 21-2026.pdf",
+      "22/2026": "O.d.S. n. 22-2026.pdf",
+      "23/2026": "O.d.S. n. 23-2026.pdf",
+      "24/2026": "O.d.S. n. 24-2026.pdf",
+      "25/2026": "O.d.S. n. 25-2026 firmato.pdf",
+      "26/2026": "O.d.S. n. 26-2026.pdf"
+    };
+
+    function getOdsPdfHref(ods) {
+      const fileName = odsPdfFiles[String(ods || "").trim()];
+      return fileName ? `ods/${encodeURIComponent(fileName)}` : "";
+    }
+
+    function renderAgentOdsBadge(variation) {
+      if (!variation) return "";
+      const ods = escapeAttribute(variation.ods || "ODS");
+      const original = escapeAttribute(normalizeOdsShift(variation.turno_originale).toUpperCase());
+      const updated = escapeAttribute(normalizeOdsShift(variation.turno_nuovo).toUpperCase());
+      const href = getOdsPdfHref(variation.ods);
+      const label = `ODS ${ods} · ${original} → ${updated}`;
+      return href
+        ? `<a class="agent-ods-badge" href="${href}" target="_blank" rel="noopener" title="${label}">ODS ${ods}</a>`
+        : `<span class="agent-ods-badge" title="${label}">ODS ${ods}</span>`;
+    }
+
+    function getShipDayInfo(calInfo, shift) {
+      const cleanShift = ottieniTurnoPulito(shift).toUpperCase();
+      if (!calInfo?.iso || !cleanShift || !Array.isArray(globalData?.turni_navi)) return null;
+      return globalData.turni_navi.find(item => {
+        const active = item.attiva !== false && !/^(no|false|0)$/i.test(String(item.attiva || ""));
+        return active && String(item.data || "").slice(0, 10) === calInfo.iso &&
+          String(item.corsa || "").trim().toUpperCase() === cleanShift;
+      }) || null;
+    }
+
+    function renderShipDayInfo(calInfo, shift) {
+      const info = getShipDayInfo(calInfo, shift);
+      if (!info) return "";
+      const ship = escapeAttribute(info.nave || "Non indicata");
+      const refuel = /^(sì|si|true|1)$/i.test(String(info.rifornimento_mattina || "").trim());
+      const mooring = String(info.ormeggio_serale || "").trim();
+      return `<div class="ship-day-info" aria-label="Dati nave della giornata">
+        <span class="ship-day-badge"><strong>Nave</strong>${ship}</span>
+        ${mooring ? `<span class="ship-day-badge mooring"><strong>Ormeggio serale</strong>${escapeAttribute(mooring)}</span>` : ''}
+        ${refuel ? '<span class="ship-day-badge refuel">⛽ Rifornimento</span>' : ''}
+      </div>`;
+    }
+
+    function appendCrewOdsVariations(container, calInfo, selectedShift) {
+      if (!container || !calInfo) return;
+      const targetShift = ottieniTurnoPulito(selectedShift).toUpperCase();
+      const focusedAgent = selectedCrewAgent || (pinnedAgentIdx !== null ? currentAgentsList[pinnedAgentIdx] : null);
+      const matches = [];
+
+      Object.values(globalData.residenze || {}).forEach(agents => {
+        (agents || []).forEach(agent => {
+          const variation = agent.variazioni_ods?.[calInfo.iso];
+          if (!variation) return;
+          if (focusedAgent && targetShift === "") {
+            const sameId = focusedAgent.id && agent.id && String(focusedAgent.id) === String(agent.id);
+            const sameName = normalizeOdsAgentName(focusedAgent.agente) === normalizeOdsAgentName(agent.agente);
+            if (!sameId && !sameName) return;
+          }
+          const originalShift = ottieniTurnoPulito(variation.turno_originale).toUpperCase();
+          const newShift = ottieniTurnoPulito(variation.turno_nuovo).toUpperCase();
+          if (originalShift !== targetShift && newShift !== targetShift) return;
+          matches.push({ agent, variation });
+        });
+      });
+
+      if (!matches.length) return;
+      const box = document.createElement("div");
+      box.className = "ods-crew-variations";
+      box.innerHTML = `<div class="ods-crew-title">Variazioni ODS</div><div class="ods-crew-list">${matches.map(({ agent, variation }) => {
+        const ods = escapeAttribute(variation.ods || "ODS");
+        const original = normalizeOdsShift(variation.turno_originale).toUpperCase();
+        const updated = normalizeOdsShift(variation.turno_nuovo).toUpperCase();
+        const href = getOdsPdfHref(variation.ods);
+        const link = href
+          ? `<a class="ods-crew-link" href="${href}" target="_blank" rel="noopener">Apri ODS ${ods}</a>`
+          : `<span class="ods-crew-change">ODS ${ods}</span>`;
+        return `<div class="ods-crew-item"><span class="ods-crew-agent">${escapeAttribute(agent.agente)}</span><span class="ods-crew-change">${escapeAttribute(original)} → ${escapeAttribute(updated)}</span>${link}</div>`;
+      }).join("")}</div>`;
+      container.appendChild(box);
+    }
+
     function getCalendarVisualClasses(cal, index) {
       const classes = [cal.weekIdx % 2 === 0 ? "week-even" : "week-odd"];
       if (cal.giornoSett === "Lun") classes.push("week-start");
@@ -2442,15 +2562,33 @@
           });
 
           const count = crew.length;
+          const hasOdsVariation = Object.values(globalData.residenze || {}).some(agents =>
+            (agents || []).some(agent => {
+              const variation = agent.variazioni_ods?.[cal.iso];
+              if (!variation) return false;
+              return [variation.turno_originale, variation.turno_nuovo].some(value =>
+                ottieniTurnoPulito(value).toUpperCase() === shift.toUpperCase()
+              );
+            })
+          );
           const status = required == null || Number.isNaN(required) ? "unconfigured" :
             count < required ? "incomplete" : count > required ? "overstaffed" : "complete";
           const label = required == null || Number.isNaN(required) ? String(count) : `${count}/${required}`;
-          const title = escapeAttribute(crew.length ? crew.join(", ") : "Nessun agente assegnato");
           const hasRequirement = required != null && !Number.isNaN(required);
+          const cellNotices = [
+            hasRequirement && count > required ? "Sovrannumero" : "",
+            hasTransfer ? "Trasferta" : "",
+            hasOdsVariation ? "Variazione ODS" : ""
+          ].filter(Boolean);
+          const title = escapeAttribute(
+            (crew.length ? crew.join(", ") : "Nessun agente assegnato") +
+            (cellNotices.length ? ` · ${cellNotices.join(" · ")}` : "")
+          );
           const indicators =
             (hasRequirement ? `<span class="coverage-indicator ${count < required ? "incomplete" : "complete"}"></span>` : "") +
             (hasRequirement && count > required ? `<span class="coverage-indicator overstaffed"></span>` : "") +
-            (hasTransfer ? `<span class="coverage-indicator transfer"></span>` : "");
+            (hasTransfer ? `<span class="coverage-indicator transfer"></span>` : "") +
+            (hasOdsVariation ? `<span class="coverage-indicator ods"></span>` : "");
           return `<td data-col="${cal.col}" class="coverage-cell ${status} ${hasTransfer ? "has-transfer" : ""} ${getCalendarVisualClasses(cal, calIndex)}" title="${title}" onclick="openCoverageCrew(${cal.col}, '${shift}')"><span class="coverage-indicators">${indicators}</span><span class="coverage-count">${label}</span></td>`;
         }).join("");
 
@@ -2593,11 +2731,22 @@
         if (cal.isBozza) tdClasses.push("bozza-col");
         const prevCal = dateCalendario[dateCalendario.indexOf(cal) - 1];
         if (cal.isBozza && (!prevCal || !prevCal.isBozza)) tdClasses.push("bozza-start");
-        const crewStatus = getCrewStatusForDate(cal, turnoVal);
-        const hasCrewIndicators = crewStatus.incomplete || crewStatus.overstaffed || crewStatus.hasTransfer;
+          const crewStatus = getCrewStatusForDate(cal, turnoVal);
+        const odsVariation = agenteObj.variazioni_ods?.[cal.iso] || null;
+        const shipInfo = getShipDayInfo(cal, turnoVal);
+        const hasRefuel = /^(sì|si|true|1)$/i.test(String(shipInfo?.rifornimento_mattina || "").trim());
+        const hasCrewIndicators = crewStatus.incomplete || crewStatus.overstaffed || crewStatus.hasTransfer || odsVariation;
         if (hasCrewIndicators) tdClasses.push("has-crew-indicators");
+        if (hasRefuel) tdClasses.push("has-refuel-indicator");
         td.className = tdClasses.join(" ");
         td.dataset.col = cal.col;
+        const cellNotices = [
+          crewStatus.overstaffed ? "Sovrannumero" : "",
+          crewStatus.hasTransfer ? "Trasferta" : "",
+          hasRefuel ? "Rifornimento" : "",
+          odsVariation ? `Variazione ODS${odsVariation.ods ? ` ${odsVariation.ods}` : ""}` : ""
+        ].filter(Boolean);
+        if (cellNotices.length) td.title = cellNotices.join(" · ");
 
         if (isEditMode) {
           const input = document.createElement("input");
@@ -2610,14 +2759,15 @@
           td.appendChild(input);
         } else {
           const crewIndicators = hasCrewIndicators
-            ? `<span class="upper-cell-indicators">${crewStatus.incomplete ? '<span class="upper-cell-indicator incomplete"></span>' : ''}${crewStatus.overstaffed ? '<span class="upper-cell-indicator overstaffed"></span>' : ''}${crewStatus.hasTransfer ? '<span class="upper-cell-indicator transfer"></span>' : ''}</span>`
+            ? `<span class="upper-cell-indicators">${crewStatus.incomplete ? '<span class="upper-cell-indicator incomplete"></span>' : ''}${crewStatus.overstaffed ? '<span class="upper-cell-indicator overstaffed"></span>' : ''}${crewStatus.hasTransfer ? '<span class="upper-cell-indicator transfer"></span>' : ''}${odsVariation ? '<span class="upper-cell-indicator ods"></span>' : ''}</span>`
             : "";
-          td.innerHTML = `${crewIndicators}${pill(turnoVal)}`;
+          const refuelIndicator = hasRefuel ? '<span class="upper-cell-refuel" aria-label="Rifornimento"></span>' : '';
+          td.innerHTML = `${crewIndicators}${refuelIndicator}${pill(turnoVal)}`;
           td.addEventListener("click", () => {
             placeDayPanel("main");
             // Il clic su una cella deve sempre aprire la corsa scritta nella cella,
             // indipendentemente dal filtro o dall'agente selezionato in precedenza.
-            selectDay(cal.col, cal.labelEstesa, turnoVal);
+            selectDay(cal.col, cal.labelEstesa, turnoVal, agenteObj);
           });
         }
         tr.appendChild(td);
@@ -2626,12 +2776,13 @@
       return tr;
     }
 
-    function selectDay(col, label, cellShiftValue) {
+    function selectDay(col, label, cellShiftValue, focusAgent = null) {
       if (isEditMode) return;
       // Ogni nuova selezione usa il giorno scelto come prima colonna visibile.
       showPastColumns = false;
       selectedCol = col;
       selectedShiftValue = cellShiftValue || selectedShiftValue;
+      selectedCrewAgent = focusAgent;
       document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
       let targetTh = document.querySelector(`.date-header th[data-col="${col}"]`);
       if (targetTh) targetTh.classList.add("selected-day");
@@ -2682,6 +2833,7 @@
       const myShiftCls = classify(cellShiftValue);
       const myColor = shiftBorderColor[myShiftCls] || "#6b7280";
       const myDuration = isCrewShift ? getShiftDuration(cleanShift, calInfo) : "";
+      const shipDayInfo = isCrewShift ? renderShipDayInfo(calInfo, cleanShift) : "";
 
       const myDiv = document.createElement("div");
       myDiv.className = "shift-group";
@@ -2699,6 +2851,7 @@
                 <button class="shift-arrow" type="button" onclick="changeSelectedShift(1)" aria-label="Corsa successiva">→</button>
               </div>
             </div>
+            ${shipDayInfo}
             <div class="panel-navigation" aria-label="Cambia giorno">
               <button class="panel-arrow" id="previous-day-btn" type="button" onclick="changeSelectedDay(-1)" aria-label="Giorno precedente">←</button>
               <button class="panel-arrow panel-today" id="today-day-btn" type="button" onclick="goToToday()">Oggi</button>
@@ -2708,6 +2861,7 @@
         </div>
       </div>`;
       panelGroups.appendChild(myDiv);
+      let odsContainer = null;
 
       if (isCrewShift) {
         let allColleagues = [];
@@ -2729,7 +2883,8 @@
               residenzaOrigine: resKey,
               isTrasferta: isTrasfertaFlag,
               rawShift: hisShiftRaw,
-              isInstructor: /\*/.test(String(hisShiftRaw))
+              isInstructor: /\*/.test(String(hisShiftRaw)),
+              odsVariation: ag.variazioni_ods?.[calInfo.iso] || null
             });
           }
         });
@@ -2743,6 +2898,7 @@
           : "";
         div.innerHTML = `${shortageText}<div class="colleague-cards" id="colleague-list"></div>`;
         panelGroups.appendChild(div);
+        odsContainer = div;
 
       const list = div.querySelector("#colleague-list");
       const gradeOrder = {
@@ -2774,11 +2930,19 @@
         }
 
         const instructorMark = r.isInstructor ? `<span class="c-res instructor-mark">SOVRANNUMERO</span>` : "";
+        const odsBadge = renderAgentOdsBadge(r.odsVariation);
         card.innerHTML = `<span class="c-num">${r.id || "—"}</span>
-          <span class="c-name">${r.agente}${instructorMark} ${infoResidenza}</span>
+          <span class="c-name">${r.agente}${odsBadge}${instructorMark} ${infoResidenza}</span>
           <span class="c-grade" style="color:${grade.color}; background:${grade.color}22; border:1px solid ${grade.color}44;">${grade.label}</span>`;
           list.appendChild(card);
         });
+      }
+
+      if (!odsContainer) {
+        const odsSide = document.createElement("div");
+        odsSide.className = "shift-group ods-only-group";
+        appendCrewOdsVariations(odsSide, calInfo, cellShiftValue);
+        if (odsSide.childElementCount) panelGroups.appendChild(odsSide);
       }
 
       document.getElementById("panel-date-label").innerHTML = `<span>⬡</span>${label}`;
@@ -2950,6 +3114,7 @@
     function clearSelection() {
       selectedCol = null;
       selectedShiftValue = "";
+      selectedCrewAgent = null;
       document.getElementById("day-panel").classList.remove("open");
       document.getElementById("tbody").classList.remove("has-selection");
       document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
@@ -3111,6 +3276,69 @@
         String(d.getDate()).padStart(2, "0");
     }
 
+    function normalizeOdsAgentName(value) {
+      return String(value || "")
+        .trim()
+        .toLocaleLowerCase("it")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[.'’`]/g, "")
+        .replace(/\s+/g, " ");
+    }
+
+    function normalizeOdsShift(value) {
+      const shift = String(value || "").trim();
+      if (!shift || /^={3,}$/.test(shift) || /^(rip|rip\.|riposo)$/i.test(shift)) return "rip";
+      return shift.toUpperCase();
+    }
+
+    function applyOdsVariations(data) {
+      const variations = Array.isArray(data?.variazioni_ods)
+        ? [...data.variazioni_ods].sort((a, b) => {
+            const odsNumber = value => Number.parseInt(String(value?.ods || "").match(/\d+/)?.[0] || "0", 10);
+            return odsNumber(a) - odsNumber(b);
+          })
+        : [];
+      if (!variations.length) return data;
+
+      const agents = Object.values(data.residenze || {}).flat();
+
+      variations.forEach(variation => {
+        if (!variation || variation.attiva === false || !variation.data || !variation.agente) return;
+
+        const variationId = String(variation.id_agente || "").trim();
+        const variationName = normalizeOdsAgentName(variation.agente);
+        const agent = agents.find(item => {
+          const agentName = normalizeOdsAgentName(item.agente);
+          return (variationId && String(item.id || "").trim() === variationId) ||
+            agentName === variationName ||
+            agentName.startsWith(variationName + " ");
+        });
+        if (!agent) return;
+
+        const week = settimaneInfo.find(item => item.dateIso.includes(variation.data));
+        if (!week) return;
+        const dayIndex = week.dateIso.indexOf(variation.data);
+        const weeklyShifts = agent.turni_settimanali?.[week.key];
+        if (!weeklyShifts || dayIndex < 0) return;
+
+        const currentShift = weeklyShifts[dayIndex] || "rip";
+        const newShift = normalizeOdsShift(variation.turno_nuovo);
+        weeklyShifts[dayIndex] = newShift;
+
+        if (!agent.variazioni_ods) agent.variazioni_ods = {};
+        agent.variazioni_ods[variation.data] = {
+          ...variation,
+          turno_originale: variation.turno_originale
+            ? normalizeOdsShift(variation.turno_originale)
+            : currentShift,
+          turno_nuovo: newShift
+        };
+      });
+
+      return data;
+    }
+
     function adattaFormatoNaviturni(data) {
       if (!data || !Array.isArray(data.date)) return data;
 
@@ -3177,6 +3405,7 @@
 
     function processJSONData(data) {
       data = adattaFormatoNaviturni(data);
+      data = applyOdsVariations(data);
       globalData = data;
       inizializzaCalendario();
       buildTableHeader();
