@@ -2433,9 +2433,10 @@
       const updated = escapeAttribute(normalizeOdsShift(variation.turno_nuovo).toUpperCase());
       const href = getOdsPdfHref(variation.ods);
       const label = `ODS ${ods} · ${original} → ${updated}`;
+      const change = `${original} → ${updated}`;
       return href
-        ? `<a class="agent-ods-badge" href="${href}" target="_blank" rel="noopener" title="${label}">ODS ${ods}</a>`
-        : `<span class="agent-ods-badge" title="${label}">ODS ${ods}</span>`;
+        ? `<a class="agent-ods-badge" href="${href}" target="_blank" rel="noopener" title="${label}">${change}</a>`
+        : `<span class="agent-ods-badge" title="${label}">${change}</span>`;
     }
 
     function getShipDayInfo(calInfo, shift) {
@@ -3329,9 +3330,10 @@
         if (!agent.variazioni_ods) agent.variazioni_ods = {};
         agent.variazioni_ods[variation.data] = {
           ...variation,
-          turno_originale: variation.turno_originale
-            ? normalizeOdsShift(variation.turno_originale)
-            : currentShift,
+          // Il turno di partenza deve riflettere sempre il valore corrente
+          // di Foglio1; quello riportato nell'ODS potrebbe essere precedente
+          // a una successiva correzione del turno base.
+          turno_originale: normalizeOdsShift(currentShift),
           turno_nuovo: newShift
         };
       });
