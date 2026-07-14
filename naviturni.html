@@ -1810,7 +1810,7 @@
     #matrix-scroll-wrap table,
     #coverage-matrix-wrap table {
       width:max-content;
-      min-width:100%;
+      min-width:0;
     }
 
     /* Evita il doppio tocco interpretato come zoom, mantenendo lo zoom a due dita. */
@@ -1966,7 +1966,10 @@
     };
 
     const defaultCrewRequirements = {
-      DESENZANO: { D1: 4, D2: 5, D3: 5, D4: 3, BIS: 3, AGB: 1, DT: 1, POND: 1 }
+      DESENZANO: { D1: 4, D2: 5, D3: 5, D4: 3, BIS: 3, AGB: 1, DT: 1, POND: 1 },
+      MADERNO: { T1: 5, T2: 5, M1: 3 },
+      RIVA: { R1: 4, R2: 5, R3: 5, R4: 4, CAR: 3 },
+      PESCHIERA: { P1: 5, P2: 5, P3: 4, CAP: 3, SR1: 4 }
     };
 
     const dateCalendario = [];
@@ -2921,6 +2924,9 @@
         tr.querySelectorAll("td").forEach(td => td.classList.remove("col-selected"));
       });
       restoreDefaultTableOrder();
+      showPastColumns = false;
+      hidePastColumns();
+      window.scrollTo({ left:0, top:window.scrollY, behavior:"auto" });
     }
 
     function filterAgents(query) {
