@@ -11,7 +11,7 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Naviturni — Gestione Turni</title>
+  <title>NaviTurni</title>
   <style>
     :root {
       --bg: #0b1c26;
@@ -409,19 +409,23 @@
     }
 
     .panel-close {
-      background: none;
-      border: 1px solid var(--line);
-      color: var(--ink-dim);
+      background: rgba(239, 68, 68, .16);
+      border: 1px solid rgba(248, 113, 113, .65);
+      color: #fca5a5;
       cursor: pointer;
       font-size: 12px;
-      padding: 4px 12px;
+      font-weight: 800;
+      padding: 6px 14px;
       border-radius: 999px;
-      transition: .15s;
+      box-shadow: 0 0 0 1px rgba(239, 68, 68, .08), 0 4px 14px rgba(127, 29, 29, .2);
+      transition: background .15s, border-color .15s, color .15s, transform .15s;
     }
 
     .panel-close:hover {
-      color: var(--ink);
-      border-color: var(--ink);
+      background: rgba(239, 68, 68, .3);
+      border-color: rgba(252, 165, 165, .9);
+      color: #fee2e2;
+      transform: translateY(-1px);
     }
 
     .panel-navigation {
@@ -446,10 +450,11 @@
     }
 
     .panel-today {
-      width:58px;
-      min-width:58px;
-      padding: 0 14px;
-      font-size: 13px;
+      width:auto;
+      min-width:88px;
+      padding:0 12px;
+      font-size:12px;
+      white-space:nowrap;
       font-weight: 900;
       background:var(--accent);
       color:#05221e;
@@ -570,6 +575,11 @@
       box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .30);
     }
 
+    .colleague-card.barista-card {
+      background:var(--bg-card);
+      box-shadow:none;
+    }
+
     .colleague-card.instructor-card.transfer-card {
       background: linear-gradient(90deg, rgba(245,158,11,.12), rgba(96,165,250,.10));
       box-shadow: inset 0 0 0 1px rgba(245,158,11,.34);
@@ -601,6 +611,19 @@
     .ods-crew-link:hover { background:rgba(168,85,247,.18); }
     .agent-ods-badge { display:inline-flex; align-items:center; margin-left:7px; padding:2px 6px; border:1px solid rgba(168,85,247,.48); border-radius:7px; background:rgba(168,85,247,.12); color:#e9d5ff; font-size:9px; font-weight:900; text-decoration:none; white-space:nowrap; vertical-align:middle; }
     .agent-ods-badge:hover { background:rgba(168,85,247,.24); }
+    .departed-crew-group {
+      width:100%;
+      box-sizing:border-box;
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+    }
+    .departed-crew-list { display:flex;flex-direction:column;gap:4px; }
+    .departed-ods-badge {
+      border-color:rgba(248,113,113,.5) !important;
+      background:rgba(239,68,68,.14) !important;
+      color:#fecaca !important;
+    }
 
     .shift-group {
       min-width: 140px;
@@ -631,6 +654,17 @@
       background: var(--bg-card);
       border-radius: 4px;
       border-left: 3px solid transparent;
+    }
+
+    .colleague-card.pinnable-colleague { cursor:pointer; }
+    .colleague-card.pinnable-colleague:hover { filter:brightness(1.13); }
+    .future-shared-dot {
+      flex:0 0 auto;
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      background:#fbbf24;
+      box-shadow:0 0 5px rgba(251,191,36,.55);
     }
 
     .colleague-card .c-num {
@@ -807,6 +841,10 @@
       background: var(--accent) !important;
       color: #06201c !important;
     }
+    .date-header th.hover-shared-date {
+      filter:brightness(1.22) saturate(1.18);
+      box-shadow:inset 0 0 0 2px #fef08a,0 0 16px rgba(250,204,21,.72),0 2px 0 var(--line) !important;
+    }
 
     .date-header .d-sab {
       color: var(--warn);
@@ -871,14 +909,14 @@
 
     tbody tr.pinned-row td {
       border-bottom: 20px solid var(--bg-panel) !important;
-      font-size: 16px !important;
-      padding-top: 9px;
-      padding-bottom: 9px;
+      font-size: 14px !important;
+      padding-top: 6px;
+      padding-bottom: 6px;
     }
 
     tbody tr.pinned-row .cell-pill {
-      font-size: 14px !important;
-      padding: 5px 9px;
+      font-size: 12.5px !important;
+      padding: 4px 8px;
     }
 
     tbody tr.pinned-row td.td-name {
@@ -889,8 +927,7 @@
     }
 
     tbody tr.pinned-row td.td-name::before {
-      content: "📌 ";
-      font-size: 10px;
+      content: none;
     }
 
     tbody tr td.td-name {
@@ -1353,6 +1390,8 @@
     .compact tbody tr td.td-name { font-size:12.5px; padding-top:4px; padding-bottom:4px; }
     .compact td.td-num { font-size:11px; }
     .compact .cell-pill { font-size:11px; padding:3px 7px; }
+    .compact tbody tr.pinned-row td { font-size:12.5px !important; }
+    .compact tbody tr.pinned-row .cell-pill { font-size:11px !important; }
     .compact .date-head-num { font-size:14px; }
     .date-header th {
       position:sticky;
@@ -1364,6 +1403,51 @@
       position:sticky;
       top:0;
       z-index:45;
+    }
+
+    /* L'agente collegato resta sempre visibile sotto la riga delle date. */
+    tbody tr.logged-agent-row {
+      opacity:1 !important;
+      filter:brightness(1.08);
+    }
+    tbody tr.logged-agent-row td {
+      position:sticky;
+      top:var(--logged-row-sticky-top, 38px);
+      z-index:34;
+      height:44px;
+      padding-top:6px !important;
+      padding-bottom:6px !important;
+      border-bottom:2px solid rgba(45,212,191,.72) !important;
+      background:#123946 !important;
+      box-shadow:inset 0 1px 0 rgba(153,246,228,.18),inset 0 -1px 0 rgba(45,212,191,.25);
+    }
+    tbody tr.logged-agent-row td.td-name {
+      z-index:38;
+      background:#164754 !important;
+      color:#f2fffd !important;
+      outline:1px solid rgba(45,212,191,.68);
+      outline-offset:-1px;
+    }
+    tbody tr.logged-agent-row.pinned-row td {
+      height:44px;
+      padding-top:6px !important;
+      padding-bottom:6px !important;
+      border-bottom:2px solid rgba(45,212,191,.72) !important;
+      font-size:14px !important;
+    }
+    tbody tr.logged-agent-row.pinned-row .cell-pill {
+      padding:4px 8px;
+      font-size:12.5px !important;
+    }
+    tbody tr.pinned-row:not(.logged-agent-row) td {
+      border-top:12px solid var(--bg-panel) !important;
+    }
+    .compact tbody tr.logged-agent-row td,
+    .compact tbody tr.logged-agent-row.pinned-row td {
+      height:38px;
+      padding-top:4px !important;
+      padding-bottom:4px !important;
+      font-size:12.5px !important;
     }
 
     /* Menu operativo compatto */
@@ -1440,10 +1524,25 @@
       display:block;
       width:7px;
       height:7px;
-      margin:3px auto 0;
       border-radius:50%;
       background:#f59e0b;
       box-shadow:0 0 0 2px rgba(245,158,11,.16);
+    }
+    .date-head-markers {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:4px;
+      min-height:7px;
+      margin:3px auto 0;
+    }
+    .date-head-ods {
+      display:block;
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#22c55e;
+      box-shadow:0 0 0 2px rgba(34,197,94,.18),0 0 7px rgba(34,197,94,.48);
     }
 
     .coverage-section {
@@ -1931,15 +2030,257 @@
     .login-user-panel.visible { display:flex; }
     .login-user-name { padding:7px 10px;border:1px solid #397080;border-radius:999px;background:#123b45;color:#dffaf5;font-size:12px;font-weight:900;cursor:pointer; }
     .login-user-panel button:not(.login-user-name) { padding:7px 9px;border:1px solid #397080;border-radius:8px;background:#0d2c37;color:#dbeef1;font-size:11px;font-weight:800;cursor:pointer; }
+    .portal-switch { padding:7px 11px;border:1px solid #2dd4bf;border-radius:8px;background:#103b3d;color:#dffaf5;font-size:11px;font-weight:900;text-decoration:none;white-space:nowrap; }
+    .portal-switch:hover { background:#2dd4bf;color:#06201c; }
     @media (max-width:700px) {
       .login-user-panel { width:100%;margin:7px 0 0; }
       .login-user-name { margin-right:auto; }
       .login-card { padding:20px; }
     }
 
+    .turni-sidebar{position:fixed;inset:0 auto 0 0;z-index:200;width:248px;display:flex;flex-direction:column;padding:28px 18px;background:#071923;border-right:1px solid #173542;color:#eaf5f5}.turni-sidebar-brand{display:flex;align-items:center;gap:11px;margin:0 7px 32px;color:#fff;text-decoration:none;font:800 18px Manrope}.turni-sidebar-brand span{display:grid;place-items:center;width:37px;height:37px;border-radius:11px;background:#2dd4bf;color:#06221f}.turni-sidebar nav{display:grid;gap:6px}.turni-sidebar nav a{display:flex;align-items:center;gap:11px;padding:11px 12px;border:1px solid transparent;border-radius:9px;color:#9fb8c2;text-decoration:none;font-size:13px;font-weight:700}.turni-sidebar nav a span{width:20px;color:#2dd4bf;font-size:17px;text-align:center}.turni-sidebar nav a:hover,.turni-sidebar nav a.active{border-color:#28505a;background:#102d37;color:#fff}.turni-sidebar-note{display:flex;gap:10px;align-items:center;margin-top:auto;padding:14px 10px;border-top:1px solid #193946;color:#8da8b0;font-size:11px}.turni-sidebar-note i{width:8px;height:8px;border-radius:50%;background:#2dd4bf;box-shadow:0 0 0 4px rgba(45,212,191,.1)}.turni-menu-button{display:none;position:fixed;top:12px;left:12px;z-index:220;width:40px;height:40px;border:1px solid #315460;border-radius:10px;background:#0d2c37;color:#fff;font-size:20px;cursor:pointer}body{padding-left:248px}
+    @media(max-width:800px){body{padding-left:0}.turni-sidebar{transform:translateX(-105%);transition:transform .2s;box-shadow:15px 0 35px rgba(0,0,0,.35)}body.turni-menu-open .turni-sidebar{transform:translateX(0)}.turni-menu-button{display:grid;place-items:center}.page-header{padding-left:62px!important}}
+    .turni-sidebar{width:230px;padding:28px 20px}.turni-sidebar .login-user-panel{width:100%;display:none!important;grid-template-columns:1fr 1fr;gap:6px;margin:auto 0 0;padding-top:12px;border-top:1px solid #193946}.turni-sidebar .login-user-panel.visible{display:grid!important}.turni-sidebar .login-user-name{grid-column:1/-1;width:100%;overflow:hidden;text-overflow:ellipsis}.turni-sidebar .login-user-panel button{padding:9px 7px!important;border:1px solid #315460!important;border-radius:8px!important;background:#0d2c37!important;color:#dbeef1!important;font-size:11px!important;font-weight:800!important;cursor:pointer}.turni-sidebar #login-exit-button{color:#fda4af!important}.turni-sidebar nav a,.turni-nav-link{display:flex;align-items:center;gap:11px;width:100%;padding:11px 12px;border:1px solid transparent;border-radius:9px;background:transparent;color:#9fb8c2;text-decoration:none;font-family:inherit;font-size:13px;font-weight:700;text-align:left;cursor:pointer}.turni-nav-link span{width:20px;color:#2dd4bf;font-size:17px;text-align:center}.turni-nav-link:hover{border-color:#28505a;background:#102d37;color:#fff}.turni-menu-label{display:block;margin:16px 12px 3px;color:#66818d;font-size:9px;font-weight:900;letter-spacing:.16em}.turni-header-copy{display:flex;min-width:0;flex-direction:column;gap:1px}.turni-header-label{margin:0;color:#78909d;font-size:10px;font-weight:900;letter-spacing:.16em}.turni-header-context{margin:2px 0 0;color:#70808c;font-size:12px}.page-header .doc-title{margin:0;color:#173042;font-size:25px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.page-header{min-height:98px;display:flex;align-items:center;padding:18px 30px;background:#fff;color:#173042;border-bottom:1px solid #dfe7eb}body{padding-left:230px}@media(max-width:800px){body{padding-left:0}.page-header .doc-title{font-size:clamp(14px,4.5vw,19px)}.turni-header-context{display:none}}
+    .turni-sidebar{overflow-x:hidden;overflow-y:auto}
+    .turni-sidebar .shifts-filter-block{flex:0 0 auto;margin:14px 0;padding:14px 0;border:0;border-top:1px solid #193946;border-bottom:1px solid #193946;border-radius:0;background:transparent;box-shadow:none}
+    .turni-sidebar .top-filter-controls{display:flex;flex-direction:column;align-items:stretch;gap:14px}
+    .turni-sidebar .top-filter-group,.turni-sidebar .top-residence-controls{display:flex;flex-direction:column;align-items:stretch;gap:7px;margin:0}
+    .turni-sidebar .filter-label{color:#66818d;font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+    .turni-sidebar .shift-buttons-grid,.turni-sidebar .coverage-residence-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+    .turni-sidebar .shift-filter-btn,.turni-sidebar #top-residence-buttons .coverage-residence-btn{width:100%;min-width:0;padding:7px 5px;border:1px solid #28505a;border-radius:7px;background:#0d2c37;color:#a9c0c8;font-size:10px;font-weight:850;text-align:center;cursor:pointer}
+    .turni-sidebar .shift-filter-btn:hover,.turni-sidebar #top-residence-buttons .coverage-residence-btn:hover{border-color:#2dd4bf;color:#fff}
+    .turni-sidebar .shift-filter-btn.active,.turni-sidebar #top-residence-buttons .coverage-residence-btn.active{border-color:#2dd4bf;background:#2dd4bf;color:#05221e}
+
+    /* Le righe bloccate devono coprire completamente quelle che scorrono sotto. */
+    #tbody tr.logged-agent-row,
+    #tbody tr.pinned-row {
+      opacity:1 !important;
+      filter:none !important;
+    }
+    #tbody tr.logged-agent-row td,
+    #tbody tr.pinned-row td {
+      background-color:#123946 !important;
+      background-image:none !important;
+      background-clip:padding-box;
+      opacity:1 !important;
+    }
+    #tbody tr.logged-agent-row td.td-name,
+    #tbody tr.pinned-row td.td-name {
+      background:#164754 !important;
+      background-image:none !important;
+      opacity:1 !important;
+      isolation:isolate;
+      mix-blend-mode:normal;
+    }
+    #matrix-scroll-wrap .date-header th:first-child {
+      background:#15313d !important;
+      background-image:none !important;
+      opacity:1 !important;
+      isolation:isolate;
+      mix-blend-mode:normal;
+    }
+    #tbody tr.logged-agent-row:not(.logged-in-selected-crew) td {
+      background-color:#102a35 !important;
+      box-shadow:inset 0 -1px 0 rgba(111,143,153,.28);
+    }
+    #tbody tr.logged-agent-row:not(.logged-in-selected-crew) td.td-name {
+      background-color:#132f3a !important;
+      outline-color:rgba(111,143,153,.38);
+    }
+    #tbody tr.logged-agent-row.logged-in-selected-crew td {
+      background-color:#123f49 !important;
+      box-shadow:inset 0 1px 0 rgba(153,246,228,.22),inset 0 -2px 0 #2dd4bf,0 0 15px rgba(45,212,191,.12);
+    }
+    #tbody tr.logged-agent-row.logged-in-selected-crew td.td-name {
+      background-color:#17515a !important;
+      outline-color:rgba(45,212,191,.88);
+    }
+    #tbody td.shared-crew-day .cell-pill,
+    #tbody td.pinned-shared-crew-day .cell-pill,
+    #tbody td.selected-shared-crew-day .cell-pill {
+      font-weight:900 !important;
+      box-shadow:0 0 0 3px rgba(251,191,36,.98),0 0 14px rgba(251,191,36,.52);
+    }
+    #tbody tr.has-shared-crew td.td-name .agent-name-text {
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+      max-width:100%;
+    }
+    #tbody tr.has-shared-crew td.td-name .agent-name-text::before {
+      content:"";
+      flex:0 0 auto;
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#fbbf24;
+      box-shadow:0 0 0 2px rgba(251,191,36,.2),0 0 7px rgba(251,191,36,.65);
+    }
+    #tbody tr.shared-crew-focus td.shared-crew-day .cell-pill {
+      animation:shared-crew-pulse .72s ease-in-out infinite alternate;
+    }
+    @keyframes shared-crew-pulse {
+      from {
+        transform:scale(1);
+        box-shadow:0 0 0 3px rgba(251,191,36,.92),0 0 12px rgba(251,191,36,.42);
+      }
+      to {
+        transform:scale(1.12);
+        box-shadow:0 0 0 4px rgba(253,224,71,1),0 0 22px rgba(251,191,36,.78);
+      }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      #tbody tr.shared-crew-focus td.shared-crew-day .cell-pill {
+        animation:none;
+        box-shadow:0 0 0 4px rgba(253,224,71,1),0 0 20px rgba(251,191,36,.7);
+      }
+    }
+    /* Prima colonna sempre ancorata e quasi completamente coprente. */
+    #matrix-scroll-wrap th:first-child,
+    #matrix-scroll-wrap td:first-child {
+      position:sticky !important;
+      left:0 !important;
+      opacity:.95;
+      background-color:rgba(7,25,35,.95) !important;
+      backdrop-filter:blur(3px);
+      -webkit-backdrop-filter:blur(3px);
+    }
+    #matrix-scroll-wrap tbody td:first-child {
+      z-index:18;
+      background-image:linear-gradient(rgba(var(--grade-rgb, 21,49,61),.22),rgba(var(--grade-rgb, 21,49,61),.22)) !important;
+    }
+    #matrix-scroll-wrap .date-header th:first-child {
+      z-index:48;
+      background:#15313d !important;
+    }
+    #matrix-scroll-wrap tr.logged-agent-row td:first-child,
+    #matrix-scroll-wrap tr.pinned-row td:first-child {
+      background-color:rgba(22,71,84,.95) !important;
+      background-image:none !important;
+    }
+    #matrix-scroll-wrap tr.logged-agent-row td:first-child {
+      z-index:38;
+    }
+    #tbody tr.shared-crew-focus td.td-name {
+      filter:brightness(1.42) saturate(1.18);
+      box-shadow:inset 3px 0 0 #facc15,inset 0 0 0 1px rgba(254,240,138,.72),0 0 14px rgba(250,204,21,.45) !important;
+    }
+    #tbody td.departed-crew-day .cell-pill {
+      box-shadow:0 0 0 2px rgba(168,85,247,.85),0 0 10px rgba(168,85,247,.28);
+    }
+    .shared-crew-change-label {
+      display:block;
+      margin-top:3px;
+      color:#d8b4fe;
+      font-size:8px;
+      font-weight:900;
+      line-height:1;
+      white-space:nowrap;
+    }
+
+    /* Scheda equipaggio: cassetto a scomparsa dal bordo superiore. */
+    #day-panel {
+      position:fixed;
+      top:0;
+      left:230px;
+      right:0;
+      z-index:190;
+      width:auto;
+      max-height:min(76vh,720px) !important;
+      margin:0 !important;
+      border-top:0;
+      border-radius:0 0 14px 14px;
+      opacity:0;
+      overflow-x:hidden;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      pointer-events:none;
+      transform:translateY(calc(-100% - 18px));
+      transition:transform .28s ease,opacity .2s ease,left .22s ease;
+      box-shadow:0 18px 42px rgba(0,0,0,.42);
+    }
+    #day-panel.open,
+    #coverage-section #day-panel.open {
+      max-height:min(76vh,720px) !important;
+      margin:0 !important;
+      opacity:1;
+      pointer-events:auto;
+      transform:translateY(0);
+    }
+    #day-panel .panel-header {
+      position:sticky;
+      top:0;
+      z-index:3;
+      background:rgba(11,28,37,.98);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+    body.menu-collapsed #day-panel { left:0; }
+    #matrix-scroll-wrap,
+    #coverage-section .coverage-wrap { transition:margin-top .28s ease; }
+    body.crew-drawer-open.crew-drawer-main #matrix-scroll-wrap,
+    body.crew-drawer-open.crew-drawer-coverage #coverage-section .coverage-wrap {
+      margin-top:var(--crew-drawer-offset,0px);
+    }
+    #crew-drawer-toggle {
+      position:fixed;
+      top:0;
+      left:calc(50% + 115px);
+      z-index:195;
+      width:54px;
+      height:30px;
+      padding:0;
+      border:1px solid #2dd4bf;
+      border-top:0;
+      border-radius:0 0 12px 12px;
+      background:#103b3d;
+      color:#5eead4;
+      font-size:22px;
+      font-weight:900;
+      line-height:26px;
+      cursor:pointer;
+      transform:translateX(-50%);
+      box-shadow:0 7px 18px rgba(0,0,0,.3);
+      transition:left .22s ease,background .15s,color .15s;
+    }
+    #crew-drawer-toggle:hover,
+    #crew-drawer-toggle[aria-expanded="true"] { background:#2dd4bf;color:#05221e; }
+    #crew-drawer-toggle[hidden] { display:none !important; }
+    body.menu-collapsed #crew-drawer-toggle { left:50%; }
+    @media(max-width:800px) {
+      #day-panel,
+      body.menu-collapsed #day-panel {
+        left:0;
+        max-height:84vh !important;
+        border-radius:0 0 11px 11px;
+      }
+      #day-panel.open,
+      #coverage-section #day-panel.open { max-height:84vh !important; }
+      #crew-drawer-toggle,
+      body.menu-collapsed #crew-drawer-toggle { left:50%; }
+    }
 </style>
+  <link rel="stylesheet" href="shared-menu.css">
 </head>
-<body>
+<body class="turni-page">
+
+  <button class="turni-menu-button" id="turni-menu-button" type="button" aria-label="Apri menu" aria-expanded="false">☰</button>
+  <aside class="turni-sidebar app-sidebar" id="turni-sidebar">
+    <a class="turni-sidebar-brand" href="index.html"><span>N</span> NaviTurni</a>
+    <nav>
+      <a class="active" href="#turni-operativi"><span>▦</span> NaviTurni</a>
+      <a href="navidiaria.html" target="_blank" rel="noopener"><span>≈</span> NaviDiaria</a>
+      <a href="turni.html" target="_blank" rel="noopener"><span>▤</span> ODS / Turni</a>
+      <button class="turni-nav-link" onclick="ricaricaDati()" id="refreshBtn" type="button"><span>↻</span> Aggiorna</button>
+      <span class="turni-menu-label">TURNI</span>
+      <button class="turni-nav-link" onclick="togglePastColumns()" id="togglePastBtn" type="button"><span>◷</span> Mostra passato</button>
+    </nav>
+    <div class="login-user-panel" id="login-user-panel">
+      <button class="login-user-name" id="login-user-name" type="button" onclick="repinLoggedAgent()" title="Rimetti l'agente in cima"></button>
+      <button id="login-exit-button" type="button" onclick="logoutAgent()">Esci</button>
+      <button id="login-change-button" type="button" onclick="location.href='navidiaria.html?pin=1'">Cambia PIN</button>
+    </div>
+  </aside>
 
   <div class="login-overlay" id="login-overlay" role="dialog" aria-modal="true" aria-labelledby="login-title">
     <form class="login-card" id="agent-login-form" onsubmit="handleAgentLogin(event)">
@@ -1957,29 +2298,14 @@
   </div>
 
   <header class="page-header">
-    <div class="title-row">
-      <div class="company-name">Navigazione sul Lago di Garda</div>
-      <h1 class="doc-title"><span class="wave">⚓</span> Naviturni — Pannello Operativo Turni</h1>
-      <span class="doc-subtitle" id="periodLabel">STAGIONE 2026</span>
-      <div class="login-user-panel" id="login-user-panel">
-        <button class="login-user-name" id="login-user-name" type="button" onclick="repinLoggedAgent()" title="Rimetti l'agente in cima"></button>
-        <button id="login-change-button" type="button" onclick="showLoginModal()">Cambia</button>
-        <button id="login-exit-button" type="button" onclick="logoutAgent()">Esci</button>
-      </div>
+    <div class="turni-header-copy">
+      <p class="turni-header-label">NAVITURNI</p>
+      <h1 class="doc-title" id="turniWelcome">Benvenuto</h1>
+      <p class="turni-header-context">Pannello turni dal <strong id="periodLabel">periodo in caricamento</strong></p>
     </div>
   </header>
 
-  <div class="toolbar-container">
-    <div class="admin-panel" id="admin-panel" style="display:none;">
-      <button class="btn" onclick="ricaricaDati()" id="refreshBtn"><span class="btn-icon">↻</span> Aggiorna</button>
-      <button class="btn" onclick="togglePastColumns()" id="togglePastBtn"><span class="btn-icon">◷</span> Passato</button>
-      <a href="BOZZA_TURNO_DAL_27-07_AL_09-08-2026.pdf" class="btn btn-pdf" target="_blank"><span class="btn-icon">PDF</span> Bozza</a>
-      <a href="TURNO_DAL_22-06_AL_26-07-2026.pdf" class="btn btn-pdf" id="pdfLink" target="_blank"><span class="btn-icon">PDF</span> Turno</a>
-      <a href="#coverage-section" class="btn"><span class="btn-icon">↓</span> Completezza turni</a>
-    </div>
-  </div>
-
-  <main>
+  <main id="turni-operativi">
 
     <section class="ops-bar" aria-label="Riepilogo operativo">
       <label class="search-box">
@@ -1997,23 +2323,11 @@
       <p>Attendi qualche istante mentre recuperiamo i dati aggiornati.</p>
     </div>
 
-    <div class="shifts-filter-block" id="shift-filter-container">
-      <div class="top-filter-controls">
-        <div class="top-filter-group">
-          <span class="filter-label">Seleziona un Turno per la ricerca Equipaggi:</span>
-          <div class="shift-buttons-grid" id="shift-buttons-wrapper"></div>
-        </div>
-        <div class="top-residence-controls">
-          <span class="filter-label">Residenza:</span>
-          <div class="coverage-residence-buttons" id="top-residence-buttons"></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="day-panel">
+    <button id="crew-drawer-toggle" type="button" onclick="toggleCrewDrawer()" aria-label="Mostra equipaggio" aria-expanded="false" hidden>⌄</button>
+    <div id="day-panel" aria-hidden="true">
       <div class="panel-header">
         <div class="panel-date" id="panel-date-label"></div>
-        <button class="panel-close" onclick="clearSelection()">✕ Chiudi Equipaggio</button>
+        <button class="panel-close" onclick="resetCleanTable()">✕ Chiudi Equipaggio</button>
       </div>
       <div class="panel-groups" id="panel-groups"></div>
     </div>
@@ -2077,6 +2391,9 @@
     Questa pagina è stata pensata e creata da MP per la gestione dei turni
   </footer>
 
+  <script src="shared-data.js"></script>
+  <script src="cloud-data.js"></script>
+  <script src="shared-menu.js"></script>
   <script>
     let globalData = null;
     let currentResidence = "";
@@ -2105,16 +2422,46 @@
       }
     }
 
+    function getBaristaRecords() {
+      return Array.isArray(globalData?.bariste)
+        ? globalData.bariste
+        : (Array.isArray(globalData?.barista) ? globalData.barista : []);
+    }
+
+    function isBaristaProfile(profile = loggedAgentProfile) {
+      return String(profile?.role || "").toLowerCase() === "barista" ||
+        String(profile?.qualifica || "").toLowerCase() === "barista";
+    }
+
+    function getBaristaProfileId(record, name) {
+      if (record?.id) return String(record.id);
+      return `BARISTA_${String(name || "").toLocaleUpperCase("it").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]+/g, "_").replace(/^_|_$/g, "")}`;
+    }
+
     function updateLoginUserPanel() {
       const panel = document.getElementById("login-user-panel");
       const label = document.getElementById("login-user-name");
       const changeButton = document.getElementById("login-change-button");
+      const diariaNavLink = document.getElementById("diariaNavLink");
+      const archiveNavLink = document.getElementById("archiveNavLink");
+      const welcome = document.getElementById("turniWelcome");
       if (!panel || !label) return;
       panel.classList.add("visible");
-      label.textContent = loggedAgentProfile ? `👤 ${loggedAgentProfile.name}` : "👤 Senza accesso";
+      label.textContent = loggedAgentProfile ? loggedAgentProfile.name.toLocaleUpperCase("it") : "SENZA ACCESSO";
       label.disabled = !loggedAgentProfile;
       label.title = loggedAgentProfile ? "Rimetti l'agente in cima" : "Accesso non effettuato";
       if (changeButton) changeButton.style.display = loggedAgentProfile ? "inline-flex" : "none";
+      if (diariaNavLink) {
+        const isAdmin = ["92", "MOVIMENTO"].includes(String(loggedAgentProfile?.id || "")) ||
+          String(loggedAgentProfile?.role || "").toLowerCase() === "admin";
+        diariaNavLink.hidden = !isAdmin;
+      }
+      if (archiveNavLink) archiveNavLink.hidden = isBaristaProfile();
+      if (welcome) {
+        const agentData = Object.values(globalData?.residenze || {}).flat().find(agent => String(agent.id || "") === String(loggedAgentProfile?.id || ""));
+        const grade = String(agentData?.qualifica || loggedAgentProfile?.qualifica || "Agente").trim().toLocaleLowerCase("it").replace(/(^|\s)\S/g, letter => letter.toLocaleUpperCase("it"));
+        welcome.textContent = loggedAgentProfile ? `Benvenuto ${grade} ${loggedAgentProfile.name}` : "Benvenuto";
+      }
     }
 
     function showLoginModal() {
@@ -2135,14 +2482,26 @@
       const datalist = document.getElementById("login-surname-options");
       if (!datalist || !globalData?.residenze) return;
       const surnames = new Map();
+      const baristaSurnameKeys = new Set();
       Object.values(globalData.residenze).flat().forEach(agent => {
         const surname = String(agent.agente || "").trim().split(/\s+/)[0].replace(/[.,]+$/g, "");
         const key = normalizeOdsAgentName(surname);
         if (key && !surnames.has(key)) surnames.set(key, surname.toUpperCase());
       });
-      datalist.innerHTML = [...surnames.values()]
-        .sort((a, b) => a.localeCompare(b, "it"))
-        .map(surname => `<option value="${escapeAttribute(surname)}"></option>`)
+      getBaristaRecords().forEach(record => {
+        const name = String(record.barista || record.agente || record.nome || "").trim();
+        const surname = name.split(/\s+/)[0].replace(/[.,]+$/g, "");
+        const key = normalizeOdsAgentName(surname);
+        if (key && !surnames.has(key)) {
+          surnames.set(key, surname.toUpperCase());
+          baristaSurnameKeys.add(key);
+        }
+      });
+      datalist.innerHTML = [...surnames.entries()]
+        .sort(([keyA, nameA], [keyB, nameB]) =>
+          Number(baristaSurnameKeys.has(keyA)) - Number(baristaSurnameKeys.has(keyB)) || nameA.localeCompare(nameB, "it")
+        )
+        .map(([, surname]) => `<option value="${escapeAttribute(surname)}"></option>`)
         .join("");
     }
 
@@ -2171,6 +2530,18 @@
             });
           }
         });
+      });
+      const seenBaristas = new Set();
+      getBaristaRecords().forEach(record => {
+        const name = String(record.barista || record.agente || record.nome || "").trim();
+        const normalizedName = normalizeOdsAgentName(name);
+        const firstNamePart = normalizedName.split(" ")[0];
+        const id = getBaristaProfileId(record, name);
+        if (!name || seenBaristas.has(id)) return;
+        if (normalizedName === query || normalizedName.startsWith(query + " ") || firstNamePart === query) {
+          seenBaristas.add(id);
+          matches.push({ id, name, residence:"BARISTE", qualifica:"barista", role:"barista" });
+        }
       });
       return matches;
     }
@@ -2215,34 +2586,64 @@
       applyLoggedAgentProfile();
     }
 
-    function findLoggedAgentIndex(residence = currentResidence) {
-      if (!loggedAgentProfile || residence !== loggedAgentProfile.residence) return -1;
-      return currentAgentsList.findIndex(agent => {
+    function getLoggedAgentLocation() {
+      if (!loggedAgentProfile || String(loggedAgentProfile.id || "") === "MOVIMENTO") return null;
+      const residence = loggedAgentProfile.residence;
+      const agents = globalData?.residenze?.[residence] || [];
+      const index = agents.findIndex(agent => {
         const sameId = loggedAgentProfile.id && String(agent.id || "") === loggedAgentProfile.id;
         return sameId || normalizeOdsAgentName(agent.agente) === normalizeOdsAgentName(loggedAgentProfile.name);
       });
+      return index >= 0 ? { residence, index, agent: agents[index] } : null;
+    }
+
+    function findLoggedAgentIndex(residence = currentResidence) {
+      const location = getLoggedAgentLocation();
+      return location && location.residence === residence ? location.index : -1;
     }
 
     function applyLoggedAgentProfile() {
+      if (String(loggedAgentProfile?.id || "") === "MOVIMENTO") {
+        const residences = Object.keys(globalData?.residenze || {});
+        const defaultResidence = residences.find(name => name.trim().toLowerCase() === "desenzano") || residences[0];
+        if (!defaultResidence) return false;
+        selectResidence(defaultResidence);
+        updateLoginUserPanel();
+        return true;
+      }
+      if (isBaristaProfile()) {
+        const today = formatDateISOClient(new Date());
+        const profileName = normalizeOdsAgentName(loggedAgentProfile.name);
+        const assignment = getBaristaRecords()
+          .filter(record => normalizeOdsAgentName(record.barista || record.agente || record.nome) === profileName)
+          .filter(record => !record.data || String(record.data).slice(0, 10) >= today)
+          .sort((a, b) => String(a.data || "").localeCompare(String(b.data || "")))[0];
+        const targetResidence = getShiftResidence(assignment?.corsa) ||
+          Object.keys(globalData?.residenze || {}).find(name => name.trim().toLowerCase() === "desenzano") ||
+          Object.keys(globalData?.residenze || {})[0];
+        if (!targetResidence) return false;
+        selectResidence(targetResidence);
+        pinnedAgentIdx = null;
+        renderTable();
+        updateLoginUserPanel();
+        return true;
+      }
       if (!loggedAgentProfile || !globalData?.residenze?.[loggedAgentProfile.residence]) return false;
       selectResidence(loggedAgentProfile.residence);
       const index = findLoggedAgentIndex();
       if (index < 0) return false;
-      pinnedAgentIdx = index;
+      // L'agente collegato resta in cima, ma viene pinnato solo quando lo seleziona.
+      pinnedAgentIdx = null;
       renderTable();
-      const todayCal = dateCalendario.find(cal => isTodayDate(cal.realObj));
-      if (todayCal) {
-        selectDayForPinnedAgent(todayCal);
-        setTimeout(scrollCrewPanelIntoView, 80);
-      }
       return true;
     }
 
     function repinLoggedAgent() {
       if (!loggedAgentProfile || !globalData) return;
+      if (String(loggedAgentProfile.id || "") === "MOVIMENTO") return;
+      if (isBaristaProfile()) return;
       if (currentResidence !== loggedAgentProfile.residence) {
         selectResidence(loggedAgentProfile.residence);
-        return;
       }
       const index = findLoggedAgentIndex();
       if (index < 0) return;
@@ -2250,25 +2651,81 @@
       renderTable();
     }
 
+    function clearPinnedAgentSelection() {
+      pinnedAgentIdx = null;
+      selectedCrewAgent = null;
+      document.querySelectorAll("#tbody tr.pinned-row").forEach(row => row.classList.remove("pinned-row"));
+    }
+
     function logoutAgent() {
       localStorage.removeItem(AGENT_LOGIN_STORAGE_KEY);
+      localStorage.removeItem("navidiaria.activeAgent");
       loggedAgentProfile = null;
       pinnedAgentIdx = null;
-      updateLoginUserPanel();
-      renderTable();
-      showLoginModal();
+      location.href = "index.html";
     }
 
     const turniMappaResidenze = {
-      "desenzano": ["D1", "D2", "D3", "D4", "BIS"],
-      "maderno": ["T1", "T2", "M1"],
+      "desenzano": ["D1", "D2", "D3", "D4", "BIS", "TERRA"],
+      "maderno": ["T1", "T2", "M1", "TERRA"],
       "riva": ["R1", "R2", "R3", "R4", "CAR"],
       "peschiera": ["P1", "P2", "P3", "CAP", "SR1"]
     };
 
+    const serviziTerraPerResidenza = {
+      DESENZANO: ["AGB", "DT", "POND"],
+      MADERNO: ["AGM", "AGT", "PONM"]
+    };
+    const ordineServiziTerra = { AGB: 1, DT: 2, POND: 3, AGM: 1, AGT: 2, PONM: 3 };
+    const etichetteServiziTerra = { AGB: "AgB", DT: "DT", POND: "PonD", AGM: "AgM", AGT: "AgT", PONM: "PonM" };
+
+    function getCrewShiftKey(shiftValue) {
+      const cleanShift = ottieniTurnoPulito(shiftValue).toUpperCase();
+      if (cleanShift === "TERRA") {
+        const residenceKey = String(currentResidence || "").trim().toUpperCase();
+        return serviziTerraPerResidenza[residenceKey] ? `TERRA_${residenceKey}` : "TERRA";
+      }
+      const groundResidence = Object.entries(serviziTerraPerResidenza)
+        .find(([, shifts]) => shifts.includes(cleanShift))?.[0];
+      return groundResidence ? `TERRA_${groundResidence}` : cleanShift;
+    }
+
+    function isGroundCrewShiftKey(shiftValue) {
+      return getCrewShiftKey(shiftValue).startsWith("TERRA_");
+    }
+
+    function getCrewRequirementKey(shiftValue) {
+      return isGroundCrewShiftKey(shiftValue) ? "TERRA" : getCrewShiftKey(shiftValue);
+    }
+
+    function isSameCrewShift(firstShift, secondShift) {
+      const firstKey = getCrewShiftKey(firstShift);
+      return Boolean(firstKey) && firstKey === getCrewShiftKey(secondShift);
+    }
+
+    function getShiftResidence(shiftValue) {
+      const rawShift = ottieniTurnoPulito(shiftValue).toUpperCase();
+      const groundResidence = Object.entries(serviziTerraPerResidenza)
+        .find(([, shifts]) => shifts.includes(rawShift))?.[0];
+      if (groundResidence) {
+        return Object.keys(globalData?.residenze || {}).find(residence =>
+          residence.toUpperCase().trim() === groundResidence
+        ) || groundResidence;
+      }
+      if (rawShift === "TERRA") return currentResidence;
+      const cleanShift = getCrewShiftKey(rawShift);
+      const match = Object.entries(turniMappaResidenze).find(([, shifts]) =>
+        shifts.some(shift => getCrewShiftKey(shift) === cleanShift)
+      );
+      if (!match) return "";
+      return Object.keys(globalData?.residenze || {}).find(residence =>
+        residence.toLowerCase().trim() === match[0]
+      ) || match[0].toUpperCase();
+    }
+
     const defaultCrewRequirements = {
-      DESENZANO: { D1: 4, D2: 5, D3: 5, D4: 3, BIS: 3, AGB: 1, DT: 1, POND: 1 },
-      MADERNO: { T1: 5, T2: 5, M1: 3 },
+      DESENZANO: { D1: 4, D2: 5, D3: 5, D4: 3, BIS: 3, TERRA: 3 },
+      MADERNO: { T1: 5, T2: 5, M1: 3, TERRA: 3 },
       RIVA: { R1: 4, R2: 5, R3: 5, R4: 4, CAR: 3 },
       PESCHIERA: { P1: 5, P2: 5, P3: 4, CAP: 3, SR1: 4 }
     };
@@ -2290,6 +2747,7 @@
       "grado-motorista": { label: "Motorista", color: "#a855f7" },
       "grado-marinaio": { label: "Marinaio", color: "#9ca3af" },
       "grado-operaio": { label: "Operaio", color: "#14b8a6" }
+      ,"grado-barista": { label: "Barista", color: "#f472b6" }
     };
 
     const shiftBorderColor = {
@@ -2325,8 +2783,30 @@
       return shiftDurations[code] || "";
     }
 
+    function getLatestOdsCoverage() {
+      const variations = (Array.isArray(globalData?.variazioni_ods) ? globalData.variazioni_ods : [])
+        .filter(item => item && item.attiva !== false && /^\d{4}-\d{2}-\d{2}$/.test(String(item.data || "")));
+      if (!variations.length) return null;
+      const odsNumber = item => Number.parseInt(String(item.ods || "").match(/\d+/)?.[0] || "0", 10);
+      const latestNumber = Math.max(...variations.map(odsNumber));
+      if (!latestNumber) return null;
+      const latestDates = variations
+        .filter(item => odsNumber(item) === latestNumber)
+        .map(item => String(item.data))
+        .sort();
+      if (!latestDates.length) return null;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return {
+        number: latestNumber,
+        from: formatDateISOClient(today),
+        until: latestDates[latestDates.length - 1]
+      };
+    }
+
     function inizializzaCalendario() {
       dateCalendario.length = 0;
+      const odsCoverage = getLatestOdsCoverage();
       let colCounter = 3;
       settimaneInfo.forEach((sett, sIdx) => {
         const baseDate = new Date(sett.year || 2026, sett.month, sett.startDay);
@@ -2345,7 +2825,11 @@
             labelEstesa: `${nomiGiorniCompleti[(d.getDay() + 6) % 7]} ${d.getDate()} ${mesiNomi[d.getMonth()]}`,
             realObj: d,
             iso,
-            isBozza: Boolean(globalData && globalData.bozza_dal && iso >= globalData.bozza_dal)
+            isBozza: Boolean(globalData && globalData.bozza_dal && iso >= globalData.bozza_dal),
+            odsCoverageNumber: odsCoverage && iso >= odsCoverage.from && iso <= odsCoverage.until
+              ? odsCoverage.number
+              : null,
+            odsCoverageUntil: odsCoverage?.until || ""
           });
           colCounter++;
         }
@@ -2365,6 +2849,7 @@
         "aiutomotorista": "grado-aiuto",
         "marinaio": "grado-marinaio",
         "operaio": "grado-operaio"
+        ,"barista": "grado-barista"
       };
       return map[q] || "grado-marinaio";
     }
@@ -2374,7 +2859,7 @@
       let txt = v.toUpperCase().trim().replace(/\*/g, "").replace(/--/g, "");
       if (txt === "" || txt === "RIP" || txt === "RIP." || txt === "----") return "";
 
-      let match = txt.match(/(?:^C)?([DRMP]\d|BIS|POND|T1|M1|DT|T2|CAR|CAP|SR1)(?:C|$)/i);
+      let match = txt.match(/(?:^C)?([DRMP]\d|BIS|POND|PONM|AGB|AGM|AGT|T1|M1|DT|T2|CAR|CAP|SR1)(?:C|$)/i);
       if (match && match[1]) {
         return match[1].toUpperCase();
       }
@@ -2419,6 +2904,14 @@
       return a.getTime() === b.getTime();
     }
 
+    function formatTodayMenuLabel() {
+      return new Intl.DateTimeFormat("it-IT", {
+        weekday:"short",
+        day:"2-digit",
+        month:"short"
+      }).format(new Date()).replace(/\./g, "").toLocaleUpperCase("it");
+    }
+
     function buildTableHeader() {
       const container = document.getElementById("thead-container");
       let html = `<tr class="date-header"><th>Agente</th>`;
@@ -2434,7 +2927,8 @@
           clsArr.push("bozza-start");
         }
         const cls = `class="${clsArr.join(" ")}"`;
-        html += `<th ${cls} data-col="${d.col}" onclick="eseguiRicercaHeader(${d.col})"><span class="date-head-day">${d.giornoSett}</span><span class="date-head-num">${d.dayNum}</span>${d.isBozza ? '<span class="date-head-draft" aria-label="Bozza" title="Bozza"></span>' : ''}</th>`;
+        const markers = `${d.isBozza ? '<span class="date-head-draft" aria-label="Bozza" title="Bozza"></span>' : ''}${d.odsCoverageNumber ? `<span class="date-head-ods" aria-label="Coperto dall’ODS ${d.odsCoverageNumber}" title="Coperto dall’ODS ${d.odsCoverageNumber} fino al ${d.odsCoverageUntil.split('-').reverse().join('/')}"></span>` : ''}`;
+        html += `<th ${cls} data-col="${d.col}" onclick="eseguiRicercaHeader(${d.col})"><span class="date-head-day">${d.giornoSett}</span><span class="date-head-num">${d.dayNum}</span>${markers ? `<span class="date-head-markers">${markers}</span>` : ''}</th>`;
       });
       html += `</tr>`;
       container.innerHTML = html;
@@ -2442,13 +2936,10 @@
 
     function eseguiRicercaHeader(colonnaCliccata) {
       if (isEditMode) return;
+      clearPinnedAgentSelection();
       placeDayPanel("main");
       let cal = dateCalendario.find(c => c.col === colonnaCliccata);
       if (!cal) return;
-      if (pinnedAgentIdx !== null) {
-        selectDayForPinnedAgent(cal);
-        return;
-      }
       if (!activeShiftFilter) {
         const residenceKey = currentResidence.toLowerCase().trim();
         const availableShifts = turniMappaResidenze[residenceKey] || [];
@@ -2467,7 +2958,7 @@
       const rawShift = weeklyShifts[dayIndex] || "rip";
       const cleanShift = ottieniTurnoPulito(rawShift);
 
-      activeShiftFilter = cleanShift || null;
+      activeShiftFilter = getCrewShiftKey(cleanShift) || null;
       generaFiltriTurnoRiferimento();
       selectDay(cal.col, cal.labelEstesa, rawShift, agent);
     }
@@ -2494,10 +2985,11 @@
         const btn = document.createElement("button");
         btn.className = "shift-filter-btn";
         btn.textContent = t;
-        if (activeShiftFilter === t) btn.classList.add("active");
+        if (getCrewShiftKey(activeShiftFilter) === getCrewShiftKey(t)) btn.classList.add("active");
 
         btn.addEventListener("click", () => {
-          if (activeShiftFilter === t) {
+          clearPinnedAgentSelection();
+          if (getCrewShiftKey(activeShiftFilter) === getCrewShiftKey(t)) {
             activeShiftFilter = null;
           } else {
             activeShiftFilter = t;
@@ -2522,22 +3014,166 @@
       trElements = [];
       crewCompletenessCache.clear();
 
-      if (pinnedAgentIdx !== null && currentAgentsList[pinnedAgentIdx]) {
-        let trPinned = createRowDOM(currentAgentsList[pinnedAgentIdx], pinnedAgentIdx, true);
-        tbody.appendChild(trPinned);
-        trElements.push(trPinned);
+      const loggedIndex = findLoggedAgentIndex();
+      const loggedLocation = getLoggedAgentLocation();
+      const orderedIndexes = [];
+      if (loggedIndex >= 0) orderedIndexes.push(loggedIndex);
+      if (pinnedAgentIdx !== null && pinnedAgentIdx !== loggedIndex && currentAgentsList[pinnedAgentIdx]) orderedIndexes.push(pinnedAgentIdx);
+      currentAgentsList.forEach((agent, index) => { if (!orderedIndexes.includes(index)) orderedIndexes.push(index); });
+
+      if (loggedLocation && loggedLocation.residence !== currentResidence) {
+        const loggedRow = createRowDOM(
+          loggedLocation.agent,
+          loggedLocation.index,
+          false,
+          loggedLocation.residence,
+          true
+        );
+        loggedRow.classList.remove("temporary-transfer-row");
+        loggedRow.classList.add("cross-residence-logged-row");
+        const referenceLabel = loggedRow.querySelector(".transfer-table-label");
+        if (referenceLabel) referenceLabel.textContent = `La mia riga · ${loggedLocation.residence}`;
+        tbody.appendChild(loggedRow);
+        trElements.push(loggedRow);
       }
 
-      currentAgentsList.forEach((agenteObj, ri) => {
-        if (ri === pinnedAgentIdx) return;
-        let tr = createRowDOM(agenteObj, ri, false);
+      orderedIndexes.forEach(ri => {
+        const agenteObj = currentAgentsList[ri];
+        let tr = createRowDOM(agenteObj, ri, ri === pinnedAgentIdx);
         tbody.appendChild(tr);
         trElements.push(tr);
       });
 
       renderCoverageTable();
       hidePastColumns();
+      highlightSharedCrewDays();
+      requestAnimationFrame(updateLoggedStickyOffset);
     }
+
+    function highlightSharedCrewDays() {
+      document.querySelectorAll("#tbody tr.has-shared-crew").forEach(row => row.classList.remove("has-shared-crew"));
+      document.querySelectorAll("#tbody td.shared-crew-day, #tbody td.pinned-shared-crew-day, #tbody td.departed-crew-day").forEach(cell => {
+        cell.classList.remove("shared-crew-day", "pinned-shared-crew-day", "departed-crew-day");
+        cell.querySelector(".shared-crew-change-label")?.remove();
+        if (cell.dataset.sharedCrewPreviousTitle) cell.title = cell.dataset.sharedCrewPreviousTitle;
+        else cell.removeAttribute("title");
+        delete cell.dataset.sharedCrewTitle;
+        delete cell.dataset.sharedCrewPreviousTitle;
+      });
+      const loggedLocation = getLoggedAgentLocation();
+      if (!loggedLocation) return;
+      const loggedIndex = findLoggedAgentIndex();
+      const loggedAgent = loggedLocation.agent;
+      const loggedRow = document.querySelector("#tbody tr.logged-agent-row");
+      const pinnedAgent = pinnedAgentIdx !== null ? currentAgentsList[pinnedAgentIdx] : null;
+      if (!loggedAgent || !loggedRow) return;
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      const markSharedCell = (row, cal, title) => {
+        const cell = row?.querySelector(`td[data-col="${cal.col}"]`);
+        if (!cell) return;
+        row.classList.add("has-shared-crew");
+        cell.classList.add("shared-crew-day");
+        cell.dataset.sharedCrewPreviousTitle = cell.title || "";
+        cell.dataset.sharedCrewTitle = title;
+        cell.title = cell.title ? `${cell.title} · ${title}` : title;
+      };
+
+      const markDepartedCell = (row, cal, originalShift, updatedShift, variation) => {
+        const cell = row?.querySelector(`td[data-col="${cal.col}"]`);
+        if (!cell) return;
+        const original = getCrewShiftKey(originalShift).replace(/^TERRA_/, "TERRA ");
+        const updated = getCrewShiftKey(updatedShift).replace(/^TERRA_/, "TERRA ") || "RIPOSO";
+        const ods = variation?.ods ? ` · ODS ${variation.ods}` : "";
+        const title = `Ha lasciato ${original} per ${updated}${ods}`;
+        cell.classList.add("departed-crew-day");
+        cell.dataset.sharedCrewPreviousTitle = cell.title || "";
+        cell.dataset.sharedCrewTitle = title;
+        cell.title = cell.title ? `${cell.title} · ${title}` : title;
+        const label = document.createElement("span");
+        label.className = "shared-crew-change-label";
+        label.textContent = `da ${original}`;
+        cell.appendChild(label);
+      };
+
+      dateCalendario.forEach(cal => {
+        const calendarDay = new Date(cal.realObj);
+        calendarDay.setHours(0, 0, 0, 0);
+        if (!Number.isFinite(calendarDay.getTime()) || calendarDay < todayStart) return;
+        const dayIndex = (cal.col - 3) % 7;
+        const loggedRaw = (loggedAgent.turni_settimanali[cal.weekKey] || [])[dayIndex] || "rip";
+        const loggedShift = ottieniTurnoPulito(loggedRaw);
+        if (!getShiftResidence(loggedShift)) return;
+
+        if (pinnedAgent && pinnedAgent !== loggedAgent) {
+          const pinnedRaw = (pinnedAgent.turni_settimanali?.[cal.weekKey] || [])[dayIndex] || "rip";
+          const pinnedShift = ottieniTurnoPulito(pinnedRaw);
+          if (getShiftResidence(pinnedShift) && isSameCrewShift(loggedShift, pinnedShift)) {
+            loggedRow.querySelector(`td[data-col="${cal.col}"]`)?.classList.add("pinned-shared-crew-day");
+          }
+        }
+
+        const matchingIndexes = [];
+        const departedIndexes = [];
+        currentAgentsList.forEach((agent, index) => {
+          if (index === loggedIndex) return;
+          const colleagueRaw = (agent.turni_settimanali[cal.weekKey] || [])[dayIndex] || "rip";
+          const colleagueShift = ottieniTurnoPulito(colleagueRaw);
+          if (getShiftResidence(colleagueShift) && isSameCrewShift(loggedShift, colleagueShift)) matchingIndexes.push(index);
+          const variation = agent.variazioni_ods?.[cal.iso];
+          if (!variation) return;
+          const originalShift = ottieniTurnoPulito(variation.turno_originale);
+          const updatedShift = ottieniTurnoPulito(variation.turno_nuovo);
+          if (isSameCrewShift(loggedShift, originalShift) && !isSameCrewShift(loggedShift, updatedShift)) {
+            departedIndexes.push({ index, originalShift, updatedShift, variation });
+          }
+        });
+        const departedSet = new Set(departedIndexes.map(item => item.index));
+        for (let index = matchingIndexes.length - 1; index >= 0; index--) {
+          if (departedSet.has(matchingIndexes[index])) matchingIndexes.splice(index, 1);
+        }
+        if (!matchingIndexes.length && !departedIndexes.length) return;
+
+        const label = getCrewShiftKey(loggedShift).replace(/^TERRA_/, "TERRA ");
+        matchingIndexes.forEach(index => {
+          const colleagueRow = trElements.find(row =>
+            row.dataset.residence === currentResidence && parseInt(row.dataset.rowIndex) === index
+          );
+          markSharedCell(colleagueRow, cal, `Turno ${label} in comune con ${loggedAgent.agente}`);
+        });
+        departedIndexes.forEach(({ index, originalShift, updatedShift, variation }) => {
+          const colleagueRow = trElements.find(row =>
+            row.dataset.residence === currentResidence && parseInt(row.dataset.rowIndex) === index
+          );
+          markDepartedCell(colleagueRow, cal, originalShift, updatedShift, variation);
+        });
+      });
+    }
+
+    function hasCurrentOrFutureSharedCrewWithLogged(agent) {
+      const loggedLocation = getLoggedAgentLocation();
+      const loggedAgent = loggedLocation?.agent;
+      if (!agent || !loggedAgent || agent === loggedAgent) return false;
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      return dateCalendario.some(cal => {
+        const calendarDay = new Date(cal.realObj);
+        calendarDay.setHours(0, 0, 0, 0);
+        if (!Number.isFinite(calendarDay.getTime()) || calendarDay < todayStart) return false;
+        const dayIndex = (cal.col - 3) % 7;
+        const loggedShift = ottieniTurnoPulito((loggedAgent.turni_settimanali?.[cal.weekKey] || [])[dayIndex] || "rip");
+        const colleagueShift = ottieniTurnoPulito((agent.turni_settimanali?.[cal.weekKey] || [])[dayIndex] || "rip");
+        return Boolean(getShiftResidence(loggedShift)) && isSameCrewShift(loggedShift, colleagueShift);
+      });
+    }
+
+    function updateLoggedStickyOffset() {
+      const dateHeader = document.querySelector(".date-header");
+      const height = dateHeader ? Math.ceil(dateHeader.getBoundingClientRect().height) : 38;
+      document.documentElement.style.setProperty("--logged-row-sticky-top", height + "px");
+    }
+    window.addEventListener("resize", updateLoggedStickyOffset);
 
     function getCrewRequirements(residence) {
       const key = String(residence || "").trim().toUpperCase();
@@ -2551,25 +3187,42 @@
       return requirements;
     }
 
-    function getCrewDeficiencies(crew, shift) {
+    function getCrewDeficiencies(crew, shift, residence = currentResidence) {
       if (!shift || shift === "RIPOSO") return { required:null, incomplete:false };
-      const requirements = getCrewRequirements(currentResidence);
-      const requiredValue = requirements[shift] ?? requirements[String(shift).toUpperCase()];
+      const requirements = getCrewRequirements(residence);
+      const shiftKey = getCrewRequirementKey(shift);
+      const requiredValue = requirements[shiftKey] ?? requirements[String(shiftKey).toUpperCase()];
       const required = requiredValue == null || requiredValue === "" ? null : parseInt(requiredValue, 10);
       if (required == null || Number.isNaN(required)) return { required:null, incomplete:false };
-      return { required, incomplete:crew.length < required };
+      const operatingCrew = crew.filter(person => !person.isBarista);
+      return { required, incomplete:operatingCrew.length < required };
+    }
+
+    function getCrewBaristas(calInfo, shift) {
+      const cleanShift = ottieniTurnoPulito(shift).toUpperCase();
+      if (!calInfo?.iso || !["D2", "D3", "P2", "P3"].includes(cleanShift)) return [];
+      const records = Array.isArray(globalData?.bariste)
+        ? globalData.bariste
+        : (Array.isArray(globalData?.barista) ? globalData.barista : []);
+      return records.filter(item => {
+        const active = item.attiva !== false && !/^(no|false|0)$/i.test(String(item.attiva || ""));
+        return active && String(item.data || "").slice(0, 10) === calInfo.iso &&
+          String(item.corsa || "").trim().toUpperCase() === cleanShift &&
+          String(item.barista || item.agente || item.nome || "").trim();
+      });
     }
 
     function getCrewStatusForDate(cal, shiftValue) {
       const emptyStatus = { incomplete:false, overstaffed:false, hasTransfer:false };
       if (!cal || !currentResidence) return emptyStatus;
-      const cleanShift = ottieniTurnoPulito(shiftValue).toUpperCase();
+      const cleanShift = getCrewShiftKey(shiftValue);
       const residenceKey = currentResidence.trim().toLowerCase();
       const validShifts = turniMappaResidenze[residenceKey] || [];
-      if (!validShifts.some(shift => shift.toUpperCase() === cleanShift)) return emptyStatus;
+      if (!validShifts.some(shift => getCrewShiftKey(shift) === cleanShift)) return emptyStatus;
 
       const requirements = getCrewRequirements(currentResidence);
-      const requiredValue = requirements[cleanShift];
+      const requirementKey = getCrewRequirementKey(cleanShift);
+      const requiredValue = requirements[requirementKey];
       const required = requiredValue == null || requiredValue === "" ? null : parseInt(requiredValue, 10);
       if (required == null || Number.isNaN(required)) return emptyStatus;
 
@@ -2582,7 +3235,7 @@
       Object.entries(globalData.residenze || {}).forEach(([residence, agents]) => {
         (agents || []).forEach(agent => {
           const rawShift = (agent.turni_settimanali?.[cal.weekKey] || [])[dayIndex] || "rip";
-          if (ottieniTurnoPulito(rawShift).toUpperCase() === cleanShift) {
+          if (isSameCrewShift(rawShift, cleanShift)) {
             count++;
             const rawUpper = String(rawShift).trim().toUpperCase();
             if (residence !== currentResidence || rawUpper.startsWith("C") || rawUpper.endsWith("C")) {
@@ -2661,7 +3314,8 @@
 
     function getOdsPdfHref(ods) {
       const fileName = odsPdfFiles[String(ods || "").trim()];
-      return fileName ? `ods/${encodeURIComponent(fileName)}` : "";
+      if (fileName) return `ods/${encodeURIComponent(fileName)}`;
+      return String(ods || "").trim() ? "turni.html#ods-docs" : "";
     }
 
     function renderAgentOdsBadge(variation) {
@@ -2702,38 +3356,36 @@
 
     function appendCrewOdsVariations(container, calInfo, selectedShift) {
       if (!container || !calInfo) return;
-      const targetShift = ottieniTurnoPulito(selectedShift).toUpperCase();
-      const focusedAgent = selectedCrewAgent || (pinnedAgentIdx !== null ? currentAgentsList[pinnedAgentIdx] : null);
+      const targetShift = getCrewShiftKey(selectedShift);
+      if (!targetShift) return;
       const matches = [];
 
       Object.values(globalData.residenze || {}).forEach(agents => {
         (agents || []).forEach(agent => {
           const variation = agent.variazioni_ods?.[calInfo.iso];
           if (!variation) return;
-          if (focusedAgent && targetShift === "") {
-            const sameId = focusedAgent.id && agent.id && String(focusedAgent.id) === String(agent.id);
-            const sameName = normalizeOdsAgentName(focusedAgent.agente) === normalizeOdsAgentName(agent.agente);
-            if (!sameId && !sameName) return;
-          }
           const originalShift = ottieniTurnoPulito(variation.turno_originale).toUpperCase();
           const newShift = ottieniTurnoPulito(variation.turno_nuovo).toUpperCase();
-          if (originalShift !== targetShift && newShift !== targetShift) return;
+          if (!isSameCrewShift(originalShift, targetShift) || isSameCrewShift(newShift, targetShift)) return;
           matches.push({ agent, variation });
         });
       });
 
       if (!matches.length) return;
       const box = document.createElement("div");
-      box.className = "ods-crew-variations";
-      box.innerHTML = `<div class="ods-crew-title">Variazioni ODS</div><div class="ods-crew-list">${matches.map(({ agent, variation }) => {
+      box.className = "departed-crew-group";
+      box.innerHTML = `<div class="departed-crew-list">${matches.map(({ agent, variation }) => {
         const ods = escapeAttribute(variation.ods || "ODS");
-        const original = normalizeOdsShift(variation.turno_originale).toUpperCase();
-        const updated = normalizeOdsShift(variation.turno_nuovo).toUpperCase();
+        const original = escapeAttribute(normalizeOdsShift(variation.turno_originale).toUpperCase());
+        const updated = escapeAttribute(normalizeOdsShift(variation.turno_nuovo).toUpperCase());
         const href = getOdsPdfHref(variation.ods);
-        const link = href
-          ? `<a class="ods-crew-link" href="${href}" target="_blank" rel="noopener">Apri ODS ${ods}</a>`
-          : `<span class="ods-crew-change">ODS ${ods}</span>`;
-        return `<div class="ods-crew-item"><span class="ods-crew-agent">${escapeAttribute(agent.agente)}</span><span class="ods-crew-change">${escapeAttribute(original)} → ${escapeAttribute(updated)}</span>${link}</div>`;
+        const variationLabel = `${original} → ${updated}`;
+        const variationBadge = href
+          ? `<a class="agent-ods-badge departed-ods-badge" href="${href}" target="_blank" rel="noopener" title="Apri ODS ${ods}">${variationLabel}</a>`
+          : `<span class="agent-ods-badge departed-ods-badge" title="ODS ${ods}">${variationLabel}</span>`;
+        const gradeClass = getGradeClass(agent.id, agent.agente, agent.qualifica);
+        const grade = gradeInfo[gradeClass] || { label:"Marinaio", color:"#9ca3af" };
+        return `<div class="colleague-card departed-card" style="border-left-color:${grade.color};"><span class="c-num">${escapeAttribute(agent.id || "—")}</span><span class="c-name">${escapeAttribute(agent.agente)}${variationBadge}</span><span class="c-grade" style="color:${grade.color};background:${grade.color}22;border:1px solid ${grade.color}44;">${grade.label}</span></div>`;
       }).join("")}</div>`;
       container.appendChild(box);
     }
@@ -2776,7 +3428,7 @@
       }
 
       thead.innerHTML = `<tr><th>Corsa</th>${dateCalendario.map((cal, index) =>
-        `<th data-col="${cal.col}" class="${getCalendarVisualClasses(cal, index)}"><span class="date-head-day">${cal.giornoSett}</span><span class="date-head-num">${cal.dayNum}</span>${cal.isBozza ? '<span class="date-head-draft" aria-label="Bozza" title="Bozza"></span>' : ''}</th>`
+        `<th data-col="${cal.col}" class="${getCalendarVisualClasses(cal, index)}"><span class="date-head-day">${cal.giornoSett}</span><span class="date-head-num">${cal.dayNum}</span>${cal.isBozza || cal.odsCoverageNumber ? `<span class="date-head-markers">${cal.isBozza ? '<span class="date-head-draft" aria-label="Bozza" title="Bozza"></span>' : ''}${cal.odsCoverageNumber ? `<span class="date-head-ods" aria-label="Coperto dall’ODS ${cal.odsCoverageNumber}" title="Coperto dall’ODS ${cal.odsCoverageNumber} fino al ${cal.odsCoverageUntil.split('-').reverse().join('/')}"></span>` : ''}</span>` : ''}</th>`
       ).join("")}</tr>`;
 
       tbody.innerHTML = shifts.map(shift => {
@@ -2791,7 +3443,7 @@
           Object.entries(globalData.residenze || {}).forEach(([residence, agents]) => {
             (agents || []).forEach(agent => {
               const rawShift = (agent.turni_settimanali?.[cal.weekKey] || [])[dayIndex] || "rip";
-              if (ottieniTurnoPulito(rawShift).toUpperCase() === shift.toUpperCase()) {
+              if (isSameCrewShift(rawShift, shift)) {
                 const rawUpper = String(rawShift).trim().toUpperCase();
                 const isTransfer = residence !== currentResidence || rawUpper.startsWith("C") || rawUpper.endsWith("C");
                 hasTransfer ||= isTransfer;
@@ -2806,7 +3458,7 @@
               const variation = agent.variazioni_ods?.[cal.iso];
               if (!variation) return false;
               return [variation.turno_originale, variation.turno_nuovo].some(value =>
-                ottieniTurnoPulito(value).toUpperCase() === shift.toUpperCase()
+                isSameCrewShift(value, shift)
               );
             })
           );
@@ -2857,6 +3509,13 @@
       return globalData?.residenze?.[residence]?.[rowIndex] || null;
     }
 
+    function getTableRowShift(tr, cal = dateCalendario.find(item => item.col === selectedCol)) {
+      const agent = getAgentForTableRow(tr);
+      if (!agent || !cal) return "";
+      const dayIndex = (cal.col - 3) % 7;
+      return ottieniTurnoPulito((agent.turni_settimanali?.[cal.weekKey] || [])[dayIndex] || "rip").toUpperCase();
+    }
+
     function removeTemporaryTransferRows() {
       const temporaryRows = trElements.filter(tr => tr.classList.contains("temporary-transfer-row"));
       temporaryRows.forEach(tr => tr.remove());
@@ -2868,13 +3527,15 @@
       if (!globalData?.residenze || !calInfo || !selectedShift) return;
 
       const tbody = document.getElementById("tbody");
+      const loggedLocation = getLoggedAgentLocation();
       Object.keys(globalData.residenze).forEach(residence => {
         if (residence === currentResidence) return;
 
         globalData.residenze[residence].forEach((agent, rowIndex) => {
+          if (loggedLocation && residence === loggedLocation.residence && rowIndex === loggedLocation.index) return;
           const shifts = agent.turni_settimanali[calInfo.weekKey] || [];
           const rawShift = shifts[dayIndex] || "rip";
-          if (ottieniTurnoPulito(rawShift) !== selectedShift) return;
+          if (!isSameCrewShift(rawShift, selectedShift)) return;
 
           const tr = createRowDOM(agent, rowIndex, false, residence, true);
           tbody.appendChild(tr);
@@ -2886,15 +3547,29 @@
     function moveSelectedCrewToTop() {
       const tbody = document.getElementById("tbody");
       if (!tbody) return;
+      const selectedCal = dateCalendario.find(item => item.col === selectedCol);
+      const selectedCrewKey = getCrewShiftKey(selectedShiftValue);
+      const selectedIsGroundCrew = isGroundCrewShiftKey(selectedCrewKey);
 
       trElements.sort((a, b) => {
+        const loggedA = a.classList.contains("logged-agent-row") ? 0 : 1;
+        const loggedB = b.classList.contains("logged-agent-row") ? 0 : 1;
+        if (loggedA !== loggedB) return loggedA - loggedB;
         const pinnedA = a.classList.contains("pinned-row") ? 0 : 1;
         const pinnedB = b.classList.contains("pinned-row") ? 0 : 1;
         if (pinnedA !== pinnedB) return pinnedA - pinnedB;
 
-        const matchA = a.classList.contains("row-match") ? 0 : 1;
-        const matchB = b.classList.contains("row-match") ? 0 : 1;
+        const shiftA = getTableRowShift(a, selectedCal);
+        const shiftB = getTableRowShift(b, selectedCal);
+        const matchA = isSameCrewShift(shiftA, selectedCrewKey) ? 0 : 1;
+        const matchB = isSameCrewShift(shiftB, selectedCrewKey) ? 0 : 1;
         if (matchA !== matchB) return matchA - matchB;
+
+        if (matchA === 0 && selectedIsGroundCrew) {
+          const serviceDifference = (ordineServiziTerra[shiftA] || 99) -
+            (ordineServiziTerra[shiftB] || 99);
+          if (serviceDifference !== 0) return serviceDifference;
+        }
 
         const gradeDifference = getTableGradeRank(a) - getTableGradeRank(b);
         if (gradeDifference !== 0) return gradeDifference;
@@ -2914,6 +3589,9 @@
       removeTemporaryTransferRows();
 
       trElements.sort((a, b) => {
+        const loggedA = a.classList.contains("logged-agent-row") ? 0 : 1;
+        const loggedB = b.classList.contains("logged-agent-row") ? 0 : 1;
+        if (loggedA !== loggedB) return loggedA - loggedB;
         const pinnedA = a.classList.contains("pinned-row") ? 0 : 1;
         const pinnedB = b.classList.contains("pinned-row") ? 0 : 1;
         if (pinnedA !== pinnedB) return pinnedA - pinnedB;
@@ -2929,6 +3607,7 @@
       tr.dataset.residence = residence;
       tr.classList.add(getGradeClass(agenteObj.id, agenteObj.agente, agenteObj.qualifica));
       if (isPinned) tr.classList.add("pinned-row");
+      if (ri === findLoggedAgentIndex(residence)) tr.classList.add("logged-agent-row");
       if (isTemporaryTransfer) tr.classList.add("temporary-transfer-row");
 
       const transferLabel = isTemporaryTransfer ? `<span class="transfer-table-label">Trasferta da ${residence}</span>` : "";
@@ -2939,8 +3618,7 @@
         if (isEditMode) return;
         if (isTemporaryTransfer) return;
         if (pinnedAgentIdx === ri) {
-          pinnedAgentIdx = null;
-          renderTable();
+          resetCleanTable();
           return;
         }
 
@@ -3003,6 +3681,7 @@
           const refuelIndicator = hasRefuel ? '<span class="upper-cell-refuel" aria-label="Rifornimento"></span>' : '';
           td.innerHTML = `${crewIndicators}${refuelIndicator}${pill(turnoVal)}`;
           td.addEventListener("click", () => {
+            clearPinnedAgentSelection();
             placeDayPanel("main");
             // Il clic su una cella deve sempre aprire la corsa scritta nella cella,
             // indipendentemente dal filtro o dall'agente selezionato in precedenza.
@@ -3012,35 +3691,71 @@
         tr.appendChild(td);
       });
 
+      tr.addEventListener("pointerenter", event => {
+        if (event.pointerType !== "touch" && tr.querySelector("td.shared-crew-day")) {
+          setSharedCrewFocus(tr, true);
+        }
+      });
+      tr.addEventListener("pointerleave", event => {
+        if (event.pointerType !== "touch") setSharedCrewFocus(tr, false);
+      });
+      tr.addEventListener("touchstart", () => {
+        if (!tr.querySelector("td.shared-crew-day")) return;
+        document.querySelectorAll("#tbody tr.shared-crew-focus").forEach(row => {
+          if (row !== tr) setSharedCrewFocus(row, false);
+        });
+        setSharedCrewFocus(tr, true);
+        clearTimeout(tr._sharedCrewPulseTimer);
+        tr._sharedCrewPulseTimer = setTimeout(() => setSharedCrewFocus(tr, false), 1800);
+      }, { passive:true });
+
       return tr;
+    }
+
+    function setSharedCrewFocus(row, active) {
+      document.querySelectorAll(".date-header th.hover-shared-date").forEach(th => th.classList.remove("hover-shared-date"));
+      row?.classList.toggle("shared-crew-focus", active);
+      if (!active || !row) return;
+      row.querySelectorAll("td.shared-crew-day[data-col]").forEach(cell => {
+        document.querySelector(`.date-header th[data-col="${cell.dataset.col}"]`)?.classList.add("hover-shared-date");
+      });
     }
 
     function selectDay(col, label, cellShiftValue, focusAgent = null) {
       if (isEditMode) return;
+      const clickedShiftKey = getCrewShiftKey(ottieniTurnoPulito(cellShiftValue));
+      const selectedShiftKey = getCrewShiftKey(ottieniTurnoPulito(selectedShiftValue));
+      if (selectedCol === col && clickedShiftKey === selectedShiftKey) {
+        clearSelection();
+        return;
+      }
       // Ogni nuova selezione usa il giorno scelto come prima colonna visibile.
       showPastColumns = false;
       selectedCol = col;
       selectedShiftValue = cellShiftValue || selectedShiftValue;
       selectedCrewAgent = focusAgent;
       document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
+      document.querySelectorAll("#tbody td.selected-shared-crew-day").forEach(td => td.classList.remove("selected-shared-crew-day"));
       let targetTh = document.querySelector(`.date-header th[data-col="${col}"]`);
       if (targetTh) targetTh.classList.add("selected-day");
 
       let calInfo = dateCalendario.find(c => c.col === col);
       let giornoInternoIdx = (col - 3) % 7;
       const cleanShift = ottieniTurnoPulito(cellShiftValue);
+      const crewShift = getCrewShiftKey(cleanShift);
       const isRest = cleanShift === "";
-      const residenceShifts = turniMappaResidenze[String(currentResidence).toLowerCase().trim()] || [];
-      const isCrewShift = residenceShifts.some(shift => String(shift).toUpperCase() === cleanShift);
-      const myShiftPuro = isRest ? "RIPOSO" : cleanShift;
-      updateCoverageShiftButtons(cleanShift);
-      updateCoverageCellSelection(col, cleanShift);
+      const crewResidence = getShiftResidence(cleanShift);
+      const isCrewShift = Boolean(crewResidence);
+      const myShiftPuro = isRest ? "RIPOSO" : (isGroundCrewShiftKey(crewShift) ? "TERRA" : crewShift);
+      updateCoverageShiftButtons(crewShift);
+      updateCoverageCellSelection(col, crewShift);
 
       if (!calInfo) {
         document.getElementById("tbody").classList.remove("has-selection");
         trElements.forEach(tr => tr.classList.remove("row-match"));
         restoreDefaultTableOrder();
         document.getElementById("day-panel").classList.remove("open");
+        document.getElementById("day-panel").setAttribute("aria-hidden", "true");
         return;
       }
 
@@ -3056,13 +3771,26 @@
         let hisShiftRaw = turniSett[giornoInternoIdx] || "rip";
         let hisShiftPuro = ottieniTurnoPulito(hisShiftRaw);
 
-        let match = (hisShiftPuro === cleanShift);
+        let match = isSameCrewShift(hisShiftPuro, cleanShift);
         tr.classList.toggle("row-match", match);
+        if (tr.classList.contains("logged-agent-row")) {
+          tr.classList.toggle("logged-in-selected-crew", match && isCrewShift);
+        }
 
         tr.querySelectorAll("td[data-col]").forEach(td => {
           td.classList.toggle("col-selected", parseInt(td.dataset.col) === col);
         });
       });
+
+      const loggedMatchingRow = trElements.find(tr =>
+        tr.classList.contains("logged-agent-row") && tr.classList.contains("row-match")
+      );
+      const hasMatchingColleague = trElements.some(tr =>
+        !tr.classList.contains("logged-agent-row") && tr.classList.contains("row-match")
+      );
+      if (loggedMatchingRow && hasMatchingColleague && isCrewShift) {
+        loggedMatchingRow.querySelector(`td[data-col="${col}"]`)?.classList.add("selected-shared-crew-day");
+      }
 
       moveSelectedCrewToTop();
 
@@ -3084,23 +3812,22 @@
                 <span class="service-code" style="color:${myColor}">${myShiftPuro}</span>
                 ${myDuration ? `<span class="shift-duration">${myDuration}</span>` : ""}
               </div>
-              <div class="shift-navigation" aria-label="Cambia corsa">
+              ${pinnedAgentIdx === null ? `<div class="shift-navigation" aria-label="Cambia corsa">
                 <button class="shift-arrow" type="button" onclick="changeSelectedShift(-1)" aria-label="Corsa precedente">←</button>
                 <span class="shift-nav-label">Corsa</span>
                 <button class="shift-arrow" type="button" onclick="changeSelectedShift(1)" aria-label="Corsa successiva">→</button>
-              </div>
+              </div>` : ""}
             </div>
             ${shipDayInfo}
             <div class="panel-navigation" aria-label="Cambia giorno">
               <button class="panel-arrow" id="previous-day-btn" type="button" onclick="changeSelectedDay(-1)" aria-label="Giorno precedente">←</button>
-              <button class="panel-arrow panel-today" id="today-day-btn" type="button" onclick="goToToday()">Oggi</button>
+              <button class="panel-arrow panel-today" id="today-day-btn" type="button" onclick="goToToday()" aria-label="Vai alla data di oggi">${formatTodayMenuLabel()}</button>
               <button class="panel-arrow" id="next-day-btn" type="button" onclick="changeSelectedDay(1)" aria-label="Giorno successivo">→</button>
             </div>
           </div>
         </div>
       </div>`;
       panelGroups.appendChild(myDiv);
-      let odsContainer = null;
 
       if (isCrewShift) {
         let allColleagues = [];
@@ -3109,13 +3836,18 @@
           let turniSett = ag.turni_settimanali[calInfo.weekKey] || [];
           let hisShiftRaw = turniSett[giornoInternoIdx] || "rip";
           let hisShiftPuro = ottieniTurnoPulito(hisShiftRaw);
+          const odsVariation = ag.variazioni_ods?.[calInfo.iso] || null;
+          const movedAwayByOds = odsVariation &&
+            isSameCrewShift(odsVariation.turno_originale, cleanShift) &&
+            !isSameCrewShift(odsVariation.turno_nuovo, cleanShift);
 
-          if (hisShiftPuro === cleanShift) {
+          if (isSameCrewShift(hisShiftPuro, cleanShift) && !movedAwayByOds) {
             let rawUpper = hisShiftRaw.toUpperCase();
             let isTrasfertaFlag = rawUpper.startsWith("C") || rawUpper.endsWith("C") || resKey !==
-              currentResidence;
+              crewResidence;
 
             allColleagues.push({
+              agentRecord: ag,
               id: ag.id,
               agente: ag.agente,
               qualifica: ag.qualifica,
@@ -3123,21 +3855,34 @@
               isTrasferta: isTrasfertaFlag,
               rawShift: hisShiftRaw,
               isInstructor: /\*/.test(String(hisShiftRaw)),
-              odsVariation: ag.variazioni_ods?.[calInfo.iso] || null
+              odsVariation
             });
           }
         });
         });
 
+        getCrewBaristas(calInfo, cleanShift).forEach((record, index) => {
+          allColleagues.push({
+            id: record.id || `BAR${index + 1}`,
+            agente: record.barista || record.agente || record.nome,
+            qualifica: "barista",
+            residenzaOrigine: crewResidence,
+            isTrasferta: false,
+            rawShift: cleanShift,
+            isInstructor: false,
+            isBarista: true,
+            odsVariation: null
+          });
+        });
+
         const div = document.createElement("div");
         div.className = "shift-group";
-        const crewStatus = getCrewDeficiencies(allColleagues, myShiftPuro);
+        const crewStatus = getCrewDeficiencies(allColleagues, myShiftPuro, crewResidence);
         const shortageText = crewStatus.incomplete
           ? `<div class="crew-alert"><strong>Incompleto</strong></div>`
           : "";
         div.innerHTML = `${shortageText}<div class="colleague-cards" id="colleague-list"></div>`;
         panelGroups.appendChild(div);
-        odsContainer = div;
 
       const list = div.querySelector("#colleague-list");
       const gradeOrder = {
@@ -3148,8 +3893,15 @@
         "grado-aiuto": 5,
         "grado-marinaio": 6,
         "grado-operaio": 7
+        ,"grado-barista": 8
       };
       allColleagues.sort((a, b) => {
+        if (myShiftPuro === "TERRA") {
+          const serviceA = ottieniTurnoPulito(a.rawShift).toUpperCase();
+          const serviceB = ottieniTurnoPulito(b.rawShift).toUpperCase();
+          const serviceDifference = (ordineServiziTerra[serviceA] || 99) - (ordineServiziTerra[serviceB] || 99);
+          if (serviceDifference !== 0) return serviceDifference;
+        }
         const gradeA = gradeOrder[getGradeClass(a.id, a.agente, a.qualifica)] || 99;
         const gradeB = gradeOrder[getGradeClass(b.id, b.agente, b.qualifica)] || 99;
         return gradeA - gradeB || String(a.agente).localeCompare(String(b.agente), "it");
@@ -3159,7 +3911,7 @@
         const gradeClass = getGradeClass(r.id, r.agente, r.qualifica);
         const grade = gradeInfo[gradeClass] || { label: "Marinaio", color: "#9ca3af" };
         const card = document.createElement("div");
-        card.className = `colleague-card${r.isInstructor ? " instructor-card" : ""}${r.isTrasferta ? " transfer-card" : ""}`;
+        card.className = `colleague-card${r.isInstructor ? " instructor-card" : ""}${r.isTrasferta ? " transfer-card" : ""}${r.isBarista ? " barista-card" : ""}`;
         card.style.cssText = `border-left-color:${grade.color};`;
         if (r.isTrasferta) card.title = `In trasferta da ${r.residenzaOrigine}`;
 
@@ -3169,36 +3921,99 @@
         }
 
         const instructorMark = r.isInstructor ? `<span class="c-res instructor-mark">SOVRANNUMERO</span>` : "";
+        const groundServiceCode = ottieniTurnoPulito(r.rawShift).toUpperCase();
+        const groundService = myShiftPuro === "TERRA"
+          ? `<span class="c-res">${escapeAttribute(etichetteServiziTerra[groundServiceCode] || groundServiceCode)}</span>`
+          : "";
         const odsBadge = renderAgentOdsBadge(r.odsVariation);
+        const futureSharedDot = hasCurrentOrFutureSharedCrewWithLogged(r.agentRecord)
+          ? '<span class="future-shared-dot" title="Avete turni in comune da oggi in avanti" aria-label="Turni in comune da oggi in avanti"></span>'
+          : "";
         card.innerHTML = `<span class="c-num">${r.id || "—"}</span>
-          <span class="c-name">${r.agente}${odsBadge}${instructorMark} ${infoResidenza}</span>
-          <span class="c-grade" style="color:${grade.color}; background:${grade.color}22; border:1px solid ${grade.color}44;">${grade.label}</span>`;
+          <span class="c-name">${r.agente}${odsBadge}${groundService}${instructorMark} ${infoResidenza}</span>
+          ${futureSharedDot}<span class="c-grade" style="color:${grade.color}; background:${grade.color}22; border:1px solid ${grade.color}44;">${grade.label}</span>`;
+          if (!r.isBarista) {
+            card.classList.add("pinnable-colleague");
+            card.title = [card.title, "Clicca per pinnare l’agente"].filter(Boolean).join(" · ");
+            card.addEventListener("click", event => {
+              if (event.target.closest("a, button")) return;
+              pinCrewColleague(r.residenzaOrigine, r.id, r.agente, calInfo);
+            });
+          }
           list.appendChild(card);
         });
-      }
-
-      if (!odsContainer) {
-        const odsSide = document.createElement("div");
-        odsSide.className = "shift-group ods-only-group";
-        appendCrewOdsVariations(odsSide, calInfo, cellShiftValue);
-        if (odsSide.childElementCount) panelGroups.appendChild(odsSide);
+        appendCrewOdsVariations(div, calInfo, cellShiftValue);
       }
 
       document.getElementById("panel-date-label").innerHTML = `<span>⬡</span>${label}`;
       const currentIndex = dateCalendario.findIndex(c => c.col === col);
       document.getElementById("previous-day-btn").disabled = currentIndex <= 0;
       document.getElementById("next-day-btn").disabled = currentIndex < 0 || currentIndex >= dateCalendario.length - 1;
-      document.getElementById("day-panel").classList.add("open");
-      setTimeout(scrollCrewPanelIntoView, 40);
+      const drawer = document.getElementById("day-panel");
+      const drawerToggle = document.getElementById("crew-drawer-toggle");
+      drawerToggle.hidden = false;
+      drawerToggle.textContent = drawer.classList.contains("open") ? "⌃" : "⌄";
+      drawerToggle.setAttribute("aria-expanded", String(drawer.classList.contains("open")));
+      drawerToggle.setAttribute("aria-label", drawer.classList.contains("open") ? "Nascondi equipaggio" : "Mostra equipaggio");
+      drawer.setAttribute("aria-hidden", String(!drawer.classList.contains("open")));
+      if (drawer.classList.contains("open")) {
+        requestAnimationFrame(() => {
+          updateCrewDrawerOffset();
+          scrollCrewPanelIntoView();
+        });
+      }
+    }
+
+    function toggleCrewDrawer() {
+      if (selectedCol === null) return;
+      const panel = document.getElementById("day-panel");
+      const button = document.getElementById("crew-drawer-toggle");
+      const opening = !panel.classList.contains("open");
+      panel.classList.toggle("open", opening);
+      panel.setAttribute("aria-hidden", String(!opening));
+      button.textContent = opening ? "⌃" : "⌄";
+      button.setAttribute("aria-expanded", String(opening));
+      button.setAttribute("aria-label", opening ? "Nascondi equipaggio" : "Mostra equipaggio");
+      document.body.classList.toggle("crew-drawer-open", opening);
+      document.body.classList.toggle("crew-drawer-main", opening && dayPanelPlacement !== "coverage");
+      document.body.classList.toggle("crew-drawer-coverage", opening && dayPanelPlacement === "coverage");
+      if (opening) {
+        requestAnimationFrame(() => {
+          updateCrewDrawerOffset();
+          scrollCrewPanelIntoView();
+        });
+      } else {
+        document.documentElement.style.setProperty("--crew-drawer-offset", "0px");
+      }
+    }
+
+    function updateCrewDrawerOffset() {
+      const panel = document.getElementById("day-panel");
+      if (!panel?.classList.contains("open")) return;
+      const height = Math.ceil(panel.getBoundingClientRect().height);
+      document.documentElement.style.setProperty("--crew-drawer-offset", `${height + 12}px`);
+    }
+    window.addEventListener("resize", updateCrewDrawerOffset);
+
+    function pinCrewColleague(residence, id, name, calInfo) {
+      const agents = globalData?.residenze?.[residence] || [];
+      const targetIndex = agents.findIndex(agent =>
+        (id && String(agent.id || "") === String(id)) ||
+        String(agent.agente || "").trim().toLocaleLowerCase("it") === String(name || "").trim().toLocaleLowerCase("it")
+      );
+      if (targetIndex < 0) return;
+      if (currentResidence !== residence) selectResidence(residence);
+      else clearSelection();
+      pinnedAgentIdx = targetIndex;
+      renderTable();
+      if (calInfo) selectDayForPinnedAgent(calInfo);
+      setTimeout(scrollCrewPanelIntoView, 60);
     }
 
     function scrollCrewPanelIntoView() {
-      const target = dayPanelPlacement === "coverage"
-        ? document.querySelector("#coverage-section .coverage-shift-controls")
-        : document.getElementById("day-panel");
-      if (!target) return;
-      const targetTop = target.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ left:window.scrollX, top:targetTop, behavior:"smooth" });
+      const panel = document.getElementById("day-panel");
+      if (!panel) return;
+      panel.scrollTo({ top:0, behavior:"smooth" });
     }
 
     function placeDayPanel(placement) {
@@ -3207,6 +4022,10 @@
       const coverage = document.getElementById("coverage-section");
       if (!panel || !matrix || !coverage) return;
       dayPanelPlacement = placement;
+      if (document.body.classList.contains("crew-drawer-open")) {
+        document.body.classList.toggle("crew-drawer-main", placement !== "coverage");
+        document.body.classList.toggle("crew-drawer-coverage", placement === "coverage");
+      }
       const target = placement === "coverage"
         ? coverage.querySelector(".coverage-wrap")
         : matrix;
@@ -3233,6 +4052,7 @@
     function openCoverageCrew(col, shift) {
       const cal = dateCalendario.find(item => item.col === col);
       if (!cal) return;
+      clearPinnedAgentSelection();
       placeDayPanel("coverage");
       selectDay(cal.col, cal.labelEstesa, shift);
     }
@@ -3270,38 +4090,25 @@
     }
 
     function selectCoverageResidence(residence) {
-      const previousCol = selectedCol;
-      const previousShift = ottieniTurnoPulito(selectedShiftValue);
       selectResidence(residence);
-      const availableShifts = turniMappaResidenze[String(residence).trim().toLowerCase()] || [];
-      const targetShift = availableShifts.includes(previousShift) ? previousShift : availableShifts[0];
-      const cal = dateCalendario.find(item => item.col === previousCol);
-      if (!cal || !targetShift) return;
-      activeShiftFilter = targetShift;
-      generaFiltriTurnoRiferimento();
-      renderTable();
       placeDayPanel("coverage");
-      selectDay(cal.col, cal.labelEstesa, targetShift);
     }
 
     function changeSelectedDay(direction) {
       const currentIndex = dateCalendario.findIndex(c => c.col === selectedCol);
       const target = dateCalendario[currentIndex + direction];
       if (!target) return;
-      if (pinnedAgentIdx !== null) {
+      if (pinnedAgentIdx !== null && currentAgentsList[pinnedAgentIdx]) {
         selectDayForPinnedAgent(target);
       } else {
         const shift = activeShiftFilter || selectedShiftValue;
+        clearPinnedAgentSelection();
         selectDay(target.col, target.labelEstesa, shift);
       }
       setTimeout(() => revealSelectedDate(target), 90);
     }
 
     function revealSelectedDate(cal) {
-      if (!showPastColumns) {
-        window.scrollTo({ left:0, top:window.scrollY, behavior:"auto" });
-        return;
-      }
       scrollDateColumnIntoView(cal);
     }
 
@@ -3327,6 +4134,7 @@
         ? (direction < 0 ? shifts.length - 1 : 0)
         : (currentIndex + direction + shifts.length) % shifts.length;
       const targetShift = shifts[targetIndex];
+      clearPinnedAgentSelection();
       activeShiftFilter = targetShift;
       generaFiltriTurnoRiferimento();
       selectDay(cal.col, cal.labelEstesa, targetShift);
@@ -3341,10 +4149,11 @@
         return date.getTime() === now.getTime();
       });
       if (!target) return;
-      if (pinnedAgentIdx !== null) {
+      if (pinnedAgentIdx !== null && currentAgentsList[pinnedAgentIdx]) {
         selectDayForPinnedAgent(target);
       } else {
         const shift = activeShiftFilter || selectedShiftValue;
+        clearPinnedAgentSelection();
         selectDay(target.col, target.labelEstesa, shift);
       }
       setTimeout(() => revealSelectedDate(target), 90);
@@ -3355,16 +4164,37 @@
       selectedShiftValue = "";
       selectedCrewAgent = null;
       document.getElementById("day-panel").classList.remove("open");
+      document.getElementById("day-panel").setAttribute("aria-hidden", "true");
+      document.body.classList.remove("crew-drawer-open", "crew-drawer-main", "crew-drawer-coverage");
+      document.documentElement.style.setProperty("--crew-drawer-offset", "0px");
+      const drawerToggle = document.getElementById("crew-drawer-toggle");
+      drawerToggle.hidden = true;
+      drawerToggle.textContent = "⌄";
+      drawerToggle.setAttribute("aria-expanded", "false");
+      drawerToggle.setAttribute("aria-label", "Mostra equipaggio");
       document.getElementById("tbody").classList.remove("has-selection");
       document.querySelectorAll(".date-header th").forEach(t => t.classList.remove("selected-day"));
+      document.querySelectorAll("#tbody td.selected-shared-crew-day").forEach(td => td.classList.remove("selected-shared-crew-day"));
       trElements.forEach(tr => {
         tr.classList.remove("row-match");
+        tr.classList.remove("logged-in-selected-crew");
         tr.querySelectorAll("td").forEach(td => td.classList.remove("col-selected"));
       });
       restoreDefaultTableOrder();
       showPastColumns = false;
       hidePastColumns();
       window.scrollTo({ left:0, top:window.scrollY, behavior:"auto" });
+    }
+
+    function resetCleanTable() {
+      pinnedAgentIdx = null;
+      activeShiftFilter = null;
+      const search = document.getElementById("agent-search");
+      if (search) search.value = "";
+      clearSelection();
+      generaFiltriTurnoRiferimento();
+      renderTable();
+      window.scrollTo({ left:0, top:0, behavior:"smooth" });
     }
 
     function filterAgents(query) {
@@ -3383,13 +4213,12 @@
         if (!confirm("Uscire dalla modalità modifica senza salvare i cambi correnti?")) return;
         toggleEditMode();
       }
+      clearPinnedAgentSelection();
+      clearSelection();
       currentResidence = resName;
-      pinnedAgentIdx = null;
       activeShiftFilter = null;
 
       currentAgentsList = globalData.residenze[resName] || [];
-      const loggedIndex = findLoggedAgentIndex(resName);
-      if (loggedIndex >= 0) pinnedAgentIdx = loggedIndex;
       document.getElementById("stat-residence").textContent = resName;
       document.getElementById("stat-agents").textContent = currentAgentsList.length;
       const search = document.getElementById("agent-search");
@@ -3401,20 +4230,15 @@
       if (currentAgentsList.length > 0) {
         document.getElementById("matrix-scroll-wrap").style.display = "block";
         renderTable();
-        if (selectedCol) {
-          let cal = dateCalendario.find(c => c.col === selectedCol);
-          if (cal) selectDay(selectedCol, cal.labelEstesa, activeShiftFilter || "");
-        }
       } else {
         clearSelection();
       }
     }
 
     function hidePastColumns() {
-      const selectedDate = selectedCol != null
-        ? dateCalendario.find(cal => cal.col === selectedCol)?.realObj
-        : null;
-      const referenceDate = selectedDate ? new Date(selectedDate) : new Date();
+      // Il limite resta sempre oggi: la selezione di una data futura non deve
+      // nascondere le giornate comprese tra oggi e la data selezionata.
+      const referenceDate = new Date();
       referenceDate.setHours(0, 0, 0, 0);
       dateCalendario.forEach(cal => {
         const isPast = cal.realObj < referenceDate;
@@ -3653,11 +4477,10 @@
       buildTableHeader();
       document.getElementById("stat-status").textContent = "Aggiornati";
       document.getElementById("welcome-notice").style.display = "none";
-      document.getElementById("admin-panel").style.display = "flex";
       
       // Aggiorna il periodo nel titolo
       if (data.periodo) {
-        document.getElementById("periodLabel").textContent = data.periodo;
+        document.getElementById("periodLabel").textContent = String(data.periodo).replace(/^.*?\bDAL\b\s*/i, "");
       }
       
       renderResidenceButtons();
@@ -3742,13 +4565,11 @@
     // Se il Google Sheet non risponde, usa l'ultima copia salvata nel browser.
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw38IoMZJ50bun_AL-KjQ7jG4UbMPRKxjr22TXrzpZ_pIM2s9ZqOR0LYFXgC007Yc0PpQ/exec";
 
-    async function caricaDatiDaGoogleSheet() {
+    async function caricaDatiDaGoogleSheet(force = false) {
       try {
-        const response = await fetch(GOOGLE_SCRIPT_URL + "?t=" + Date.now());
-        if (!response.ok) throw new Error(`Errore HTTP: ${response.status}`);
-        const datiJson = await response.json();
+        const datiJson = await NaviSharedData.load(GOOGLE_SCRIPT_URL, { force });
         processJSONData(datiJson);
-        localStorage.setItem("turno_finali_data", JSON.stringify(datiJson));
+        document.getElementById("turniMenuStatus").textContent = NaviSharedData.source() === "network" ? "Aggiornato" : "Locale";
         document.getElementById("upload-status").textContent = "✅ Dati caricati dal Foglio Google — " + new Date().toLocaleTimeString("it-IT");
         setTimeout(scrollToToday, 80);
       } catch (errore) {
@@ -3778,13 +4599,34 @@
       btn.textContent = "🔄 Aggiorno...";
       btn.disabled = true;
       localStorage.removeItem("turno_finali_data");
-      caricaDatiDaGoogleSheet().finally(() => {
+      NaviSharedData.clear();
+      caricaDatiDaGoogleSheet(true).finally(() => {
         btn.textContent = testoOriginale;
         btn.disabled = false;
       });
     }
 
     window.addEventListener("DOMContentLoaded", () => {
+      const dayPanel = document.getElementById("day-panel");
+      dayPanel.classList.remove("open");
+      dayPanel.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("crew-drawer-open", "crew-drawer-main", "crew-drawer-coverage");
+      document.documentElement.style.setProperty("--crew-drawer-offset", "0px");
+      const drawerToggle = document.getElementById("crew-drawer-toggle");
+      drawerToggle.hidden = true;
+      drawerToggle.textContent = "⌄";
+      drawerToggle.setAttribute("aria-expanded", "false");
+      const menuButton = document.getElementById("turni-menu-button");
+      menuButton.addEventListener("click", () => {
+        const open = document.body.classList.toggle("turni-menu-open");
+        menuButton.setAttribute("aria-expanded", String(open));
+      });
+      document.getElementById("turni-sidebar").addEventListener("click", event => {
+        if (event.target.closest("a") && window.innerWidth <= 800) {
+          document.body.classList.remove("turni-menu-open");
+          menuButton.setAttribute("aria-expanded", "false");
+        }
+      });
       setupSynchronizedTableScrolls();
       caricaDatiDaGoogleSheet();
     });
